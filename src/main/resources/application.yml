@@ -30,39 +30,15 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
-        - urlPattern: /api/auth/login
+        - urlPattern: /api/v1/users/login-customer
           method: POST
-        - urlPattern: /api/auth/sign-up
+        - urlPattern: /api/v1/users/login-admin
           method: POST
-        - urlPattern: /api/colors
-          method: GET
-        - urlPattern: /api/categories
-          method: GET
-        - urlPattern: /api/products/search
-          method: GET
+        - urlPattern: /api/v1/users/login-staff
+          method: POST
+        - urlPattern: /api/v1/users/register-customer
+          method: POST
       protectedUrls:
-        - urlPattern: /api/orders/my-order
-          roles:
-            - USER
-        - urlPattern: /api/shipping-infos/my-shipping-infos
-          roles:
-            - USER
-        - urlPattern: /api/carts/my-carts
-          roles:
-            - USER
-        - urlPattern: /api/carts/**
+        - urlPattern: /api/v1/users/register
           roles:
             - ADMIN
-            - MODERATOR
-        - urlPattern: /api/colors/**
-          roles:
-            - ADMIN
-            - MODERATOR
-        - urlPattern: /api/categories/**
-          roles:
-            - ADMIN
-            - MODERATOR
-        - urlPattern: /api/products/**
-          roles:
-            - ADMIN
-            - MODERATOR

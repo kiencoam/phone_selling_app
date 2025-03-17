@@ -2,6 +2,7 @@ package hust.phone_selling_app.core.domain.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class CreateCustomerRequestDto {
+public class CreateUserRequestDto {
 
     @Email(message = "Email is invalid")
     private String email;
@@ -24,4 +25,8 @@ public class CreateCustomerRequestDto {
 
     @Pattern(regexp = "^.{8,}$", message = "Password must be at least 8 characters")
     private String password;
+
+    @NotNull(message = "Role is required")
+    private Long roleId;
+
 }
