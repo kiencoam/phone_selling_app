@@ -34,4 +34,11 @@ public class UserAdapter implements IUserPort {
         return UserMapper.INSTANCE.toEntity(model);
     }
 
+    @Override
+    public UserEntity update(UserEntity userEntity) {
+        UserModel model = UserMapper.INSTANCE.toModel(userEntity);
+        model = userRepository.save(model);
+        return UserMapper.INSTANCE.toEntity(model);
+    }
+
 }

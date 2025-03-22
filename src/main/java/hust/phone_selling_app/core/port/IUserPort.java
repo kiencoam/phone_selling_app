@@ -10,4 +10,6 @@ public interface IUserPort {
 
     public UserEntity findById(Long id);
 
+    public UserEntity update(UserEntity userEntity);
+
 }

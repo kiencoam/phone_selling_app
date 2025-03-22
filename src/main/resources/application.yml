@@ -30,15 +30,28 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
-        - urlPattern: /api/v1/users/login-customer
+        - urlPattern: /api/v1/personal/login-customer
           method: POST
-        - urlPattern: /api/v1/users/login-admin
+        - urlPattern: /api/v1/personal/login-admin
           method: POST
-        - urlPattern: /api/v1/users/login-staff
+        - urlPattern: /api/v1/personal/login-staff
           method: POST
-        - urlPattern: /api/v1/users/register-customer
+        - urlPattern: /api/v1/personal/register-customer
           method: POST
       protectedUrls:
-        - urlPattern: /api/v1/users/register
+        - urlPattern: /api/v1/personal/rename
+          roles:
+            - CUSTOMER
+            - ADMIN
+            - STAFF
+        - urlPattern: /api/v1/personal/change-password
+          roles:
+            - CUSTOMER
+            - ADMIN
+            - STAFF
+        - urlPattern: /api/v1/users/**
           roles:
             - ADMIN
+        - urlPattern: /api/v1/shipping-infos/**
+          roles:
+            - CUSTOMER

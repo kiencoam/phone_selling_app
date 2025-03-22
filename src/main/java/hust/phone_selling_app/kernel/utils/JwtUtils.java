@@ -86,4 +86,19 @@ public class JwtUtils {
         return extractClaim(token, JWTClaimsSet::getExpirationTime);
     }
 
+    public Long extractUserId(String token) {
+        return Long.parseLong(extractClaim(token, JWTClaimsSet::getSubject));
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> {
+            try {
+                return claims.getStringClaim("scope");
+            } catch (ParseException e) {
+                log.error("Error when extract role from token, {}", e.getMessage());
+                throw new AppException(ErrorCode.INVALID_TOKEN);
+            }
+        });
+    }
+
 }

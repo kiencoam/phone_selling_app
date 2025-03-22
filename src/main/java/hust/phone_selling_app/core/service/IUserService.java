@@ -14,4 +14,8 @@ public interface IUserService {
 
     public LogInResponseDTO logIn(LogInRequestDTO request, String roleCode);
 
+    public UserEntity rename(String newFullName, Long userId);
+
+    public UserEntity changePassword(String newPassword, String oldPassword, Long userId);
+
 }

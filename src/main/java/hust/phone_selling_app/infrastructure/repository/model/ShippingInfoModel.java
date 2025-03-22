@@ -12,32 +12,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-@Builder
 @Entity
-@Table(name = "users")
-public class UserModel extends AuditTable {
+@Table(name = "shipping_infos")
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@Builder
+public class ShippingInfoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "full_name")
-    private String fullName;
+    @Column(name = "customer_id")
+    private Long customerId;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "phone")
+    private String phone;
 
-    @Column(name = "password")
-    private String password;
+    @Column(name = "address")
+    private String address;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
-
-    @Column(name = "role_id")
-    private Long roleId;
+    @Column(name = "receive_name")
+    private String receiveName;
 
 }

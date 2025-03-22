@@ -30,19 +30,19 @@ public class LogInUsecase {
 
         if (user == null) {
             log.info("Email {} is not existed", request.getEmail());
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.info("Password is not correct");
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
         RoleEntity role = rolePort.findById(user.getRole().getId());
         user.setRole(role);
         if (!role.getCode().equals(roleCode)) {
             log.info("Role is not correct");
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.info("Password is not correct");
+            throw new AppException(ErrorCode.INCORRECT_PASSWORD);
         }
 
         return new LogInResponseDTO(jwtUtils.generateToken(user));

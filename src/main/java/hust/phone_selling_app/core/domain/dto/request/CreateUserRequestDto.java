@@ -23,7 +23,8 @@ public class CreateUserRequestDto {
     @NotBlank(message = "Full name is required")
     private String fullName;
 
-    @Pattern(regexp = "^.{8,}$", message = "Password must be at least 8 characters")
+    @NotNull(message = "Password cannot be null")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$", message = "Password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, and one number")
     private String password;
 
     @NotNull(message = "Role is required")

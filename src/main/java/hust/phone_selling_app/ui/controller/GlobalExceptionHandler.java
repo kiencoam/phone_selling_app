@@ -1,6 +1,7 @@
 package hust.phone_selling_app.ui.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -35,6 +36,23 @@ public class GlobalExceptionHandler {
                 .status(errorCode.getHttpStatusCode())
                 .body(Resource.builder()
                         .meta(new MetaResource(errorCode.getCode(), errorCode.getMessage()))
+                        .build());
+    }
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity<Resource<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.error("Method argument not valid: {}", e.getMessage());
+        ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
+
+        String message = e.getMessage();
+        int start = message.lastIndexOf("[") + 1;
+        int end = message.lastIndexOf("]") - 1;
+        message = message.substring(start, end);
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatusCode())
+                .body(Resource.builder()
+                        .meta(new MetaResource(errorCode.getCode(), message))
                         .build());
     }
 
