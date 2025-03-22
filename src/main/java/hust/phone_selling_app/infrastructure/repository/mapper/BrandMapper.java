@@ -8,7 +8,7 @@ import hust.phone_selling_app.core.domain.entity.ImageEntity;
 import hust.phone_selling_app.infrastructure.repository.model.BrandModel;
 
 @Mapper
-public class BrandMapper {
+public abstract class BrandMapper {
 
     public static final BrandMapper INSTANCE = Mappers.getMapper(BrandMapper.class);
 

@@ -66,3 +66,6 @@ app:
         - urlPattern: /api/v1/brands/**
           roles:
             - STAFF
+        - urlPattern: /api/v1/categories/**
+          roles:
+            - STAFF
