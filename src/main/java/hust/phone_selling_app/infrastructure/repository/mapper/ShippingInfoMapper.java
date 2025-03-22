@@ -9,7 +9,7 @@ import hust.phone_selling_app.infrastructure.repository.model.ShippingInfoModel;
 @Mapper
 public abstract class ShippingInfoMapper {
 
-    public static ShippingInfoMapper INSTANCE = Mappers.getMapper(ShippingInfoMapper.class);
+    public static final ShippingInfoMapper INSTANCE = Mappers.getMapper(ShippingInfoMapper.class);
 
     public abstract ShippingInfoEntity toEntity(ShippingInfoModel model);
 

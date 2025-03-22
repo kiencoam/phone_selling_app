@@ -9,7 +9,7 @@ import hust.phone_selling_app.core.domain.entity.ShippingInfoEntity;
 @Mapper
 public abstract class ShippingInfoMapper {
 
-    public static ShippingInfoMapper INSTANCE = Mappers.getMapper(ShippingInfoMapper.class);
+    public static final ShippingInfoMapper INSTANCE = Mappers.getMapper(ShippingInfoMapper.class);
 
     public abstract ShippingInfoEntity toEntity(CreateShippingInfoRequestDto dto);
 

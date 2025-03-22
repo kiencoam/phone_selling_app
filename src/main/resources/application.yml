@@ -12,6 +12,11 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  data:
+    mongodb:
+      uri: mongodb+srv://kienpham1392004:1392004kien@cluster0.byk8u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      database: phone_selling_app
+
 app:
   service:
     cors:
@@ -55,3 +60,6 @@ app:
         - urlPattern: /api/v1/shipping-infos/**
           roles:
             - CUSTOMER
+        - urlPattern: /api/v1/images/**
+          roles:
+            - STAFF
