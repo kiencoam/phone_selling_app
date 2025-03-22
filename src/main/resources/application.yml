@@ -63,3 +63,6 @@ app:
         - urlPattern: /api/v1/images/**
           roles:
             - STAFF
+        - urlPattern: /api/v1/brands/**
+          roles:
+            - STAFF
