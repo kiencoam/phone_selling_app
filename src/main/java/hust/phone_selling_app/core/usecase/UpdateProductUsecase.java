@@ -64,4 +64,17 @@ public class UpdateProductUsecase {
         return product;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ProductEntity updateStatus(Long id, String newStatus) {
+        log.info("[UpdateProductUsecase] Update product status with id: {}", id);
+
+        ProductEntity product = productPort.findById(id);
+        product.setStatus(newStatus);
+
+        // Chuyen tat ca trang thai cua Variant ve INACTIVE neu trang thai moi cua
+        // Product la INACTIVE
+
+        return productPort.save(product);
+    }
+
 }

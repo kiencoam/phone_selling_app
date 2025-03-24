@@ -20,6 +20,8 @@ public enum ErrorCode {
     INVALID_REQUEST(100013, "Invalid request", HttpStatus.BAD_REQUEST),
     INCORRECT_PASSWORD(100014, "Incorrect password", HttpStatus.BAD_REQUEST),
     SHIPPING_INFO_NOT_FOUND(100015, "Shipping info is not found", HttpStatus.NOT_FOUND),
+    OPTIMISTIC_LOCKING_FAILURE(100016, "Conflict detected, please try again", HttpStatus.CONFLICT),
+    NOT_ENOUGH_AVAILABLE(100017, "Not enough available", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

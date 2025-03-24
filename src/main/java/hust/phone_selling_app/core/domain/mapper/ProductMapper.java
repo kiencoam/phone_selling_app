@@ -20,7 +20,7 @@ public class ProductMapper {
                 .code(dto.getCode())
                 .description(dto.getDescription())
                 .basePrice(dto.getBasePrice())
-                .status(ProductStatus.ACTIVE.value())
+                .status(ProductStatus.INACTIVE.value())
                 .productLine(ProductLineEntity.builder().id(dto.getProductLineId()).build())
                 .build();
     }
@@ -31,7 +31,6 @@ public class ProductMapper {
                 .code(dto.getCode())
                 .description(dto.getDescription())
                 .basePrice(dto.getBasePrice())
-                .status(ProductStatus.ACTIVE.value())
                 .build();
     }
 
