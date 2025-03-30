@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-@Tag(name = "API Quản lý nhãn hàng")
+@Tag(name = "API Quản lý nhãn hàng", description = "Phân quyền: STAFF")
 public class BrandController {
 
     private final BrandServiceFacade brandServiceFacade;
@@ -64,7 +64,7 @@ public class BrandController {
         return ResponseEntity.ok(new Resource<>(brand));
     }
 
-    @Operation(summary = "Tạo mới nhãn hàng")
+    @Operation(summary = "Tạo mới nhãn hàng", description = "Lưu ý: Trong trường image chỉ chứa duy nhất base64, không chứa id")
     @PostMapping("")
     public ResponseEntity<Resource<BrandDTO>> createBrand(
             @Valid @RequestBody BrandCreationForm form) {
@@ -80,13 +80,14 @@ public class BrandController {
         return ResponseEntity.ok(new Resource<>(savedBrand));
     }
 
-    @Operation(summary = "Cập nhật nhãn hàng")
+    @Operation(summary = "Cập nhật nhãn hàng", description = "Lưu ý: Nếu muốn thay ảnh thì bỏ trường id trong image (Tương tự như tao mới nhãn hàng)")
     @PutMapping()
     public ResponseEntity<Resource<BrandDTO>> updateBrand(
-            @Valid @RequestBody BrandCreationForm form) {
+            @Valid @RequestBody BrandUpdateForm form) {
         log.info("Updating brand with name: {}", form.getName());
 
         Brand brand = Brand.builder()
+                .id(form.getId())
                 .name(form.getName())
                 .build();
 

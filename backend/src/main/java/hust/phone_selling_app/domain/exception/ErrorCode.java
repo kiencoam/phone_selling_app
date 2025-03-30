@@ -28,6 +28,9 @@ public enum ErrorCode {
     IMAGE_NOT_FOUND(100020, "Image not found", HttpStatus.INTERNAL_SERVER_ERROR),
     CATEGORY_NOT_FOUND(100021, "Category not found", HttpStatus.NOT_FOUND),
     USER_ALREADY_EXISTS(100022, "User already exists", HttpStatus.BAD_REQUEST),
+    PRODUCT_LINE_ALREADY_EXISTS(100023, "Product line already exists", HttpStatus.BAD_REQUEST),
+    PRODUCT_LINE_NOT_FOUND(100024, "Product line not found", HttpStatus.NOT_FOUND),
+    INVALID_SEARCH_CRITERIA(100025, "Invalid search criteria", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

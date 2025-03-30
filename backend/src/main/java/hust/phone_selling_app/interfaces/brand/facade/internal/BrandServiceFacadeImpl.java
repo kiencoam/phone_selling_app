@@ -36,7 +36,13 @@ public class BrandServiceFacadeImpl implements BrandServiceFacade {
 
     @Override
     public void delete(Long id) {
-        brandService.deleteBrand(id);
+        Brand brand = brandRepository.findById(id);
+        if (brand == null) {
+            log.error("Brand not found with id: {}", id);
+            throw new AppException(ErrorCode.BRAND_NOT_FOUND);
+        }
+
+        brandService.deleteBrand(brand);
     }
 
     @Override
@@ -65,18 +71,18 @@ public class BrandServiceFacadeImpl implements BrandServiceFacade {
     public List<BrandDTO> findAll() {
         List<Brand> brands = brandRepository.findAll();
         List<BrandDTO> brandDTOs = brands.stream()
-                .map(BrandAssembler::toDTO)
+                .map(brand -> {
+                    BrandDTO brandDTO = BrandAssembler.toDTO(brand);
+                    Image image = imageRepository.findById(brand.getImageId());
+                    if (image == null) {
+                        log.error("Image not found for brand with id: {}", brand.getId());
+                        brandDTO.setImage(null);
+                    } else {
+                        brandDTO.setImage(image);
+                    }
+                    return brandDTO;
+                })
                 .toList();
-
-        for (BrandDTO brandDTO : brandDTOs) {
-            Image image = imageRepository.findById(brandDTO.getImage().getId());
-            if (image == null) {
-                log.error("Image not found for brand with id: {}", brandDTO.getId());
-                brandDTO.setImage(null);
-            } else {
-                brandDTO.setImage(image);
-            }
-        }
 
         return brandDTOs;
     }
@@ -85,18 +91,18 @@ public class BrandServiceFacadeImpl implements BrandServiceFacade {
     public List<BrandDTO> findByName(String name) {
         List<Brand> brands = brandRepository.search(name);
         List<BrandDTO> brandDTOs = brands.stream()
-                .map(BrandAssembler::toDTO)
+                .map(brand -> {
+                    BrandDTO brandDTO = BrandAssembler.toDTO(brand);
+                    Image image = imageRepository.findById(brand.getImageId());
+                    if (image == null) {
+                        log.error("Image not found for brand with id: {}", brand.getId());
+                        brandDTO.setImage(null);
+                    } else {
+                        brandDTO.setImage(image);
+                    }
+                    return brandDTO;
+                })
                 .toList();
-
-        for (BrandDTO brandDTO : brandDTOs) {
-            Image image = imageRepository.findById(brandDTO.getImage().getId());
-            if (image == null) {
-                log.error("Image not found for brand with id: {}", brandDTO.getId());
-                brandDTO.setImage(null);
-            } else {
-                brandDTO.setImage(image);
-            }
-        }
 
         return brandDTOs;
     }

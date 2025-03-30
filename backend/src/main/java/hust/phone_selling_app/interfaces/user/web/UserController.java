@@ -26,6 +26,8 @@ import hust.phone_selling_app.infrastructure.utils.JwtUtils;
 import hust.phone_selling_app.interfaces.resource.Resource;
 import hust.phone_selling_app.interfaces.user.facade.UserServiceFacade;
 import hust.phone_selling_app.interfaces.user.facade.dto.UserDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
+@Tag(name = "API Quản lý tài khoản")
 public class UserController {
 
     private final UserServiceFacade userServiceFacade;
@@ -42,6 +45,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
 
+    @Operation(summary = "Tạo tài khoản mới", description = "Phân quyền: ADMIN")
     @PostMapping("admin")
     public ResponseEntity<Resource<UserDTO>> createUser(@Valid @RequestBody UserCreationForm form) {
         log.info("Creating user: {}", form.getEmail());
@@ -59,6 +63,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(createdUser));
     }
 
+    @Operation(summary = "Thay đổi thông tin tài khoản", description = "Phân quyền: ADMIN")
     @PutMapping("admin")
     public ResponseEntity<Resource<UserDTO>> updateUser(@Valid @RequestBody UserUpdateForm form) {
         log.info("Updating user: {}", form.getId());
@@ -77,6 +82,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(updatedUser));
     }
 
+    @Operation(summary = "Cập nhật mật khẩu tài khoản cá nhân", description = "Phân quyền: ADMIN, STAFF, CUSTOMER")
     @PutMapping("personal/change-password")
     public ResponseEntity<Resource<UserDTO>> updatePassword(
             @Valid @RequestBody PasswordChangeForm form,
@@ -99,6 +105,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(updatedUser));
     }
 
+    @Operation(summary = "Thay đổi trạng thái tài khoản", description = "Phân quyền: ADMIN")
     @PutMapping("admin/change-status")
     public ResponseEntity<Resource<UserDTO>> updateStatus(
             @Valid @RequestBody StatusChangeForm form) {
@@ -116,6 +123,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(updatedUser));
     }
 
+    @Operation(summary = "Thay đổi tên tài khoản cá nhân", description = "Phân quyền: ADMIN, STAFF, CUSTOMER")
     @PutMapping("personal/rename")
     public ResponseEntity<Resource<UserDTO>> renameUser(
             @Valid @RequestBody RenameForm form,
@@ -138,6 +146,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(updatedUser));
     }
 
+    @Operation(summary = "Thêm mới địa chỉ giao hàng", description = "Phân quyền: CUSTOMER")
     @PostMapping("shipping-info")
     public ResponseEntity<Resource<ShippingInfo>> createShippingInfo(
             @Valid @RequestBody ShippingInfoAddForm form,
@@ -158,6 +167,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(shippingInfo));
     }
 
+    @Operation(summary = "Sửa địa chỉ giao hàng", description = "Phân quyền: CUSTOMER")
     @PutMapping("shipping-info")
     public ResponseEntity<Resource<ShippingInfo>> updateShippingInfo(
             @Valid @RequestBody ShippingInfoUpdateForm form,
@@ -180,6 +190,7 @@ public class UserController {
 
     }
 
+    @Operation(summary = "Xóa địa chỉ giao hàng", description = "Phân quyền: CUSTOMER")
     @DeleteMapping("shipping-info/{shippingInfoId}")
     public ResponseEntity<Resource<?>> deleteShippingInfo(
             @PathVariable Long shippingInfoId,
@@ -194,6 +205,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(null));
     }
 
+    @Operation(summary = "Lấy danh sách địa chỉ giao hàng", description = "Phân quyền: CUSTOMER")
     @GetMapping("shipping-info")
     public ResponseEntity<Resource<List<ShippingInfo>>> getShippingInfo(
             @RequestHeader("Authorization") String token) {
@@ -210,6 +222,7 @@ public class UserController {
 
     }
 
+    @Operation(summary = "Lấy thông tin tài khoản", description = "Phân quyền: ADMIN")
     @GetMapping("admin/{id}")
     public ResponseEntity<Resource<UserDTO>> getUserById(@PathVariable Long id) {
         log.info("Getting user by id {}", id);
@@ -219,6 +232,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(userDTO));
     }
 
+    @Operation(summary = "Xóa tài khoản", description = "Phân quyền: ADMIN")
     @DeleteMapping("admin/{id}")
     public ResponseEntity<Resource<?>> deleteUser(@PathVariable Long id) {
         log.info("Deleting user {}", id);
@@ -228,6 +242,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(null));
     }
 
+    @Operation(summary = "Lấy thông tin tài khoản cá nhân", description = "Phân quyền: ADMIN, STAFF, CUSTOMER")
     @GetMapping("personal")
     public ResponseEntity<Resource<UserDTO>> getPersonalInfo(
             @RequestHeader("Authorization") String token) {
@@ -241,6 +256,7 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(userDTO));
     }
 
+    @Operation(summary = "Tìm kiếm tài khoản", description = "Phân quyền: ADMIN")
     @GetMapping("admin/search")
     public ResponseEntity<Resource<Page<UserDTO>>> searchUser(
             @RequestParam(required = true) Long roleId,

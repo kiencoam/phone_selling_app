@@ -28,7 +28,12 @@ public class CategoryServiceFacadeImpl implements CategoryServiceFacade {
 
     @Override
     public void delete(Long id) {
-        categoryService.deleteCategory(id);
+        Category category = categoryRepository.findById(id);
+        if (category == null) {
+            log.info("Category with id {} not found", id);
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+        categoryService.deleteCategory(category);
     }
 
     @Override

@@ -7,6 +7,6 @@ public interface BrandService {
 
     Brand createBrand(Brand brand, Image image);
 
-    void deleteBrand(Long id);
+    void deleteBrand(Brand brand);
 
 }
