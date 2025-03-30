@@ -6,9 +6,7 @@
 
 Để tải repo:
 ```bash
-git init
-git remote add origin https://github.com/kiencoam/phone_selling_app.git
-git pull origin master
+git clone https://github.com/kiencoam/phone_selling_app.git
 ```
 
 # API Docs
