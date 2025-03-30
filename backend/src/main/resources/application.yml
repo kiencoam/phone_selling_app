@@ -35,37 +35,43 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
-        - urlPattern: /api/v1/personal/login-customer
-          method: POST
-        - urlPattern: /api/v1/personal/login-admin
-          method: POST
-        - urlPattern: /api/v1/personal/login-staff
-          method: POST
-        - urlPattern: /api/v1/personal/register-customer
+        - urlPattern: "/v2/api-docs"
+          method: GET
+        - urlPattern: "/v3/api-docs"
+          method: GET
+        - urlPattern: "/v3/api-docs/**"
+          method: GET
+        - urlPattern: "/swagger-resources"
+          method: GET
+        - urlPattern: "/swagger-resources/**"
+          method: GET
+        - urlPattern: "/configuration/ui"
+          method: GET
+        - urlPattern: "/configuration/security"
+          method: GET
+        - urlPattern: "/swagger-ui/**"
+          method: GET
+        - urlPattern: "/webjars/**"
+          method: GET
+        - urlPattern: "/swagger-ui.html"
+          method: GET
+        - urlPattern: /api/v1/auth/**
           method: POST
       protectedUrls:
-        - urlPattern: /api/v1/personal/rename
+        - urlPattern: /api/v1/user/shipping-info/**
+          roles:
+            - CUSTOMER
+        - urlPattern: /api/v1/user/personal/**
           roles:
             - CUSTOMER
             - ADMIN
             - STAFF
-        - urlPattern: /api/v1/personal/change-password
-          roles:
-            - CUSTOMER
-            - ADMIN
-            - STAFF
-        - urlPattern: /api/v1/users/**
+        - urlPattern: /api/v1/user/admin/**
           roles:
             - ADMIN
-        - urlPattern: /api/v1/shipping-infos/**
-          roles:
-            - CUSTOMER
-        - urlPattern: /api/v1/images/**
+        - urlPattern: /api/v1/brand/**
           roles:
             - STAFF
-        - urlPattern: /api/v1/brands/**
-          roles:
-            - STAFF
-        - urlPattern: /api/v1/categories/**
+        - urlPattern: /api/v1/category/**
           roles:
             - STAFF
