@@ -75,3 +75,9 @@ app:
         - urlPattern: /api/v1/category/**
           roles:
             - STAFF
+        - urlPattern: /api/v1/product-line/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/image/**
+          roles:
+            - STAFF

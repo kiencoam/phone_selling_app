@@ -17,10 +17,10 @@ public class AuditTable {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private Instant created_at;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Instant updated_at;
+    private Instant updatedAt;
 
 }

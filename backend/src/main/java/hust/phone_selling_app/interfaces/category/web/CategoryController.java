@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-@Tag(name = "API Quản lý danh mục sản phẩm")
+@Tag(name = "API Quản lý danh mục sản phẩm", description = "Phân quyền: STAFF")
 public class CategoryController {
 
     private final CategoryServiceFacade categoryServiceFacade;

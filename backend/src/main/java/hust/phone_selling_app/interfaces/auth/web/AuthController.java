@@ -36,6 +36,7 @@ public class AuthController {
         return ResponseEntity.ok(new Resource<>(data));
     }
 
+    @Operation(summary = "Đăng nhập tài khoản khách hàng")
     @PostMapping("/customer-login")
     public ResponseEntity<Resource<ResponseData>> loginCustomer(
             @Valid @RequestBody CustomerLoginForm form) {
@@ -46,6 +47,7 @@ public class AuthController {
         return ResponseEntity.ok(new Resource<>(data));
     }
 
+    @Operation(summary = "Đăng nhập tài khoản nhân viên")
     @PostMapping("/staff-login")
     public ResponseEntity<Resource<ResponseData>> loginStaff(
             @Valid @RequestBody StaffLoginForm form) {
@@ -56,6 +58,7 @@ public class AuthController {
         return ResponseEntity.ok(new Resource<>(data));
     }
 
+    @Operation(summary = "Đăng nhập tài khoản quản trị viên")
     @PostMapping("/admin-login")
     public ResponseEntity<Resource<ResponseData>> loginAdmin(
             @Valid @RequestBody AdminLoginForm form) {
