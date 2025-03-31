@@ -13,7 +13,7 @@ import hust.phone_selling_app.domain.exception.AppException;
 import hust.phone_selling_app.domain.exception.ErrorCode;
 import hust.phone_selling_app.domain.productline.ProductLine;
 import hust.phone_selling_app.domain.productline.ProductLineRepository;
-import hust.phone_selling_app.domain.shared.SearchCriteria;
+import hust.phone_selling_app.domain.shared.LineSearchCriteria;
 import hust.phone_selling_app.interfaces.productline.facade.ProductLineServiceFacade;
 import hust.phone_selling_app.interfaces.productline.facade.dto.ProductLineDTO;
 import hust.phone_selling_app.interfaces.productline.facade.internal.assembler.ProductLineAssembler;
@@ -116,7 +116,7 @@ public class ProductLineServiceFacadeImpl implements ProductLineServiceFacade {
     }
 
     @Override
-    public Page<ProductLineDTO> search(SearchCriteria searchCriteria) {
+    public Page<ProductLineDTO> search(LineSearchCriteria searchCriteria) {
         Page<ProductLine> productLines;
 
         try {

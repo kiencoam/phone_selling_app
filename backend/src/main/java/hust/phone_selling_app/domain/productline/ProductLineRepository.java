@@ -2,7 +2,7 @@ package hust.phone_selling_app.domain.productline;
 
 import org.springframework.data.domain.Page;
 
-import hust.phone_selling_app.domain.shared.SearchCriteria;
+import hust.phone_selling_app.domain.shared.LineSearchCriteria;
 
 public interface ProductLineRepository {
 
@@ -14,6 +14,6 @@ public interface ProductLineRepository {
 
     public ProductLine findByCode(String code);
 
-    public Page<ProductLine> search(SearchCriteria criteria);
+    public Page<ProductLine> search(LineSearchCriteria criteria);
 
 }

@@ -1,9 +1,11 @@
 package hust.phone_selling_app.interfaces.exceptionhandler;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import hust.phone_selling_app.domain.exception.AppException;
 import hust.phone_selling_app.domain.exception.ErrorCode;
@@ -15,45 +17,74 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = AppException.class)
-    public ResponseEntity<Resource<?>> handleAppException(AppException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        log.error("Error code: {}, message: {}", errorCode.getCode(), errorCode.getMessage());
+        @ExceptionHandler(value = AppException.class)
+        public ResponseEntity<Resource<?>> handleAppException(AppException e) {
+                ErrorCode errorCode = e.getErrorCode();
+                log.error("Error code: {}, message: {}", errorCode.getCode(), errorCode.getMessage());
 
-        return ResponseEntity
-                .status(errorCode.getHttpStatusCode())
-                .body(Resource.builder()
-                        .meta(new MetaResource(errorCode.getCode(), errorCode.getMessage()))
-                        .build());
-    }
+                return ResponseEntity
+                                .status(errorCode.getHttpStatusCode())
+                                .body(Resource.builder()
+                                                .meta(new MetaResource(errorCode.getCode(), errorCode.getMessage()))
+                                                .build());
+        }
 
-    @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<Resource<?>> handleRuntimeException(Exception e) {
-        log.error("Unexpected error: {}", e.getMessage(), e);
-        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+        @ExceptionHandler(value = MethodArgumentNotValidException.class)
+        public ResponseEntity<Resource<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+                log.error("Method argument not valid: {}", e.getMessage());
+                ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
 
-        return ResponseEntity
-                .status(errorCode.getHttpStatusCode())
-                .body(Resource.builder()
-                        .meta(new MetaResource(errorCode.getCode(), errorCode.getMessage()))
-                        .build());
-    }
+                String message = e.getMessage();
+                int start = message.lastIndexOf("[") + 1;
+                int end = message.lastIndexOf("]") - 1;
+                message = message.substring(start, end);
 
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<Resource<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("Method argument not valid: {}", e.getMessage());
-        ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
+                return ResponseEntity
+                                .status(errorCode.getHttpStatusCode())
+                                .body(Resource.builder()
+                                                .meta(new MetaResource(errorCode.getCode(), message))
+                                                .build());
+        }
 
-        String message = e.getMessage();
-        int start = message.lastIndexOf("[") + 1;
-        int end = message.lastIndexOf("]") - 1;
-        message = message.substring(start, end);
+        @ExceptionHandler(value = HttpMessageNotReadableException.class)
+        public ResponseEntity<Resource<?>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+                log.error("Message not readable: {}", e.getMessage());
+                ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
 
-        return ResponseEntity
-                .status(errorCode.getHttpStatusCode())
-                .body(Resource.builder()
-                        .meta(new MetaResource(errorCode.getCode(), message))
-                        .build());
-    }
+                String message = e.getMessage();
+
+                return ResponseEntity
+                                .status(errorCode.getHttpStatusCode())
+                                .body(Resource.builder()
+                                                .meta(new MetaResource(errorCode.getCode(), message))
+                                                .build());
+        }
+
+        @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
+        public ResponseEntity<Resource<?>> handleMethodArgumentTypeMismatchException(
+                        MethodArgumentTypeMismatchException e) {
+                log.error("Method argument type mismatch: {}", e.getMessage());
+                ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
+
+                String message = e.getMessage();
+
+                return ResponseEntity
+                                .status(errorCode.getHttpStatusCode())
+                                .body(Resource.builder()
+                                                .meta(new MetaResource(errorCode.getCode(), message))
+                                                .build());
+        }
+
+        @ExceptionHandler(value = Exception.class)
+        public ResponseEntity<Resource<?>> handleRuntimeException(Exception e) {
+                log.error("Unexpected error: {}", e.getMessage(), e);
+                ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+
+                return ResponseEntity
+                                .status(errorCode.getHttpStatusCode())
+                                .body(Resource.builder()
+                                                .meta(new MetaResource(errorCode.getCode(), errorCode.getMessage()))
+                                                .build());
+        }
 
 }

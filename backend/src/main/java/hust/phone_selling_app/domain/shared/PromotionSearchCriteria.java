@@ -1,5 +1,7 @@
 package hust.phone_selling_app.domain.shared;
 
+import java.time.Instant;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class SearchCriteria {
+public class PromotionSearchCriteria {
 
     private Integer page;
 
@@ -29,11 +31,13 @@ public class SearchCriteria {
 
     private Long categoryId;
 
-    private Long brandId;
+    private Long valueFrom;
 
-    private Long priceFrom;
+    private Long valueTo;
 
-    private Long priceTo;
+    private Instant startAfter;
+
+    private Instant endBefore;
 
     public Pageable toPageable() {
         return PageRequest.of(page, size,

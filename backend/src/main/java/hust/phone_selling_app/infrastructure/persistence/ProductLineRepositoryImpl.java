@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import hust.phone_selling_app.domain.productline.ProductLine;
 import hust.phone_selling_app.domain.productline.ProductLineRepository;
-import hust.phone_selling_app.domain.shared.SearchCriteria;
+import hust.phone_selling_app.domain.shared.LineSearchCriteria;
 import hust.phone_selling_app.infrastructure.persistence.assembler.ProductLineAssembler;
 import hust.phone_selling_app.infrastructure.persistence.jpa.ProductLineRepositoryJpa;
 import hust.phone_selling_app.infrastructure.persistence.model.ProductLineModel;
@@ -37,7 +37,7 @@ public class ProductLineRepositoryImpl implements ProductLineRepository {
     }
 
     @Override
-    public Page<ProductLine> search(SearchCriteria criteria) {
+    public Page<ProductLine> search(LineSearchCriteria criteria) {
         Pageable pageable = criteria.toPageable();
 
         Page<ProductLineModel> productLineModels = productLineRepository

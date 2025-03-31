@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import hust.phone_selling_app.domain.productline.ProductLine;
-import hust.phone_selling_app.domain.shared.SearchCriteria;
+import hust.phone_selling_app.domain.shared.LineSearchCriteria;
 import hust.phone_selling_app.interfaces.productline.facade.ProductLineServiceFacade;
 import hust.phone_selling_app.interfaces.productline.facade.dto.ProductLineDTO;
 import hust.phone_selling_app.interfaces.resource.Resource;
@@ -99,7 +99,7 @@ public class ProductLineController {
             @RequestParam(required = false) Long brandId) {
         log.info("Searching product lines");
 
-        SearchCriteria searchCriteria = SearchCriteria.builder()
+        LineSearchCriteria searchCriteria = LineSearchCriteria.builder()
                 .page(page - 1)
                 .size(size)
                 .keyword(keyword)
