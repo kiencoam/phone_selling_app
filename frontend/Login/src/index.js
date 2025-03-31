@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import LoginPage from './LoginPage';
+import AppRouter from './routers/AppRouter'; 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <LoginPage />
+  <React.StrictMode>
+    <AppRouter /> {/* Sử dụng AppRouter để bao bọc các route */}
+  </React.StrictMode>
 );
