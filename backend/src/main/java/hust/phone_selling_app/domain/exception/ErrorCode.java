@@ -32,6 +32,7 @@ public enum ErrorCode {
     PRODUCT_LINE_NOT_FOUND(100024, "Product line not found", HttpStatus.NOT_FOUND),
     INVALID_SEARCH_CRITERIA(100025, "Invalid search criteria", HttpStatus.BAD_REQUEST),
     PROMOTION_NOT_FOUND(100026, "Promotion not found", HttpStatus.NOT_FOUND),
+    ATTRIBUTE_NOT_FOUND(100027, "Attribute not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
