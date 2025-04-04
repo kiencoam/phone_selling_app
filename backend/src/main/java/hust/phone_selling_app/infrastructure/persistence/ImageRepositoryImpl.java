@@ -32,7 +32,9 @@ public class ImageRepositoryImpl implements ImageRepository {
 
     @Override
     public void delete(String imageId) {
-        imageRepository.deleteById(imageId);
+        if (imageId != null) {
+            imageRepository.deleteById(imageId);
+        }
     }
 
     @Override

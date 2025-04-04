@@ -1,5 +1,8 @@
 package hust.phone_selling_app.infrastructure.persistence;
 
+import java.time.Instant;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -41,6 +44,14 @@ public class PromotionRepositoryImpl implements PromotionRepository {
         Pageable pageable = criteria.toPageable();
         var page = promotionRepository.findAll(PromotionSpecification.satisfySearchCriteria(criteria), pageable);
         return page.map(PromotionAssembler::toDomain);
+    }
+
+    @Override
+    public List<Promotion> findInUsePromotionsByCategoryId(Long categoryId) {
+        List<PromotionModel> models = promotionRepository.findActiveByCategoryIdAndDate(categoryId, Instant.now());
+        return models.stream()
+                .map(PromotionAssembler::toDomain)
+                .toList();
     }
 
 }
