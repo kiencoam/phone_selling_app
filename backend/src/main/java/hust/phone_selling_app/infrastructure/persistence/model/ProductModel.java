@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "product_lines")
+@Table(name = "products")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class ProductLineModel extends AuditTable {
+public class ProductModel extends AuditTable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,10 +30,15 @@ public class ProductLineModel extends AuditTable {
     @Column(unique = true, nullable = false)
     private String code;
 
-    @Column(name = "category_id")
-    private Long categoryId;
+    private String description;
 
-    @Column(name = "brand_id")
-    private Long brandId;
+    @Column(name = "base_price")
+    private Long basePrice;
+
+    @Column(name = "image_id")
+    private String imageId;
+
+    @Column(name = "product_line_id", nullable = false)
+    private Long productLineId;
 
 }

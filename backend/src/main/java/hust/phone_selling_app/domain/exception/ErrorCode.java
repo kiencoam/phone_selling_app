@@ -33,6 +33,7 @@ public enum ErrorCode {
     INVALID_SEARCH_CRITERIA(100025, "Invalid search criteria", HttpStatus.BAD_REQUEST),
     PROMOTION_NOT_FOUND(100026, "Promotion not found", HttpStatus.NOT_FOUND),
     ATTRIBUTE_NOT_FOUND(100027, "Attribute not found", HttpStatus.NOT_FOUND),
+    ATTRIBUTE_VALUE_NOT_FOUND(100028, "Attribute value not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
