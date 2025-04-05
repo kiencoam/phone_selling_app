@@ -1,5 +1,6 @@
 package hust.phone_selling_app.interfaces.exceptionhandler;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,6 +39,20 @@ public class GlobalExceptionHandler {
                 int start = message.lastIndexOf("[") + 1;
                 int end = message.lastIndexOf("]") - 1;
                 message = message.substring(start, end);
+
+                return ResponseEntity
+                                .status(errorCode.getHttpStatusCode())
+                                .body(Resource.builder()
+                                                .meta(new MetaResource(errorCode.getCode(), message))
+                                                .build());
+        }
+
+        @ExceptionHandler(value = DataIntegrityViolationException.class)
+        public ResponseEntity<Resource<?>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+                log.error("Data Integrity Violation: {}", e.getMessage());
+                ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
+
+                String message = "Data integrity violation";
 
                 return ResponseEntity
                                 .status(errorCode.getHttpStatusCode())

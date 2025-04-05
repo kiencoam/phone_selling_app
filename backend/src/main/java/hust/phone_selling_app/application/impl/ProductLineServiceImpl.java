@@ -3,6 +3,7 @@ package hust.phone_selling_app.application.impl;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hust.phone_selling_app.application.ProductLineService;
 import hust.phone_selling_app.application.ProductService;
@@ -21,6 +22,7 @@ public class ProductLineServiceImpl implements ProductLineService {
     private final ProductService productService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteProductLine(ProductLine productLine) {
         // Xoa nhung thanh phan lien quan
         // Product

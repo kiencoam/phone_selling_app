@@ -1,5 +1,7 @@
 package hust.phone_selling_app.infrastructure.persistence;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -50,6 +52,18 @@ public class ProductLineRepositoryImpl implements ProductLineRepository {
     public ProductLine findByCode(String code) {
         ProductLineModel productLineModel = productLineRepository.findByCode(code).orElse(null);
         return ProductLineAssembler.toDomain(productLineModel);
+    }
+
+    @Override
+    public List<ProductLine> findByCategoryId(Long categoryId) {
+        List<ProductLineModel> productLineModels = productLineRepository.findByCategoryId(categoryId);
+        return productLineModels.stream().map(ProductLineAssembler::toDomain).toList();
+    }
+
+    @Override
+    public List<ProductLine> findByBrandId(Long brandId) {
+        List<ProductLineModel> productLineModels = productLineRepository.findByBrandId(brandId);
+        return productLineModels.stream().map(ProductLineAssembler::toDomain).toList();
     }
 
 }

@@ -64,7 +64,7 @@ public class BrandController {
         return ResponseEntity.ok(new Resource<>(brand));
     }
 
-    @Operation(summary = "Tạo mới nhãn hàng", description = "Lưu ý: Trong trường image chỉ chứa duy nhất base64, không chứa id")
+    @Operation(summary = "Tạo mới nhãn hàng", description = "Ảnh chỉ cần chứa duy nhất trường base64")
     @PostMapping("")
     public ResponseEntity<Resource<BrandDTO>> createBrand(
             @Valid @RequestBody BrandCreationForm form) {
@@ -80,7 +80,8 @@ public class BrandController {
         return ResponseEntity.ok(new Resource<>(savedBrand));
     }
 
-    @Operation(summary = "Cập nhật nhãn hàng", description = "Lưu ý: Nếu muốn thay ảnh thì bỏ trường id trong image (Tương tự như tao mới nhãn hàng)")
+    @Operation(summary = "Cập nhật nhãn hàng", description = "Nếu là ảnh mới: Chỉ truyền duy nhất trường base64 \n" +
+            "Nếu là ảnh cũ: Chỉ truyền id của ảnh cũ")
     @PutMapping()
     public ResponseEntity<Resource<BrandDTO>> updateBrand(
             @Valid @RequestBody BrandUpdateForm form) {

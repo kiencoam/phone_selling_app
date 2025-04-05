@@ -79,7 +79,7 @@ public class ProductController {
         return ResponseEntity.ok(new Resource<>(catalog));
     }
 
-    @Operation(summary = "Tạo mới mặt hàng")
+    @Operation(summary = "Tạo mới mặt hàng", description = "Ảnh chỉ cần chứa duy nhất trường base64")
     @PostMapping("")
     public ResponseEntity<Resource<ProductDTO>> createProduct(@Valid @RequestBody ProductCreationForm form) {
         log.info("Creating new product with name: {}", form.getName());
@@ -96,7 +96,9 @@ public class ProductController {
         return ResponseEntity.ok(new Resource<>(productDTO));
     }
 
-    @Operation(summary = "Sửa thông tin mặt hàng")
+    @Operation(summary = "Sửa thông tin mặt hàng", description = "Nếu là ảnh mới: Chỉ truyền duy nhất trường base64 \n"
+            +
+            "Nếu là ảnh cũ: Chỉ truyền id của ảnh cũ")
     @PutMapping("")
     public ResponseEntity<Resource<ProductDTO>> updateProduct(@Valid @RequestBody ProductUpdateForm form) {
         log.info("Updating product with ID: {}", form.getId());

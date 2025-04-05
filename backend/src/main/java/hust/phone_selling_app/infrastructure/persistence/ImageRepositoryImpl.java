@@ -27,7 +27,8 @@ public class ImageRepositoryImpl implements ImageRepository {
     public Image save(Image image, Long variantId) {
         ImageModel imageModel = ImageAssembler.toModel(image);
         imageModel.setVariantId(variantId);
-        return ImageAssembler.toDomain(imageRepository.save(imageModel));
+        imageModel = imageRepository.save(imageModel);
+        return ImageAssembler.toDomain(imageModel);
     }
 
     @Override

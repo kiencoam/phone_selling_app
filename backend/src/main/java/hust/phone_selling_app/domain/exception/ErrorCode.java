@@ -34,6 +34,9 @@ public enum ErrorCode {
     PROMOTION_NOT_FOUND(100026, "Promotion not found", HttpStatus.NOT_FOUND),
     ATTRIBUTE_NOT_FOUND(100027, "Attribute not found", HttpStatus.NOT_FOUND),
     ATTRIBUTE_VALUE_NOT_FOUND(100028, "Attribute value not found", HttpStatus.NOT_FOUND),
+    VARIANT_NOT_FOUND(100029, "Variant not found", HttpStatus.NOT_FOUND),
+    BRAND_HAS_PRODUCT_LINE(100030, "Brand has product line", HttpStatus.BAD_REQUEST),
+    CATEGORY_HAS_PRODUCT_LINE(100031, "Category has product line", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

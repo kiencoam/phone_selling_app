@@ -87,3 +87,6 @@ app:
         - urlPattern: /api/v1/product/**
           roles:
             - STAFF
+        - urlPattern: /api/v1/variant/**
+          roles:
+            - STAFF
