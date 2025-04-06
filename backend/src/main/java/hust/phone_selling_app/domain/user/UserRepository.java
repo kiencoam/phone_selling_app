@@ -17,6 +17,8 @@ public interface UserRepository {
 
     public Page<User> findByRoleAndKeyword(Long roleId, String keyword, Pageable pageable);
 
+    public ShippingInfo findShippingInfoById(Long shippingInfoId);
+
     public ShippingInfo addShippingInfo(Long userId, ShippingInfo shippingInfo);
 
     public ShippingInfo updateShippingInfo(Long userId, ShippingInfo shippingInfo);
@@ -28,6 +30,8 @@ public interface UserRepository {
     public CartItem updateCartItem(Long userId, Long variantId, int quantity);
 
     public void removeCartItem(Long userId, Long variantId);
+
+    public void removeCartItemByVariantId(Long variantId);
 
     public List<CartItem> findCartItemsByUserId(Long userId);
 

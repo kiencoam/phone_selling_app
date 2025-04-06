@@ -18,4 +18,6 @@ public interface VariantRepository {
 
     public Inventory sell(Long variantId, Long quantity);
 
+    public Inventory returnItem(Long variantId, Long quantity);
+
 }

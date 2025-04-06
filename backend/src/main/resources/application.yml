@@ -107,3 +107,12 @@ app:
         - urlPattern: /api/v1/variant/**
           roles:
             - STAFF
+        - urlPattern: /api/v1/promotion/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/order/staff/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/order/customer/**
+          roles:
+            - CUSTOMER

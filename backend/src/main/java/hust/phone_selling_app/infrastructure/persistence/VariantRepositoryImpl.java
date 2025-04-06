@@ -114,4 +114,16 @@ public class VariantRepositoryImpl implements VariantRepository {
         return variants;
     }
 
+    @Override
+    public Inventory returnItem(Long variantId, Long quantity) {
+        InventoryModel inventoryModel = inventoryRepository.findByVariantId(variantId).orElse(null);
+        if (inventoryModel == null) {
+            return null;
+        }
+        inventoryModel.setAvailable(inventoryModel.getAvailable() + quantity);
+        inventoryModel.setSold(inventoryModel.getSold() - quantity);
+        inventoryModel = inventoryRepository.save(inventoryModel);
+        return InventoryAssembler.toDomain(inventoryModel);
+    }
+
 }

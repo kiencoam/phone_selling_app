@@ -38,6 +38,9 @@ public enum ErrorCode {
     BRAND_HAS_PRODUCT_LINE(100030, "Brand has product line", HttpStatus.BAD_REQUEST),
     CATEGORY_HAS_PRODUCT_LINE(100031, "Category has product line", HttpStatus.BAD_REQUEST),
     CART_ITEM_NOT_FOUND(100032, "Cart item not found", HttpStatus.NOT_FOUND),
+    CART_EMPTY(100033, "Cart is empty", HttpStatus.BAD_REQUEST),
+    ORDER_STATUS_NOT_VALID(100034, "Order status is not valid", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_FOUND(100035, "Order not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

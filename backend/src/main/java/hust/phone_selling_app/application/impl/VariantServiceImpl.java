@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import hust.phone_selling_app.application.VariantService;
 import hust.phone_selling_app.domain.image.Image;
 import hust.phone_selling_app.domain.image.ImageRepository;
+import hust.phone_selling_app.domain.user.UserRepository;
 import hust.phone_selling_app.domain.variant.Variant;
 import hust.phone_selling_app.domain.variant.VariantRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class VariantServiceImpl implements VariantService {
 
     private final VariantRepository variantRepository;
     private final ImageRepository imageRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -50,6 +52,7 @@ public class VariantServiceImpl implements VariantService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteVariant(Variant variant) {
+        userRepository.removeCartItemByVariantId(variant.getId());
         imageRepository.deleteByVariantId(variant.getId());
         variantRepository.delete(variant.getId());
     }

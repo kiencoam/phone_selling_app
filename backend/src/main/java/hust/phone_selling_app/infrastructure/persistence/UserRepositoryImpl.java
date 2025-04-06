@@ -86,6 +86,12 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public ShippingInfo findShippingInfoById(Long shippingInfoId) {
+        ShippingInfoModel shippingInfoModel = shippingInfoRepository.findById(shippingInfoId).orElse(null);
+        return ShippingInfoAssembler.toDomain(shippingInfoModel);
+    }
+
+    @Override
     public ShippingInfo addShippingInfo(Long userId, ShippingInfo shippingInfo) {
         ShippingInfoModel shippingInfoModel = ShippingInfoAssembler.toModel(shippingInfo);
         shippingInfoModel.setUserId(userId);
@@ -174,6 +180,11 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public void removeCartItemsByUserId(Long userId) {
         cartItemRepository.deleteByUserId(userId);
+    }
+
+    @Override
+    public void removeCartItemByVariantId(Long variantId) {
+        cartItemRepository.deleteByVariantId(variantId);
     }
 
 }

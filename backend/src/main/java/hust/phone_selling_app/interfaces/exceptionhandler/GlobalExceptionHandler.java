@@ -12,6 +12,7 @@ import hust.phone_selling_app.domain.exception.AppException;
 import hust.phone_selling_app.domain.exception.ErrorCode;
 import hust.phone_selling_app.interfaces.resource.MetaResource;
 import hust.phone_selling_app.interfaces.resource.Resource;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
@@ -53,6 +54,20 @@ public class GlobalExceptionHandler {
                 ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
 
                 String message = "Data integrity violation";
+
+                return ResponseEntity
+                                .status(errorCode.getHttpStatusCode())
+                                .body(Resource.builder()
+                                                .meta(new MetaResource(errorCode.getCode(), message))
+                                                .build());
+        }
+
+        @ExceptionHandler(value = ConstraintViolationException.class)
+        public ResponseEntity<Resource<?>> handleConstraintViolationException(ConstraintViolationException e) {
+                log.error("Constraint Violation: {}", e.getMessage());
+                ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
+
+                String message = "Constraint violation";
 
                 return ResponseEntity
                                 .status(errorCode.getHttpStatusCode())
