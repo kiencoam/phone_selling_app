@@ -1,7 +1,5 @@
 package hust.phone_selling_app.domain.user;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,16 +11,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class User {
+public class CartItem {
 
     private Long id;
-    private String fullName;
-    private String email;
-    private String password;
-    private Boolean isActive;
-    private Long roleId;
 
-    private List<ShippingInfo> shippingInfos;
-    private List<CartItem> cartItems;
+    private Long variantId;
+
+    private Integer quantity;
 
 }

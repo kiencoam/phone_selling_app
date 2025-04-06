@@ -37,6 +37,7 @@ public enum ErrorCode {
     VARIANT_NOT_FOUND(100029, "Variant not found", HttpStatus.NOT_FOUND),
     BRAND_HAS_PRODUCT_LINE(100030, "Brand has product line", HttpStatus.BAD_REQUEST),
     CATEGORY_HAS_PRODUCT_LINE(100031, "Category has product line", HttpStatus.BAD_REQUEST),
+    CART_ITEM_NOT_FOUND(100032, "Cart item not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

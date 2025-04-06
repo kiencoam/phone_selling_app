@@ -25,6 +25,7 @@ import hust.phone_selling_app.domain.user.UserRepository;
 import hust.phone_selling_app.infrastructure.utils.JwtUtils;
 import hust.phone_selling_app.interfaces.resource.Resource;
 import hust.phone_selling_app.interfaces.user.facade.UserServiceFacade;
+import hust.phone_selling_app.interfaces.user.facade.dto.CartItemDTO;
 import hust.phone_selling_app.interfaces.user.facade.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -82,6 +83,71 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(updatedUser));
     }
 
+    @Operation(summary = "Thay đổi trạng thái tài khoản", description = "Phân quyền: ADMIN")
+    @PutMapping("admin/change-status")
+    public ResponseEntity<Resource<UserDTO>> updateStatus(
+            @Valid @RequestBody StatusChangeForm form) {
+        log.info("Change status for user {}", form.getId());
+        User user = userRepository.findById(form.getId());
+
+        if (user == null) {
+            log.error("User not found with id: {}", form.getId());
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        user.setIsActive(form.getIsActive());
+        UserDTO updatedUser = userServiceFacade.save(user);
+
+        return ResponseEntity.ok(new Resource<>(updatedUser));
+    }
+
+    @Operation(summary = "Lấy thông tin tài khoản", description = "Phân quyền: ADMIN")
+    @GetMapping("admin/{id}")
+    public ResponseEntity<Resource<UserDTO>> getUserById(@PathVariable Long id) {
+        log.info("Getting user by id {}", id);
+
+        UserDTO userDTO = userServiceFacade.getUserById(id);
+
+        return ResponseEntity.ok(new Resource<>(userDTO));
+    }
+
+    @Operation(summary = "Xóa tài khoản", description = "Phân quyền: ADMIN")
+    @DeleteMapping("admin/{id}")
+    public ResponseEntity<Resource<?>> deleteUser(@PathVariable Long id) {
+        log.info("Deleting user {}", id);
+
+        userServiceFacade.deleteById(id);
+
+        return ResponseEntity.ok(new Resource<>(null));
+    }
+
+    @Operation(summary = "Tìm kiếm tài khoản", description = "Phân quyền: ADMIN")
+    @GetMapping("admin/search")
+    public ResponseEntity<Resource<Page<UserDTO>>> searchUser(
+            @RequestParam(required = true) Long roleId,
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<UserDTO> userPage = userServiceFacade.search(roleId, keyword, page, size);
+
+        return ResponseEntity.ok(new Resource<>(userPage));
+    }
+
+    @Operation(summary = "Lấy thông tin tài khoản cá nhân", description = "Phân quyền: ADMIN, STAFF, CUSTOMER")
+    @GetMapping("personal")
+    public ResponseEntity<Resource<UserDTO>> getPersonalInfo(
+            @RequestHeader("Authorization") String token) {
+        token = token.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+
+        log.info("Getting personal info for user {}", userId);
+
+        UserDTO userDTO = userServiceFacade.getUserById(userId);
+
+        return ResponseEntity.ok(new Resource<>(userDTO));
+    }
+
     @Operation(summary = "Cập nhật mật khẩu tài khoản cá nhân", description = "Phân quyền: ADMIN, STAFF, CUSTOMER")
     @PutMapping("personal/change-password")
     public ResponseEntity<Resource<UserDTO>> updatePassword(
@@ -100,24 +166,6 @@ public class UserController {
         }
 
         user.setPassword(passwordEncoder.encode(form.getNewPassword()));
-        UserDTO updatedUser = userServiceFacade.save(user);
-
-        return ResponseEntity.ok(new Resource<>(updatedUser));
-    }
-
-    @Operation(summary = "Thay đổi trạng thái tài khoản", description = "Phân quyền: ADMIN")
-    @PutMapping("admin/change-status")
-    public ResponseEntity<Resource<UserDTO>> updateStatus(
-            @Valid @RequestBody StatusChangeForm form) {
-        log.info("Change status for user {}", form.getId());
-        User user = userRepository.findById(form.getId());
-
-        if (user == null) {
-            log.error("User not found with id: {}", form.getId());
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-
-        user.setIsActive(form.getIsActive());
         UserDTO updatedUser = userServiceFacade.save(user);
 
         return ResponseEntity.ok(new Resource<>(updatedUser));
@@ -222,51 +270,63 @@ public class UserController {
 
     }
 
-    @Operation(summary = "Lấy thông tin tài khoản", description = "Phân quyền: ADMIN")
-    @GetMapping("admin/{id}")
-    public ResponseEntity<Resource<UserDTO>> getUserById(@PathVariable Long id) {
-        log.info("Getting user by id {}", id);
-
-        UserDTO userDTO = userServiceFacade.getUserById(id);
-
-        return ResponseEntity.ok(new Resource<>(userDTO));
-    }
-
-    @Operation(summary = "Xóa tài khoản", description = "Phân quyền: ADMIN")
-    @DeleteMapping("admin/{id}")
-    public ResponseEntity<Resource<?>> deleteUser(@PathVariable Long id) {
-        log.info("Deleting user {}", id);
-
-        userServiceFacade.deleteById(id);
-
-        return ResponseEntity.ok(new Resource<>(null));
-    }
-
-    @Operation(summary = "Lấy thông tin tài khoản cá nhân", description = "Phân quyền: ADMIN, STAFF, CUSTOMER")
-    @GetMapping("personal")
-    public ResponseEntity<Resource<UserDTO>> getPersonalInfo(
+    @Operation(summary = "Thêm vào giỏ hàng", description = "Phân quyền: CUSTOMER")
+    @PostMapping("cart")
+    public ResponseEntity<Resource<CartItemDTO>> addToCart(
+            @Valid @RequestBody CartItemAddForm form,
             @RequestHeader("Authorization") String token) {
         token = token.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
 
-        log.info("Getting personal info for user {}", userId);
+        log.info("Adding item to cart for user {}", userId);
 
-        UserDTO userDTO = userServiceFacade.getUserById(userId);
+        CartItemDTO cartItem = userServiceFacade.addToCart(userId, form.getVariantId(), form.getQuantity());
 
-        return ResponseEntity.ok(new Resource<>(userDTO));
+        return ResponseEntity.ok(new Resource<>(cartItem));
     }
 
-    @Operation(summary = "Tìm kiếm tài khoản", description = "Phân quyền: ADMIN")
-    @GetMapping("admin/search")
-    public ResponseEntity<Resource<Page<UserDTO>>> searchUser(
-            @RequestParam(required = true) Long roleId,
-            @RequestParam(required = false, defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    @Operation(summary = "Thay đổi số lượng sản phẩm trong giỏ hàng", description = "Phân quyền: CUSTOMER")
+    @PutMapping("cart")
+    public ResponseEntity<Resource<CartItemDTO>> updateCartItem(
+            @Valid @RequestBody CartItemUpdateForm form,
+            @RequestHeader("Authorization") String token) {
+        token = token.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
 
-        Page<UserDTO> userPage = userServiceFacade.search(roleId, keyword, page, size);
+        log.info("Updating cart item for user {}", userId);
 
-        return ResponseEntity.ok(new Resource<>(userPage));
+        CartItemDTO cartItem = userServiceFacade.updateCartItem(userId, form.getVariantId(), form.getQuantity());
+
+        return ResponseEntity.ok(new Resource<>(cartItem));
+    }
+
+    @Operation(summary = "Xóa sản phẩm khỏi giỏ hàng", description = "Phân quyền: CUSTOMER")
+    @DeleteMapping("cart/{variantId}")
+    public ResponseEntity<Resource<?>> removeFromCart(
+            @PathVariable Long variantId,
+            @RequestHeader("Authorization") String token) {
+        token = token.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+
+        log.info("Removing item from cart for user {}", userId);
+
+        userServiceFacade.removeFromCart(userId, variantId);
+
+        return ResponseEntity.ok(new Resource<>(null));
+    }
+
+    @Operation(summary = "Lấy danh sách sản phẩm trong giỏ hàng", description = "Phân quyền: CUSTOMER")
+    @GetMapping("cart")
+    public ResponseEntity<Resource<List<CartItemDTO>>> getCartItems(
+            @RequestHeader("Authorization") String token) {
+        token = token.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+
+        log.info("Getting cart items for user {}", userId);
+
+        List<CartItemDTO> cartItems = userServiceFacade.getCartItems(userId);
+
+        return ResponseEntity.ok(new Resource<>(cartItems));
     }
 
 }

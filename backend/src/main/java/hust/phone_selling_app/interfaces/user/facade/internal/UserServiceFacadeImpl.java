@@ -1,19 +1,38 @@
 package hust.phone_selling_app.interfaces.user.facade.internal;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import hust.phone_selling_app.domain.exception.AppException;
 import hust.phone_selling_app.domain.exception.ErrorCode;
+import hust.phone_selling_app.domain.image.Image;
+import hust.phone_selling_app.domain.image.ImageRepository;
+import hust.phone_selling_app.domain.product.Product;
+import hust.phone_selling_app.domain.product.ProductRepository;
+import hust.phone_selling_app.domain.productline.ProductLine;
+import hust.phone_selling_app.domain.productline.ProductLineRepository;
+import hust.phone_selling_app.domain.promotion.Promotion;
+import hust.phone_selling_app.domain.promotion.PromotionRepository;
 import hust.phone_selling_app.domain.role.Role;
 import hust.phone_selling_app.domain.role.RoleRepository;
+import hust.phone_selling_app.domain.user.CartItem;
 import hust.phone_selling_app.domain.user.ShippingInfo;
 import hust.phone_selling_app.domain.user.User;
 import hust.phone_selling_app.domain.user.UserRepository;
+import hust.phone_selling_app.domain.variant.Variant;
+import hust.phone_selling_app.domain.variant.VariantRepository;
+import hust.phone_selling_app.interfaces.product.facade.dto.CatalogItemDTO;
+import hust.phone_selling_app.interfaces.product.facade.internal.assembler.ProductAssembler;
 import hust.phone_selling_app.interfaces.user.facade.UserServiceFacade;
+import hust.phone_selling_app.interfaces.user.facade.dto.CartItemDTO;
 import hust.phone_selling_app.interfaces.user.facade.dto.UserDTO;
+import hust.phone_selling_app.interfaces.user.facade.dto.VariantDTO;
+import hust.phone_selling_app.interfaces.user.facade.internal.assembler.CartItemAssembler;
 import hust.phone_selling_app.interfaces.user.facade.internal.assembler.UserAssembler;
+import hust.phone_selling_app.interfaces.user.facade.internal.assembler.VariantAssembler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +43,11 @@ public class UserServiceFacadeImpl implements UserServiceFacade {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final VariantRepository variantRepository;
+    private final ProductRepository productRepository;
+    private final PromotionRepository promotionRepository;
+    private final ProductLineRepository productLineRepository;
+    private final ImageRepository imageRepository;
 
     @Override
     public UserDTO save(User user) {
@@ -86,6 +110,74 @@ public class UserServiceFacadeImpl implements UserServiceFacade {
         userDTO.setRole(role);
 
         return userDTO;
+    }
+
+    @Override
+    public List<CartItemDTO> getCartItems(Long userId) {
+        List<CartItem> cartItems = userRepository.findCartItemsByUserId(userId);
+        List<CartItemDTO> cartItemDTOs = cartItems.stream()
+                .map(cartItem -> {
+                    CartItemDTO cartItemDTO = CartItemAssembler.toDTO(cartItem);
+
+                    // Set variant DTO
+                    Variant variant = variantRepository.findById(cartItem.getVariantId());
+                    if (variant == null) {
+                        log.error("Variant not found with id: {}", cartItem.getVariantId());
+                        throw new AppException(ErrorCode.VARIANT_NOT_FOUND);
+                    }
+                    VariantDTO variantDTO = VariantAssembler.toDTO(variant);
+                    cartItemDTO.setVariant(variantDTO);
+
+                    // Set Catalog item DTO
+                    if (variant.getProductId() == null) {
+                        log.error("Product not found with id: {}", variant.getProductId());
+                        throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+                    }
+                    Product product = productRepository.findById(variant.getProductId());
+                    if (product == null) {
+                        log.error("Product not found with id: {}", variant.getProductId());
+                        throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+                    }
+                    CatalogItemDTO catalogItemDTO = ProductAssembler.toCatalogItemDTO(product);
+
+                    Image image = imageRepository.findById(product.getImageId());
+                    if (image != null) {
+                        catalogItemDTO.setImage(image);
+                    } else {
+                        log.error("Image with id {} not found", product.getImageId());
+                        catalogItemDTO.setImage(null);
+                    }
+
+                    ProductLine productLine = productLineRepository.findById(product.getProductLineId());
+                    List<Promotion> promotions = promotionRepository
+                            .findInUsePromotionsByCategoryId(productLine.getCategoryId());
+                    Long discount = promotions.stream()
+                            .map(Promotion::getValue)
+                            .reduce(0L, Long::sum);
+                    catalogItemDTO.setPrice(product.getBasePrice() > discount ? product.getBasePrice() - discount : 0L);
+                    cartItemDTO.setCatalogItem(catalogItemDTO);
+
+                    return cartItemDTO;
+                })
+                .toList();
+        return cartItemDTOs;
+    }
+
+    @Override
+    public CartItemDTO addToCart(Long userId, Long variantId, int quantity) {
+        CartItem cartItem = userRepository.addCartItem(userId, variantId, quantity);
+        return CartItemAssembler.toDTO(cartItem);
+    }
+
+    @Override
+    public CartItemDTO updateCartItem(Long userId, Long variantId, int quantity) {
+        CartItem cartItem = userRepository.updateCartItem(userId, variantId, quantity);
+        return CartItemAssembler.toDTO(cartItem);
+    }
+
+    @Override
+    public void removeFromCart(Long userId, Long variantId) {
+        userRepository.removeCartItem(userId, variantId);
     }
 
 }

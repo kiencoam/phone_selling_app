@@ -1,5 +1,7 @@
 package hust.phone_selling_app.domain.user;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,5 +22,15 @@ public interface UserRepository {
     public ShippingInfo updateShippingInfo(Long userId, ShippingInfo shippingInfo);
 
     public void removeShippingInfo(Long userId, Long shippingInfoId);
+
+    public CartItem addCartItem(Long userId, Long variantId, int quantity);
+
+    public CartItem updateCartItem(Long userId, Long variantId, int quantity);
+
+    public void removeCartItem(Long userId, Long variantId);
+
+    public List<CartItem> findCartItemsByUserId(Long userId);
+
+    public void removeCartItemsByUserId(Long userId);
 
 }

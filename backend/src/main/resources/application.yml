@@ -57,8 +57,25 @@ app:
           method: GET
         - urlPattern: /api/v1/auth/**
           method: POST
+        - urlPattern: /api/v1/product/**
+          method: GET
+        - urlPattern: /api/v1/product-line/**
+          method: GET
+        - urlPattern: /api/v1/variant/**
+          method: GET
+        - urlPattern: /api/v1/promotion/**
+          method: GET
+        - urlPattern: /api/v1/brand/**
+          method: GET
+        - urlPattern: /api/v1/category/**
+          method: GET
+        - urlPattern: /api/v1/attribute/**
+          method: GET
       protectedUrls:
         - urlPattern: /api/v1/user/shipping-info/**
+          roles:
+            - CUSTOMER
+        - urlPattern: /api/v1/user/cart/**
           roles:
             - CUSTOMER
         - urlPattern: /api/v1/user/personal/**
