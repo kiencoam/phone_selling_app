@@ -17,6 +17,8 @@ public interface UserRepository {
 
     public Page<User> findByRoleAndKeyword(Long roleId, String keyword, Pageable pageable);
 
+    public List<ShippingInfo> findShippingInfosByUserId(Long userId);
+
     public ShippingInfo findShippingInfoById(Long shippingInfoId);
 
     public ShippingInfo addShippingInfo(Long userId, ShippingInfo shippingInfo);

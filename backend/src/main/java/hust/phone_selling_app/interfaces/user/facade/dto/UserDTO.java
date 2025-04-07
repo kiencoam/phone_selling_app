@@ -1,9 +1,6 @@
 package hust.phone_selling_app.interfaces.user.facade.dto;
 
-import java.util.List;
-
 import hust.phone_selling_app.domain.role.Role;
-import hust.phone_selling_app.domain.user.ShippingInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +23,5 @@ public class UserDTO {
     private Boolean isActive;
 
     private Role role;
-
-    private List<ShippingInfo> shippingInfos;
 
 }

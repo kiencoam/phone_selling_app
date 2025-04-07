@@ -87,12 +87,18 @@ public class CustomProductRepositoryImpl implements CustomProductRepository {
             bodySqlBuilder.append(" and p.base_price <= " + criteria.getPriceTo());
         }
 
+        if (criteria.getRatingFrom() != null) {
+            bodySqlBuilder.append(" and p.rating >= " + criteria.getRatingFrom());
+        }
+
         // Sap xep
         if (criteria.getSortBy() != null) {
             if (criteria.getSortBy().equals("price")) {
                 bodySqlBuilder.append(" order by p.base_price " + criteria.getSortDir());
             } else if (criteria.getSortBy().equals("createdAt")) {
                 bodySqlBuilder.append(" order by p.created_at " + criteria.getSortDir());
+            } else if (criteria.getSortBy().equals("rating")) {
+                bodySqlBuilder.append(" order by p.rating " + criteria.getSortDir());
             }
         }
 

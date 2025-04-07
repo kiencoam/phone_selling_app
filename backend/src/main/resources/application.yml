@@ -87,6 +87,12 @@ app:
             - CUSTOMER
             - ADMIN
             - STAFF
+        - urlPattern: /api/v1/review-permission/**
+          roles:
+            - CUSTOMER
+        - urlPattern: /api/v1/product/review/**
+          roles:
+            - CUSTOMER
         - urlPattern: /api/v1/user/admin/**
           roles:
             - ADMIN
@@ -118,8 +124,5 @@ app:
           roles:
             - STAFF
         - urlPattern: /api/v1/order/customer/**
-          roles:
-            - CUSTOMER
-        - urlPattern: /api/v1/review-permission/**
           roles:
             - CUSTOMER

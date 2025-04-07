@@ -3,6 +3,7 @@ package hust.phone_selling_app.infrastructure.persistence;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +14,21 @@ import hust.phone_selling_app.domain.exception.ErrorCode;
 import hust.phone_selling_app.domain.product.Product;
 import hust.phone_selling_app.domain.product.ProductAttribute;
 import hust.phone_selling_app.domain.product.ProductRepository;
+import hust.phone_selling_app.domain.product.Review;
 import hust.phone_selling_app.domain.productline.ProductLine;
 import hust.phone_selling_app.domain.productline.ProductLineRepository;
 import hust.phone_selling_app.domain.shared.ProductSearchCriteria;
+import hust.phone_selling_app.domain.shared.ReviewSearchCriteria;
 import hust.phone_selling_app.infrastructure.persistence.assembler.ProductAssembler;
 import hust.phone_selling_app.infrastructure.persistence.assembler.ProductAttributeAssembler;
+import hust.phone_selling_app.infrastructure.persistence.assembler.ReviewAssembler;
 import hust.phone_selling_app.infrastructure.persistence.jpa.ProductAttributeRepositoryJpa;
 import hust.phone_selling_app.infrastructure.persistence.jpa.ProductRepositoryJpa;
+import hust.phone_selling_app.infrastructure.persistence.jpa.ReviewRepositoryJpa;
 import hust.phone_selling_app.infrastructure.persistence.model.ProductAttributeModel;
 import hust.phone_selling_app.infrastructure.persistence.model.ProductModel;
+import hust.phone_selling_app.infrastructure.persistence.model.ReviewModel;
+import hust.phone_selling_app.infrastructure.persistence.specification.ReviewSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +39,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     private final ProductRepositoryJpa productRepository;
     private final ProductAttributeRepositoryJpa productAttributeRepository;
+    private final ReviewRepositoryJpa reviewRepository;
     private final ProductLineRepository productLineRepository;
     private final AttributeRepository attributeRepository;
 
@@ -66,6 +74,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public void delete(Long id) {
         productRepository.deleteById(id);
         productAttributeRepository.deleteByProductId(id);
+        reviewRepository.deleteByProductId(id);
     }
 
     @Override
@@ -149,6 +158,37 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public void deleteProductAttributeByAttributeId(Long attributeId) {
         productAttributeRepository.deleteByAttributeId(attributeId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Review addReview(Long productId, Review review) {
+        ProductModel productModel = productRepository.findById(productId).orElse(null);
+        if (productModel == null) {
+            log.error("Product not found with id: {}", productId);
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        // Cap nhat rating va reviewsCount cho san pham
+        Float rating = productModel.getRating();
+        Integer reviewsCount = productModel.getReviewsCount();
+        rating = (rating * reviewsCount + review.getRating()) / (reviewsCount + 1);
+        reviewsCount += 1;
+        productModel.setRating(rating);
+        productModel.setReviewsCount(reviewsCount);
+        productRepository.save(productModel);
+
+        ReviewModel reviewModel = ReviewAssembler.toModel(review);
+        reviewModel.setProductId(productId);
+        return ReviewAssembler.toDomain(reviewRepository.save(reviewModel));
+    }
+
+    @Override
+    public Page<Review> searchReviews(ReviewSearchCriteria criteria) {
+        Pageable pageable = criteria.toPageable();
+        Page<ReviewModel> reviewModels = reviewRepository
+                .findAll(ReviewSpecification.satisfySearchCriteria(criteria), pageable);
+        return reviewModels.map(ReviewAssembler::toDomain);
     }
 
 }

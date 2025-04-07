@@ -16,6 +16,8 @@ public class ProductAssembler {
                 .code(product.getCode())
                 .description(product.getDescription())
                 .basePrice(product.getBasePrice())
+                .rating(product.getRating())
+                .reviewsCount(product.getReviewsCount())
                 .build();
     }
 
@@ -27,6 +29,8 @@ public class ProductAssembler {
                 .id(product.getId())
                 .name(product.getName())
                 .basePrice(product.getBasePrice())
+                .rating(product.getRating())
+                .reviewsCount(product.getReviewsCount())
                 .build();
     }
 

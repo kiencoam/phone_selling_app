@@ -22,6 +22,10 @@ public class Product {
     private Long basePrice;
     private String imageId;
     private Long productLineId;
+    private Float rating;
+    private Integer reviewsCount;
     private List<ProductAttribute> productAttributes;
+
+    private List<Review> reviews;
 
 }

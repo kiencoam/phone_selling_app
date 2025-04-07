@@ -1,31 +1,28 @@
 package hust.phone_selling_app.interfaces.product.facade.dto;
 
-import hust.phone_selling_app.domain.image.Image;
+import java.time.Instant;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class CatalogItemDTO {
+public class ReviewDTO {
 
     private Long id;
 
-    private String name;
+    private UserDTO user;
 
-    private Image image;
+    private String content;
 
-    private Long basePrice;
+    private Integer rating;
 
-    private Float rating;
-
-    private Integer reviewsCount;
-
-    private Long price;
+    private Instant createdAt;
 
 }

@@ -11,6 +11,8 @@ public interface ReviewPermissionRepository {
 
     public void deleteExpiredReviewPermissions(Instant timestamp);
 
+    public void deleteByProductId(Long productId);
+
     public ReviewPermission findById(Long id);
 
     public List<ReviewPermission> findAllByUserId(Long userId);

@@ -15,6 +15,8 @@ public class ProductAssembler {
                 .code(productModel.getCode())
                 .description(productModel.getDescription())
                 .basePrice(productModel.getBasePrice())
+                .rating(productModel.getRating())
+                .reviewsCount(productModel.getReviewsCount())
                 .imageId(productModel.getImageId())
                 .productLineId(productModel.getProductLineId())
                 .build();
@@ -30,6 +32,8 @@ public class ProductAssembler {
                 .code(product.getCode())
                 .description(product.getDescription())
                 .basePrice(product.getBasePrice())
+                .rating(product.getRating())
+                .reviewsCount(product.getReviewsCount())
                 .imageId(product.getImageId())
                 .productLineId(product.getProductLineId())
                 .build();

@@ -1,7 +1,7 @@
-package hust.phone_selling_app.interfaces.user.facade.internal.assembler;
+package hust.phone_selling_app.interfaces.product.facade.internal.assembler;
 
 import hust.phone_selling_app.domain.user.User;
-import hust.phone_selling_app.interfaces.user.facade.dto.UserDTO;
+import hust.phone_selling_app.interfaces.product.facade.dto.UserDTO;
 
 public class UserAssembler {
 
@@ -9,12 +9,10 @@ public class UserAssembler {
         if (user == null) {
             return null;
         }
-
         return UserDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
-                .isActive(user.getIsActive())
                 .build();
     }
 

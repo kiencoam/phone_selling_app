@@ -28,6 +28,10 @@ public class ProductDTO {
 
     private Long basePrice;
 
+    private Float rating;
+
+    private Integer reviewsCount;
+
     private Image image;
 
     private ProductLineDTO productLine;

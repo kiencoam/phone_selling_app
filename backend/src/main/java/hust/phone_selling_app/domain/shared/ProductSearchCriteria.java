@@ -31,4 +31,6 @@ public class ProductSearchCriteria {
 
     private Long priceTo;
 
+    private Integer ratingFrom;
+
 }

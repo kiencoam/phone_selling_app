@@ -13,4 +13,6 @@ public interface ReviewPermissionRepositoryJpa extends JpaRepository<ReviewPermi
 
     List<ReviewPermissionModel> findByCreatedAtBefore(Instant timestamp);
 
+    void deleteByProductId(Long productId);
+
 }

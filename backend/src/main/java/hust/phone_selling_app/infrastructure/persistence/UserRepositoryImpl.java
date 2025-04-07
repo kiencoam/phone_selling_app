@@ -53,14 +53,6 @@ public class UserRepositoryImpl implements UserRepository {
     public User findById(Long id) {
         UserModel userModel = userRepository.findById(id).orElse(null);
         User user = UserAssembler.toDomain(userModel);
-
-        if (user != null) {
-            List<ShippingInfoModel> shippingInfoModels = shippingInfoRepository.findByUserId(user.getId());
-            user.setShippingInfos(shippingInfoModels.stream()
-                    .map(ShippingInfoAssembler::toDomain)
-                    .toList());
-        }
-
         return user;
     }
 
@@ -89,6 +81,14 @@ public class UserRepositoryImpl implements UserRepository {
     public ShippingInfo findShippingInfoById(Long shippingInfoId) {
         ShippingInfoModel shippingInfoModel = shippingInfoRepository.findById(shippingInfoId).orElse(null);
         return ShippingInfoAssembler.toDomain(shippingInfoModel);
+    }
+
+    @Override
+    public List<ShippingInfo> findShippingInfosByUserId(Long userId) {
+        List<ShippingInfoModel> shippingInfoModels = shippingInfoRepository.findByUserId(userId);
+        return shippingInfoModels.stream()
+                .map(ShippingInfoAssembler::toDomain)
+                .toList();
     }
 
     @Override

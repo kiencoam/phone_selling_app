@@ -17,6 +17,8 @@ public interface UserServiceFacade {
 
     public void deleteById(Long id);
 
+    public List<ShippingInfo> getShippingInfos(Long userId);
+
     public ShippingInfo addShippingInfo(Long userId, ShippingInfo shippingInfo);
 
     public ShippingInfo updateShippingInfo(Long userId, ShippingInfo shippingInfo);

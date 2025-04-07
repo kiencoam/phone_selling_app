@@ -8,9 +8,11 @@ import hust.phone_selling_app.domain.image.Image;
 import hust.phone_selling_app.domain.product.Product;
 import hust.phone_selling_app.domain.product.ProductAttribute;
 import hust.phone_selling_app.domain.shared.ProductSearchCriteria;
+import hust.phone_selling_app.domain.shared.ReviewSearchCriteria;
 import hust.phone_selling_app.interfaces.product.facade.dto.CatalogItemDTO;
 import hust.phone_selling_app.interfaces.product.facade.dto.ProductAttributeDTO;
 import hust.phone_selling_app.interfaces.product.facade.dto.ProductDTO;
+import hust.phone_selling_app.interfaces.product.facade.dto.ReviewDTO;
 
 public interface ProductServiceFacade {
 
@@ -31,5 +33,9 @@ public interface ProductServiceFacade {
     public List<ProductAttributeDTO> findProductAttributesByProductId(Long productId);
 
     public ProductAttributeDTO updateProductAttribute(ProductAttribute productAttribute);
+
+    public ReviewDTO createReview(Long reviewPermissionId, Long userId, Integer rating, String content);
+
+    public Page<ReviewDTO> searchReviews(ReviewSearchCriteria criteria);
 
 }

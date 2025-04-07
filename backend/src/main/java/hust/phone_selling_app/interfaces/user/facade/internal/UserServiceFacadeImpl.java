@@ -72,6 +72,16 @@ public class UserServiceFacadeImpl implements UserServiceFacade {
     }
 
     @Override
+    public List<ShippingInfo> getShippingInfos(Long userId) {
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            log.error("User not found with id: {}", userId);
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        return user.getShippingInfos();
+    }
+
+    @Override
     public ShippingInfo addShippingInfo(Long userId, ShippingInfo shippingInfo) {
         return userRepository.addShippingInfo(userId, shippingInfo);
     }

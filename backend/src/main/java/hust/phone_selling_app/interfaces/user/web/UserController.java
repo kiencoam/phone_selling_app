@@ -262,9 +262,7 @@ public class UserController {
 
         log.info("Getting shipping info for user {}", userId);
 
-        UserDTO userDTO = userServiceFacade.getUserById(userId);
-
-        List<ShippingInfo> shippingInfos = userDTO.getShippingInfos();
+        List<ShippingInfo> shippingInfos = userServiceFacade.getShippingInfos(userId);
 
         return ResponseEntity.ok(new Resource<>(shippingInfos));
 

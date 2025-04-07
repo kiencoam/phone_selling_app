@@ -14,17 +14,27 @@ import hust.phone_selling_app.domain.image.ImageRepository;
 import hust.phone_selling_app.domain.product.Product;
 import hust.phone_selling_app.domain.product.ProductAttribute;
 import hust.phone_selling_app.domain.product.ProductRepository;
+import hust.phone_selling_app.domain.product.Review;
 import hust.phone_selling_app.domain.productline.ProductLine;
 import hust.phone_selling_app.domain.productline.ProductLineRepository;
 import hust.phone_selling_app.domain.promotion.Promotion;
 import hust.phone_selling_app.domain.promotion.PromotionRepository;
+import hust.phone_selling_app.domain.reviewpermission.ReviewPermission;
+import hust.phone_selling_app.domain.reviewpermission.ReviewPermissionRepository;
 import hust.phone_selling_app.domain.shared.ProductSearchCriteria;
+import hust.phone_selling_app.domain.shared.ReviewSearchCriteria;
+import hust.phone_selling_app.domain.user.User;
+import hust.phone_selling_app.domain.user.UserRepository;
 import hust.phone_selling_app.interfaces.product.facade.ProductServiceFacade;
 import hust.phone_selling_app.interfaces.product.facade.dto.CatalogItemDTO;
 import hust.phone_selling_app.interfaces.product.facade.dto.ProductAttributeDTO;
 import hust.phone_selling_app.interfaces.product.facade.dto.ProductDTO;
+import hust.phone_selling_app.interfaces.product.facade.dto.ReviewDTO;
+import hust.phone_selling_app.interfaces.product.facade.dto.UserDTO;
 import hust.phone_selling_app.interfaces.product.facade.internal.assembler.ProductAssembler;
 import hust.phone_selling_app.interfaces.product.facade.internal.assembler.ProductAttributeAssembler;
+import hust.phone_selling_app.interfaces.product.facade.internal.assembler.ReviewAssembler;
+import hust.phone_selling_app.interfaces.product.facade.internal.assembler.UserAssembler;
 import hust.phone_selling_app.interfaces.productline.facade.ProductLineServiceFacade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +50,14 @@ public class ProductServiceFacadeImpl implements ProductServiceFacade {
     private final AttributeRepository attributeRepository;
     private final PromotionRepository promotionRepository;
     private final ProductLineRepository productLineRepository;
+    private final ReviewPermissionRepository reviewPermissionRepository;
+    private final UserRepository userRepository;
     private final ProductLineServiceFacade productLineServiceFacade;
 
     @Override
     public ProductDTO create(Product product, Image image) {
+        product.setRating(0f);
+        product.setReviewsCount(0);
         Product createdProduct = productService.createProduct(product, image);
         return ProductAssembler.toDTO(createdProduct);
     }
@@ -211,6 +225,41 @@ public class ProductServiceFacadeImpl implements ProductServiceFacade {
                     return catalogItemDTO;
                 })
                 .toList();
+    }
+
+    @Override
+    public ReviewDTO createReview(Long reviewPermissionId, Long userId, Integer rating, String content) {
+        ReviewPermission reviewPermission = reviewPermissionRepository.findById(reviewPermissionId);
+        if (reviewPermission == null) {
+            log.error("Review permission with id {} not found", reviewPermissionId);
+            throw new AppException(ErrorCode.REVIEW_PERMISSION_NOT_FOUND);
+        }
+        if (reviewPermission.getUserId() != userId) {
+            log.error("User {} is not allowed to review product {}", userId, reviewPermission.getProductId());
+            throw new AppException(ErrorCode.REVIEW_PERMISSION_NOT_FOUND);
+        }
+        Review review = productService.createReview(reviewPermission, rating, content);
+
+        User user = userRepository.findById(userId);
+        UserDTO userDTO = UserAssembler.toDTO(user);
+
+        ReviewDTO reviewDTO = ReviewAssembler.toDTO(review);
+        reviewDTO.setUser(userDTO);
+
+        return reviewDTO;
+    }
+
+    @Override
+    public Page<ReviewDTO> searchReviews(ReviewSearchCriteria criteria) {
+        Page<Review> reviewPage = productRepository.searchReviews(criteria);
+        return reviewPage
+                .map(review -> {
+                    ReviewDTO reviewDTO = ReviewAssembler.toDTO(review);
+                    User user = userRepository.findById(review.getUserId());
+                    UserDTO userDTO = UserAssembler.toDTO(user);
+                    reviewDTO.setUser(userDTO);
+                    return reviewDTO;
+                });
     }
 
 }

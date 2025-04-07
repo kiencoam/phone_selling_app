@@ -41,6 +41,7 @@ public enum ErrorCode {
     CART_EMPTY(100033, "Cart is empty", HttpStatus.BAD_REQUEST),
     ORDER_STATUS_NOT_VALID(100034, "Order status is not valid", HttpStatus.BAD_REQUEST),
     ORDER_NOT_FOUND(100035, "Order not found", HttpStatus.NOT_FOUND),
+    REVIEW_PERMISSION_NOT_FOUND(100036, "Review permission not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

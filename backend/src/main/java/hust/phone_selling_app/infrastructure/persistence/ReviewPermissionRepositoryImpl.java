@@ -53,4 +53,9 @@ public class ReviewPermissionRepositoryImpl implements ReviewPermissionRepositor
                 .toList();
     }
 
+    @Override
+    public void deleteByProductId(Long productId) {
+        reviewPermissionRepository.deleteByProductId(productId);
+    }
+
 }

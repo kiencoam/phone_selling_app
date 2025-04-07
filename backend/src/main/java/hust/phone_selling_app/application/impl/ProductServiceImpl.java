@@ -11,6 +11,9 @@ import hust.phone_selling_app.domain.image.Image;
 import hust.phone_selling_app.domain.image.ImageRepository;
 import hust.phone_selling_app.domain.product.Product;
 import hust.phone_selling_app.domain.product.ProductRepository;
+import hust.phone_selling_app.domain.product.Review;
+import hust.phone_selling_app.domain.reviewpermission.ReviewPermission;
+import hust.phone_selling_app.domain.reviewpermission.ReviewPermissionRepository;
 import hust.phone_selling_app.domain.variant.Variant;
 import hust.phone_selling_app.domain.variant.VariantRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ public class ProductServiceImpl implements ProductService {
     private final ImageRepository imageRepository;
     private final VariantRepository variantRepository;
     private final VariantService variantService;
+    private final ReviewPermissionRepository reviewPermissionRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -57,7 +61,25 @@ public class ProductServiceImpl implements ProductService {
         // Xoa image
         imageRepository.delete(product.getImageId());
 
+        // Xoa review permission
+        reviewPermissionRepository.deleteByProductId(product.getId());
+
         productRepository.delete(product.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Review createReview(ReviewPermission reviewPermission, Integer rating, String content) {
+        Review review = Review.builder()
+                .userId(reviewPermission.getUserId())
+                .rating(rating)
+                .content(content)
+                .build();
+        Review savedReview = productRepository.addReview(reviewPermission.getProductId(), review);
+
+        // Xoa review permission
+        reviewPermissionRepository.deleteById(reviewPermission.getId());
+        return savedReview;
     }
 
 }

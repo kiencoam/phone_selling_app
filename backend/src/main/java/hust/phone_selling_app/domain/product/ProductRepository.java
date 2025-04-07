@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import hust.phone_selling_app.domain.shared.ProductSearchCriteria;
+import hust.phone_selling_app.domain.shared.ReviewSearchCriteria;
 
 public interface ProductRepository {
 
@@ -31,5 +32,9 @@ public interface ProductRepository {
     public ProductAttribute createProductAttribute(Long attributeId, Long productId);
 
     public void deleteProductAttributeByAttributeId(Long attributeId);
+
+    public Review addReview(Long productId, Review review);
+
+    public Page<Review> searchReviews(ReviewSearchCriteria criteria);
 
 }
