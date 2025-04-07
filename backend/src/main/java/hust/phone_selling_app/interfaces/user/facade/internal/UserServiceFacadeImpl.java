@@ -8,14 +8,6 @@ import org.springframework.stereotype.Service;
 
 import hust.phone_selling_app.domain.exception.AppException;
 import hust.phone_selling_app.domain.exception.ErrorCode;
-import hust.phone_selling_app.domain.image.Image;
-import hust.phone_selling_app.domain.image.ImageRepository;
-import hust.phone_selling_app.domain.product.Product;
-import hust.phone_selling_app.domain.product.ProductRepository;
-import hust.phone_selling_app.domain.productline.ProductLine;
-import hust.phone_selling_app.domain.productline.ProductLineRepository;
-import hust.phone_selling_app.domain.promotion.Promotion;
-import hust.phone_selling_app.domain.promotion.PromotionRepository;
 import hust.phone_selling_app.domain.role.Role;
 import hust.phone_selling_app.domain.role.RoleRepository;
 import hust.phone_selling_app.domain.user.CartItem;
@@ -24,8 +16,8 @@ import hust.phone_selling_app.domain.user.User;
 import hust.phone_selling_app.domain.user.UserRepository;
 import hust.phone_selling_app.domain.variant.Variant;
 import hust.phone_selling_app.domain.variant.VariantRepository;
+import hust.phone_selling_app.interfaces.product.facade.ProductServiceFacade;
 import hust.phone_selling_app.interfaces.product.facade.dto.CatalogItemDTO;
-import hust.phone_selling_app.interfaces.product.facade.internal.assembler.ProductAssembler;
 import hust.phone_selling_app.interfaces.user.facade.UserServiceFacade;
 import hust.phone_selling_app.interfaces.user.facade.dto.CartItemDTO;
 import hust.phone_selling_app.interfaces.user.facade.dto.UserDTO;
@@ -44,10 +36,7 @@ public class UserServiceFacadeImpl implements UserServiceFacade {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final VariantRepository variantRepository;
-    private final ProductRepository productRepository;
-    private final PromotionRepository promotionRepository;
-    private final ProductLineRepository productLineRepository;
-    private final ImageRepository imageRepository;
+    private final ProductServiceFacade productServiceFacade;
 
     @Override
     public UserDTO save(User user) {
@@ -133,28 +122,7 @@ public class UserServiceFacadeImpl implements UserServiceFacade {
                         log.error("Product not found with id: {}", variant.getProductId());
                         throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
                     }
-                    Product product = productRepository.findById(variant.getProductId());
-                    if (product == null) {
-                        log.error("Product not found with id: {}", variant.getProductId());
-                        throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-                    }
-                    CatalogItemDTO catalogItemDTO = ProductAssembler.toCatalogItemDTO(product);
-
-                    Image image = imageRepository.findById(product.getImageId());
-                    if (image != null) {
-                        catalogItemDTO.setImage(image);
-                    } else {
-                        log.error("Image with id {} not found", product.getImageId());
-                        catalogItemDTO.setImage(null);
-                    }
-
-                    ProductLine productLine = productLineRepository.findById(product.getProductLineId());
-                    List<Promotion> promotions = promotionRepository
-                            .findInUsePromotionsByCategoryId(productLine.getCategoryId());
-                    Long discount = promotions.stream()
-                            .map(Promotion::getValue)
-                            .reduce(0L, Long::sum);
-                    catalogItemDTO.setPrice(product.getBasePrice() > discount ? product.getBasePrice() - discount : 0L);
+                    CatalogItemDTO catalogItemDTO = productServiceFacade.findCatalogItemById(variant.getProductId());
                     cartItemDTO.setCatalogItem(catalogItemDTO);
 
                     return cartItemDTO;

@@ -20,4 +20,6 @@ public interface OrderService {
 
         public void cancelOrder(Order order);
 
+        public void receiveOrder(Order order);
+
 }

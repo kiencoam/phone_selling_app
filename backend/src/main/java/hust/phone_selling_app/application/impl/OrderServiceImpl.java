@@ -7,7 +7,10 @@ import hust.phone_selling_app.application.OrderService;
 import hust.phone_selling_app.domain.order.Order;
 import hust.phone_selling_app.domain.order.OrderFactory;
 import hust.phone_selling_app.domain.order.OrderRepository;
+import hust.phone_selling_app.domain.reviewpermission.ReviewPermission;
+import hust.phone_selling_app.domain.reviewpermission.ReviewPermissionRepository;
 import hust.phone_selling_app.domain.user.UserRepository;
+import hust.phone_selling_app.domain.variant.Variant;
 import hust.phone_selling_app.domain.variant.VariantRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +22,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final VariantRepository variantRepository;
     private final UserRepository userRepository;
+    private final ReviewPermissionRepository reviewPermissionRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -68,6 +72,22 @@ public class OrderServiceImpl implements OrderService {
         // Update the stock of variants in the order
         order.getOrderItems().forEach(orderItem -> {
             variantRepository.returnItem(orderItem.getVariantId(), orderItem.getQuantity().longValue());
+        });
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void receiveOrder(Order order) {
+        orderRepository.receiveOrder(order);
+
+        // Create review permission for the user
+        order.getOrderItems().forEach(orderItem -> {
+            Variant variant = variantRepository.findById(orderItem.getVariantId());
+            ReviewPermission reviewPermission = ReviewPermission.builder()
+                    .userId(order.getUserId())
+                    .productId(variant.getProductId())
+                    .build();
+            reviewPermissionRepository.create(reviewPermission);
         });
     }
 

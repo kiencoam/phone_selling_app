@@ -117,6 +117,36 @@ public class ProductServiceFacadeImpl implements ProductServiceFacade {
     }
 
     @Override
+    public CatalogItemDTO findCatalogItemById(Long id) {
+        Product existingProduct = productRepository.findById(id);
+        if (existingProduct == null) {
+            log.error("Product with id {} not found", id);
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        CatalogItemDTO catalogItemDTO = ProductAssembler.toCatalogItemDTO(existingProduct);
+
+        Image image = imageRepository.findById(existingProduct.getImageId());
+        if (image != null) {
+            catalogItemDTO.setImage(image);
+        } else {
+            log.error("Image with id {} not found", existingProduct.getImageId());
+            catalogItemDTO.setImage(null);
+        }
+
+        ProductLine productLine = productLineRepository.findById(existingProduct.getProductLineId());
+        List<Promotion> promotions = promotionRepository
+                .findInUsePromotionsByCategoryId(productLine.getCategoryId());
+        Long discount = promotions.stream()
+                .map(Promotion::getValue)
+                .reduce(0L, Long::sum);
+        catalogItemDTO
+                .setPrice(existingProduct.getBasePrice() > discount ? existingProduct.getBasePrice() - discount : 0L);
+
+        return catalogItemDTO;
+    }
+
+    @Override
     public Page<CatalogItemDTO> search(ProductSearchCriteria criteria) {
         Page<Product> productPage = productRepository.search(criteria);
         Page<CatalogItemDTO> catalogPage = productPage.map(product -> {

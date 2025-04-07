@@ -22,6 +22,8 @@ public interface ProductServiceFacade {
 
     public ProductDTO findById(Long id);
 
+    public CatalogItemDTO findCatalogItemById(Long id);
+
     public Page<CatalogItemDTO> search(ProductSearchCriteria criteria);
 
     public List<CatalogItemDTO> findByProductLineId(Long productLineId);

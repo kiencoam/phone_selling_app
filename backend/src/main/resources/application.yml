@@ -27,6 +27,10 @@ app:
         - PUT
         - DELETE
         - PATCH
+    cleanup:
+      review-permission:
+        expiration: 604800000 # 7 days in milliseconds
+        interval: 86400000 # 1 day in milliseconds
   security:
     jwt:
       secret: JHD2p1EolyuH3K6Gjz05onMO5hRT8CYHJHD2p1EolyuH3K6Gjz05onMO5hRT8CYH
@@ -114,5 +118,8 @@ app:
           roles:
             - STAFF
         - urlPattern: /api/v1/order/customer/**
+          roles:
+            - CUSTOMER
+        - urlPattern: /api/v1/review-permission/**
           roles:
             - CUSTOMER
