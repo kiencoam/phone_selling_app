@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Quản lý Điện Thoại</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --dark: #34495e;
+            --light: #ecf0f1;
+            --sidebar-width: 250px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .brand {
+            padding: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-item.active {
+            background-color: var(--primary);
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card .title {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .stat-card .change {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .stat-card .change.positive {
+            color: var(--secondary);
+        }
+        
+        .stat-card .change.negative {
+            color: var(--danger);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            font-weight: 600;
+            color: #555;
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .action-btn {
+            margin-right: 5px;
+            padding: 5px 10px;
+            font-size: 13px;
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--secondary);
+        }
+        
+        .badge-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+        
+        .badge-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .modal-close {
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            padding-left: 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        
+        .status-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .page-item {
+            margin: 0 5px;
+        }
+        
+        .page-link {
+            display: block;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            color: var(--primary);
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .page-link:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .page-item.active .page-link {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .content {
+                margin-left: 0;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .mobile-toggle {
+                display: block;
+                font-size: 24px;
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+    
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand">
+                <i class="fas fa-mobile-alt"></i>
+                <span>PhoneStore Admin</span>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Bảng điều khiển</span>
+                </div>
+                <div class="menu-item" data-page="products">
+                    <i class="fas fa-mobile"></i>
+                    <span>Quản lý sản phẩm</span>
+                </div>
+                <div class="menu-item" data-page="orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Đơn hàng</span>
+                </div>
+                <div class="menu-item" data-page="customers">
+                    <i class="fas fa-users"></i>
+                    <span>Khách hàng</span>
+                </div>
+                <div class="menu-item" data-page="categories">
+                    <i class="fas fa-tags"></i>
+                    <span>Danh mục</span>
+                </div>
+                <div class="menu-item" data-page="promotions">
+                    <i class="fas fa-percent"></i>
+                    <span>Khuyến mãi</span>
+                </div>
+                <div class="menu-item" data-page="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Báo cáo</span>
+                </div>
+                <div class="menu-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Cài đặt</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <div class="header">
+                <div class="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="page-title">Bảng điều khiển</div>
+                <div class="user-profile">
+                    <img src="/api/placeholder/40/40" alt="Admin Avatar">
+                    <span>Admin</span>
+                </div>
+            </div>
+            
+            <!-- Dashboard Page -->
+            <div class="page" id="dashboard-page">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="title">Tổng đơn hàng</div>
+                        <div class="value">1,254</div>
+                        <div class="change positive">
+                            <i class="fas fa-arrow-up"></i> 15.3% so với tháng trước
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="title">Doanh thu</div>
+                        <div class="value">258.5M</div>
+                        <div class="change positive">
+                            <i class="fas fa-arrow-up"></i> 8.7% so với tháng trước
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="title">Khách hàng mới</div>
+                        <div class="value">358</div>
+                        <div class="change positive">
+                            <i class="fas fa-arrow-up"></i> 12.2% so với tháng trước
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="title">Sản phẩm đã bán</div>
+                        <div class="value">1,628</div>
+                        <div class="change negative">
+                            <i class="fas fa-arrow-down"></i> 3.6% so với tháng trước
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Đơn hàng gần đây</div>
+                        <button class="btn btn-primary" id="refresh-orders">Làm mới</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table id="recent-orders">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#ORD-1234</td>
+                                        <td>Nguyễn Văn A</td>
+                                        <td>iPhone 14 Pro</td>
+                                        <td>32,000,000 ₫</td>
+                                        <td>10/04/2025</td>
+                                        <td><span class="badge badge-success">Đã giao</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Xem</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#ORD-1233</td>
+                                        <td>Trần Thị B</td>
+                                        <td>Samsung Galaxy S25</td>
+                                        <td>28,500,000 ₫</td>
+                                        <td>09/04/2025</td>
+                                        <td><span class="badge badge-warning">Đang giao</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Xem</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#ORD-1232</td>
+                                        <td>Lê Văn C</td>
+                                        <td>Xiaomi 15 Pro</td>
+                                        <td>19,800,000 ₫</td>
+                                        <td>08/04/2025</td>
+                                        <td><span class="badge badge-danger">Đã hủy</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Xem</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#ORD-1231</td>
+                                        <td>Phạm Thị D</td>
+                                        <td>Oppo Find X8</td>
+                                        <td>22,990,000 ₫</td>
+                                        <td>07/04/2025</td>
+                                        <td><span class="badge badge-success">Đã giao</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Xem</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#ORD-1230</td>
+                                        <td>Hoàng Văn E</td>
+                                        <td>Vivo X100 Pro</td>
+                                        <td>25,500,000 ₫</td>
+                                        <td>06/04/2025</td>
+                                        <td><span class="badge badge-success">Đã giao</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Xem</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Sản phẩm bán chạy</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Danh mục</th>
+                                        <th>Giá</th>
+                                        <th>Đã bán</th>
+                                        <th>Tồn kho</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>iPhone 14 Pro 256GB</td>
+                                        <td>Apple</td>
+                                        <td>32,000,000 ₫</td>
+                                        <td>145</td>
+                                        <td>38</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Samsung Galaxy S25 Ultra</td>
+                                        <td>Samsung</td>
+                                        <td>28,500,000 ₫</td>
+                                        <td>132</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Xiaomi 15</td>
+                                        <td>Xiaomi</td>
+                                        <td>15,990,000 ₫</td>
+                                        <td>128</td>
+                                        <td>54</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Oppo Find X8</td>
+                                        <td>Oppo</td>
+                                        <td>22,990,000 ₫</td>
+                                        <td>119</td>
+                                        <td>28</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Vivo X100 Pro</td>
+                                        <td>Vivo</td>
+                                        <td>25,500,000 ₫</td>
+                                        <td>95</td>
+                                        <td>32</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Page -->
+            <div class="page" id="products-page" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Quản lý sản phẩm</div>
+                        <button class="btn btn-primary" id="add-product-btn">Thêm sản phẩm mới</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" placeholder="Tìm kiếm sản phẩm...">
+                        </div>
+                        
+                        <div class="status-filter">
+                            <button class="filter-btn active">Tất cả</button>
+                            <button class="filter-btn">Còn hàng</button>
+                            <button class="filter-btn">Hết hàng</button>
+                            <button class="filter-btn">Đang giảm giá</button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table id="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Hình ảnh</th>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Danh mục</th>
+                                        <th>Giá gốc</th>
+                                        <th>Giá bán</th>
+                                        <th>Tồn kho</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#SP001</td>
+                                        <td><img src="/api/placeholder/50/50" alt="iPhone 14 Pro"></td>
+                                        <td>iPhone 14 Pro 256GB</td>
+                                        <td>Apple</td>
+                                        <td>34,990,000 ₫</td>
+                                        <td>32,000,000 ₫</td>
+                                        <td>38</td>
+                                        <td><span class="badge badge-success">Còn hàng</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Sửa</button>
+                                            <button class="btn btn-danger action-btn">Xóa</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#SP002</td>
+                                        <td><img src="/api/placeholder/50/50" alt="Samsung Galaxy S25"></td>
+                                        <td>Samsung Galaxy S25 Ultra</td>
+                                        <td>Samsung</td>
+                                        <td>30,990,000 ₫</td>
+                                        <td>28,500,000 ₫</td>
+                                        <td>45</td>
+                                        <td><span class="badge badge-success">Còn hàng</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Sửa</button>
+                                            <button class="btn btn-danger action-btn">Xóa</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#SP003</td>
+                                        <td><img src="/api/placeholder/50/50" alt="Xiaomi 15"></td>
+                                        <td>Xiaomi 15</td>
+                                        <td>Xiaomi</td>
+                                        <td>17,990,000 ₫</td>
+                                        <td>15,990,000 ₫</td>
+                                        <td>54</td>
+                                        <td><span class="badge badge-success">Còn hàng</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Sửa</button>
+                                            <button class="btn btn-danger action-btn">Xóa</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#SP004</td>
+                                        <td><img src="/api/placeholder/50/50" alt="Oppo Find X8"></td>
+                                        <td>Oppo Find X8</td>
+                                        <td>Oppo</td>
+                                        <td>24,990,000 ₫</td>
+                                        <td>22,990,000 ₫</td>
+                                        <td>28</td>
+                                        <td><span class="badge badge-success">Còn hàng</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Sửa</button>
+                                            <button class="btn btn-danger action-btn">Xóa</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#SP005</td>
+                                        <td><img src="/api/placeholder/50/50" alt="Vivo X100 Pro"></td>
+                                        <td>Vivo X100 Pro</td>
+                                        <td>Vivo</td>
+                                        <td>27,990,000 ₫</td>
+                                        <td>25,500,000 ₫</td>
+                                        <td>32</td>
+                                        <td><span class="badge badge-success">Còn hàng</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Sửa</button>
+                                            <button class="btn btn-danger action-btn">Xóa</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#SP006</td>
+                                        <td><img src="/api/placeholder/50/50" alt="iPhone 15"></td>
+                                        <td>iPhone 15 128GB</td>
+                                        <td>Apple</td>
+                                        <td>24,990,000 ₫</td>
+                                        <td>22,990,000 ₫</td>
+                                        <td>0</td>
+                                        <td><span class="badge badge-danger">Hết hàng</span></td>
+                                        <td>
+                                            <button class="btn btn-primary action-btn">Sửa</button>
+                                            <button class="btn btn-danger action-btn">Xóa</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="pagination">
+                            <div class="page-item">
+                                <span class="page-link">Trước</span>
+                            </div>
+                            <div class="page-item active">
+                                <span class="page-link">1</span>
+                            </div>
+                            <div class="page-item">
+                                <span class="page-link">2</span>
+                            </div>
+                            <div class="page-item">
+                                <span class="page-link">3</span>
