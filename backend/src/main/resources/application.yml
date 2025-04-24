@@ -1,0 +1,128 @@
+spring:
+  application:
+    name: phone_selling_app
+
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/phone_selling_app
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  data:
+    mongodb:
+      uri: mongodb+srv://kienpham1392004:1392004kien@cluster0.byk8u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      database: phone_selling_app
+
+app:
+  service:
+    cors:
+      baseUrl: http://localhost:3000
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+    cleanup:
+      review-permission:
+        expiration: 604800000 # 7 days in milliseconds
+        interval: 86400000 # 1 day in milliseconds
+  security:
+    jwt:
+      secret: JHD2p1EolyuH3K6Gjz05onMO5hRT8CYHJHD2p1EolyuH3K6Gjz05onMO5hRT8CYH
+      expiration: 86400000
+      header: Authorization
+      prefix: Bearer
+    filter:
+      publicUrls:
+        - urlPattern: "/v2/api-docs"
+          method: GET
+        - urlPattern: "/v3/api-docs"
+          method: GET
+        - urlPattern: "/v3/api-docs/**"
+          method: GET
+        - urlPattern: "/swagger-resources"
+          method: GET
+        - urlPattern: "/swagger-resources/**"
+          method: GET
+        - urlPattern: "/configuration/ui"
+          method: GET
+        - urlPattern: "/configuration/security"
+          method: GET
+        - urlPattern: "/swagger-ui/**"
+          method: GET
+        - urlPattern: "/webjars/**"
+          method: GET
+        - urlPattern: "/swagger-ui.html"
+          method: GET
+        - urlPattern: /api/v1/auth/**
+          method: POST
+        - urlPattern: /api/v1/product/**
+          method: GET
+        - urlPattern: /api/v1/product-line/**
+          method: GET
+        - urlPattern: /api/v1/variant/**
+          method: GET
+        - urlPattern: /api/v1/promotion/**
+          method: GET
+        - urlPattern: /api/v1/brand/**
+          method: GET
+        - urlPattern: /api/v1/category/**
+          method: GET
+        - urlPattern: /api/v1/attribute/**
+          method: GET
+      protectedUrls:
+        - urlPattern: /api/v1/user/shipping-info/**
+          roles:
+            - CUSTOMER
+        - urlPattern: /api/v1/user/cart/**
+          roles:
+            - CUSTOMER
+        - urlPattern: /api/v1/user/personal/**
+          roles:
+            - CUSTOMER
+            - ADMIN
+            - STAFF
+        - urlPattern: /api/v1/review-permission/**
+          roles:
+            - CUSTOMER
+        - urlPattern: /api/v1/product/review/**
+          roles:
+            - CUSTOMER
+        - urlPattern: /api/v1/user/admin/**
+          roles:
+            - ADMIN
+        - urlPattern: /api/v1/brand/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/category/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/product-line/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/image/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/attribute/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/product/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/variant/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/promotion/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/order/staff/**
+          roles:
+            - STAFF
+        - urlPattern: /api/v1/order/customer/**
+          roles:
+            - CUSTOMER
