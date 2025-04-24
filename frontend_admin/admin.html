@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập</title>
+    <style>
+        :root {
+            --primary-color: #ffd400;
+            --secondary-color: #288ad6;
+            --text-color: #333;
+            --error-color: #d0021b;
+            --success-color: #2ba832;
+            --light-gray: #f1f1f1;
+            --dark-gray: #666;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        
+        body {
+            background-color: #f3f3f3;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            width: 200px;
+            height: 60px;
+            background-color: var(--primary-color);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 18px;
+            border-radius: 4px;
+        }
+        
+        .login-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #1a6dad;
+        }
+        
+        .btn-yellow {
+            background-color: var(--primary-color);
+            color: #000;
+        }
+        
+        .btn-yellow:hover {
+            background-color: #e6c000;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #ddd;
+        }
+        
+        .divider::before {
+            margin-right: 10px;
+        }
+        
+        .divider::after {
+            margin-left: 10px;
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            cursor: pointer;
+        }
+        
+        .social-btn.facebook {
+            background-color: #3b5998;
+            color: white;
+        }
+        
+        .social-btn.google {
+            background-color: white;
+            border: 1px solid #ddd;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .register-link a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 2px solid #ddd;
+            font-weight: bold;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        
+        #registerForm {
+            display: none;
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            color: var(--success-color);
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">THEGIOIDIDONG</div>
+        </div>
+        
+        <div class="login-container">
+            <div class="tab-container">
+                <div class="tab active" id="loginTab">Đăng nhập</div>
+                <div class="tab" id="registerTab">Đăng ký</div>
+            </div>
+            
+            <div class="success-message" id="successMessage"></div>
+            
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="Nhập email của bạn" required>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu" required>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn">Đăng nhập</button>
+                </div>
+                
+                <div class="form-group">
+                    <a href="#" id="forgotPassword" style="text-align: center; display: block; color: var(--secondary-color); text-decoration: none; font-size: 14px;">Quên mật khẩu?</a>
+                </div>
+                
+                <div class="divider">hoặc đăng nhập bằng</div>
+                
+                <div class="social-login">
+                    <div class="social-btn facebook">f</div>
+                    <div class="social-btn google">G</div>
+                </div>
+            </form>
+            
+            <!-- Register Form -->
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regFullName">Họ và tên</label>
+                    <input type="text" class="form-control" id="regFullName" placeholder="Nhập họ và tên của bạn" required>
+                    <div class="error-message" id="fullNameError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" class="form-control" id="regEmail" placeholder="Nhập email của bạn" required>
+                    <div class="error-message" id="regEmailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="regPassword">Mật khẩu</label>
+                    <input type="password" class="form-control" id="regPassword" placeholder="Nhập mật khẩu" required>
+                    <div class="error-message" id="regPasswordError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-yellow">Đăng ký</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="register-link" id="loginHelpText">
+            Bạn chưa có tài khoản? <a href="#" id="switchToRegister">Đăng ký ngay</a>
+        </div>
+        
+        <div class="register-link" id="registerHelpText" style="display: none;">
+            Bạn đã có tài khoản? <a href="#" id="switchToLogin">Đăng nhập ngay</a>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const switchToRegister = document.getElementById('switchToRegister');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const loginHelpText = document.getElementById('loginHelpText');
+        const registerHelpText = document.getElementById('registerHelpText');
+        const successMessage = document.getElementById('successMessage');
+
+        // Show register form
+        function showRegisterForm() {
+            loginTab.classList.remove('active');
+            registerTab.classList.add('active');
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            loginHelpText.style.display = 'none';
+            registerHelpText.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        // Show login form
+        function showLoginForm() {
+            registerTab.classList.remove('active');
+            loginTab.classList.add('active');
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'block';
+            registerHelpText.style.display = 'none';
+            loginHelpText.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        // Event Listeners
+        registerTab.addEventListener('click', showRegisterForm);
+        loginTab.addEventListener('click', showLoginForm);
+        switchToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            showRegisterForm();
+        });
+        switchToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoginForm();
+        });
+
+        // Login form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Reset error messages
+            document.getElementById('emailError').style.display = 'none';
+            document.getElementById('passwordError').style.display = 'none';
+            
+            // Simple validation
+            let hasError = false;
+            
+            if (!email) {
+                document.getElementById('emailError').textContent = 'Vui lòng nhập email';
+                document.getElementById('emailError').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (!password) {
+                document.getElementById('passwordError').textContent = 'Vui lòng nhập mật khẩu';
+                document.getElementById('passwordError').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (!hasError) {
+                // API call would go here
+                fetch('api/v1/personal/login-customer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Đăng nhập thất bại');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.token) {
+                        // Store token and redirect
+                        localStorage.setItem('authToken', data.token);
+                        successMessage.textContent = 'Đăng nhập thành công! Đang chuyển hướng...';
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            window.location.href = '/'; // Redirect to home page
+                        }, 1500);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('passwordError').textContent = 'Email hoặc mật khẩu không chính xác';
+                    document.getElementById('passwordError').style.display = 'block';
+                });
+            }
+        });
+
+        // Register form submission
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('regFullName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            // Reset error messages
+            document.getElementById('fullNameError').style.display = 'none';
+            document.getElementById('regEmailError').style.display = 'none';
+            document.getElementById('regPasswordError').style.display = 'none';
+            
+            // Simple validation
+            let hasError = false;
+            
+            if (!fullName) {
+                document.getElementById('fullNameError').textContent = 'Vui lòng nhập họ và tên';
+                document.getElementById('fullNameError').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (!email) {
+                document.getElementById('regEmailError').textContent = 'Vui lòng nhập email';
+                document.getElementById('regEmailError').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (!password) {
+                document.getElementById('regPasswordError').textContent = 'Vui lòng nhập mật khẩu';
+                document.getElementById('regPasswordError').style.display = 'block';
+                hasError = true;
+            } else if (password.length < 6) {
+                document.getElementById('regPasswordError').textContent = 'Mật khẩu phải có ít nhất 6 ký tự';
+                document.getElementById('regPasswordError').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (!hasError) {
+                // API call would go here
+                fetch('api/v1/personal/register-customer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fullName: fullName,
+                        email: email,
+                        password: password
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Đăng ký thất bại');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    successMessage.textContent = 'Đăng ký thành công! Vui lòng đăng nhập.';
+                    successMessage.style.display = 'block';
+                    showLoginForm();
+                })
+                .catch(error => {
+                    document.getElementById('regEmailError').textContent = 'Email này đã được sử dụng';
+                    document.getElementById('regEmailError').style.display = 'block';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
