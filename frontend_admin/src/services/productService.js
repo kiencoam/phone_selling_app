@@ -80,6 +80,19 @@ export const productService = {
       console.error('[PRODUCT SERVICE] Lỗi khi lấy danh sách sản phẩm:', error);
       throw error;
     }
+  },
+
+  // Cập nhật thuộc tính sản phẩm
+  updateProductAttribute: async (attributeData) => {
+    try {
+      console.log('[PRODUCT SERVICE] Đang cập nhật thuộc tính sản phẩm:', attributeData);
+      const response = await api.put('/api/v1/product/attribute', attributeData);
+      console.log('[PRODUCT SERVICE] Đã cập nhật thuộc tính sản phẩm:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[PRODUCT SERVICE] Lỗi khi cập nhật thuộc tính sản phẩm:', error);
+      throw error;
+    }
   }
 };
 

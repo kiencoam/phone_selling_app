@@ -69,6 +69,24 @@ const ProductLineManagement = () => {
   const [imagePreview, setImagePreview] = useState('');
   const fileInputRef = useRef(null);
   
+  // State cho modal xác nhận xóa sản phẩm
+  const [showDeleteProductModal, setShowDeleteProductModal] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState(null);
+  const [deleteProductLoading, setDeleteProductLoading] = useState(false);
+  
+  // State cho modal quản lý thuộc tính sản phẩm
+  const [showAttributesModal, setShowAttributesModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productAttributes, setProductAttributes] = useState([]);
+  const [attributesLoading, setAttributesLoading] = useState(false);
+  const [attributesError, setAttributesError] = useState('');
+  
+  // State cho modal chỉnh sửa thuộc tính
+  const [showEditAttributeModal, setShowEditAttributeModal] = useState(false);
+  const [editingAttribute, setEditingAttribute] = useState({ id: null, value: '', attribute: null });
+  const [attributeModalLoading, setAttributeModalLoading] = useState(false);
+  const [attributeModalError, setAttributeModalError] = useState('');
+  
   // Lấy danh sách dòng sản phẩm khi component được mount
   useEffect(() => {
     fetchProductLines();
@@ -461,6 +479,151 @@ const ProductLineManagement = () => {
     }
   };
 
+  // Hàm mở modal xác nhận xóa sản phẩm
+  const handleDeleteProductConfirm = (product) => {
+    if (!product || !product.id) {
+      console.error('[PRODUCT MANAGEMENT] Sản phẩm không hợp lệ:', product);
+      showNotification('danger', 'Không thể xóa sản phẩm này');
+      return;
+    }
+    
+    setDeletingProduct(product);
+    setShowDeleteProductModal(true);
+  };
+  
+  // Hàm xóa sản phẩm
+  const handleDeleteProduct = async () => {
+    if (!deletingProduct) return;
+    
+    try {
+      setDeleteProductLoading(true);
+      
+      console.log('[PRODUCT MANAGEMENT] Đang xóa sản phẩm:', deletingProduct);
+      await productService.deleteProduct(deletingProduct.id);
+      
+      // Cập nhật danh sách
+      setProducts(prevProducts => 
+        prevProducts.filter(p => p.id !== deletingProduct.id)
+      );
+      
+      // Hiển thị thông báo
+      showNotification('success', 'Xóa sản phẩm thành công');
+      
+      // Đóng modal
+      setShowDeleteProductModal(false);
+    } catch (err) {
+      console.error('[PRODUCT MANAGEMENT] Lỗi khi xóa sản phẩm:', err);
+      showNotification('danger', 'Đã xảy ra lỗi khi xóa sản phẩm');
+    } finally {
+      setDeleteProductLoading(false);
+    }
+  };
+  
+  // Hàm xem thuộc tính sản phẩm
+  const handleViewAttributes = async (product) => {
+    if (!product || !product.id) {
+      console.error('[PRODUCT MANAGEMENT] Sản phẩm không hợp lệ:', product);
+      showNotification('danger', 'Không thể xem thuộc tính của sản phẩm này');
+      return;
+    }
+    
+    setSelectedProduct(product);
+    setAttributesLoading(true);
+    setAttributesError('');
+    setProductAttributes([]);
+    setShowAttributesModal(true);
+    
+    try {
+      console.log('[PRODUCT MANAGEMENT] Đang lấy thông tin chi tiết sản phẩm:', product.id);
+      const response = await productService.getProductById(product.id);
+      
+      if (response && response.data && response.data.attributes) {
+        console.log('[PRODUCT MANAGEMENT] Đã lấy thuộc tính sản phẩm:', response.data.attributes);
+        // Lọc bỏ các phần tử không hợp lệ
+        const validAttributes = Array.isArray(response.data.attributes) 
+          ? response.data.attributes.filter(item => item && item.id) 
+          : [];
+        setProductAttributes(validAttributes);
+        
+        // Cập nhật thông tin sản phẩm với đầy đủ chi tiết
+        setSelectedProduct(response.data);
+      } else {
+        console.error('[PRODUCT MANAGEMENT] Phản hồi API không hợp lệ:', response);
+        setAttributesError('Không thể lấy thông tin thuộc tính sản phẩm');
+      }
+    } catch (err) {
+      console.error('[PRODUCT MANAGEMENT] Lỗi khi lấy thuộc tính sản phẩm:', err);
+      setAttributesError('Đã xảy ra lỗi khi lấy thông tin thuộc tính sản phẩm');
+    } finally {
+      setAttributesLoading(false);
+    }
+  };
+  
+  // Hàm mở modal chỉnh sửa thuộc tính
+  const handleEditAttribute = (attribute) => {
+    if (!attribute || !attribute.id) {
+      console.error('[PRODUCT MANAGEMENT] Thuộc tính không hợp lệ:', attribute);
+      showNotification('danger', 'Không thể chỉnh sửa thuộc tính này');
+      return;
+    }
+    
+    setEditingAttribute({
+      id: attribute.id,
+      value: attribute.value || '',
+      attribute: attribute.attribute
+    });
+    
+    setAttributeModalError('');
+    setShowEditAttributeModal(true);
+  };
+  
+  // Hàm lưu chỉnh sửa thuộc tính
+  const handleSaveAttribute = async () => {
+    if (!editingAttribute.id) {
+      setAttributeModalError('Thuộc tính không hợp lệ');
+      return;
+    }
+    
+    if (!editingAttribute.value.trim()) {
+      setAttributeModalError('Vui lòng nhập giá trị thuộc tính');
+      return;
+    }
+    
+    try {
+      setAttributeModalLoading(true);
+      setAttributeModalError('');
+      
+      console.log('[PRODUCT MANAGEMENT] Đang cập nhật thuộc tính:', editingAttribute);
+      const response = await productService.updateProductAttribute({
+        id: editingAttribute.id,
+        value: editingAttribute.value
+      });
+      
+      if (response && response.data) {
+        // Cập nhật danh sách thuộc tính
+        setProductAttributes(prevAttributes => 
+          prevAttributes.map(attr => 
+            attr.id === editingAttribute.id ? response.data : attr
+          )
+        );
+        
+        // Hiển thị thông báo
+        showNotification('success', 'Cập nhật thuộc tính thành công');
+        
+        // Đóng modal
+        setShowEditAttributeModal(false);
+      } else {
+        console.error('[PRODUCT MANAGEMENT] Phản hồi API không hợp lệ:', response);
+        setAttributeModalError('Không thể cập nhật thuộc tính');
+      }
+    } catch (err) {
+      console.error('[PRODUCT MANAGEMENT] Lỗi khi cập nhật thuộc tính:', err);
+      setAttributeModalError('Đã xảy ra lỗi khi cập nhật thuộc tính');
+    } finally {
+      setAttributeModalLoading(false);
+    }
+  };
+
   return (
     <Container>
       <h2 className="mb-4">Quản lý dòng sản phẩm</h2>
@@ -673,27 +836,41 @@ const ProductLineManagement = () => {
             <Table striped bordered hover responsive>
               <thead>
                 <tr>
-                  <th style={{ width: '5%' }}>#</th>
-                  <th>Tên sản phẩm</th>
-                  <th>Mã sản phẩm</th>
-                  <th>Giá</th>
-                  <th>Trạng thái</th>
-                  <th style={{ width: '15%' }}>Thao tác</th>
+                  <th style={{ width: '5%' }}>ID</th>
+                  <th style={{ width: '30%' }}>Tên sản phẩm</th>
+                  <th style={{ width: '15%' }}>Hình ảnh</th>
+                  <th style={{ width: '15%' }}>Giá</th>
+                  <th style={{ width: '20%' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {products.map((product, index) => (
+                {products.map((product) => (
                   <tr key={product.id}>
-                    <td>{index + 1}</td>
+                    <td>{product.id}</td>
                     <td>{product.name || 'Không xác định'}</td>
-                    <td>{product.code || 'Không xác định'}</td>
+                    <td className="text-center">
+                      {product.image && product.image.base64 ? (
+                        <Image 
+                          src={`data:image/jpeg;base64,${product.image.base64}`} 
+                          alt={product.name} 
+                          style={{ height: '50px', maxWidth: '100%' }} 
+                          thumbnail 
+                        />
+                      ) : (
+                        <span className="text-muted">Không có ảnh</span>
+                      )}
+                    </td>
                     <td>{product.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price) : 'Chưa cập nhật'}</td>
-                    <td>{product.status || 'Chưa xác định'}</td>
                     <td>
+                      <Button variant="info" size="sm" className="me-2" onClick={() => handleViewAttributes(product)}>
+                        <i className="bi bi-info-circle"></i>
+                      </Button>
                       <Button variant="warning" size="sm" className="me-2" onClick={() => handleEditProduct(product)}>
                         <i className="bi bi-pencil-square"></i>
                       </Button>
-                      {/* Nút xóa sản phẩm nếu bạn muốn thêm sau này */}
+                      <Button variant="danger" size="sm" onClick={() => handleDeleteProductConfirm(product)}>
+                        <i className="bi bi-trash"></i>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -786,6 +963,161 @@ const ProductLineManagement = () => {
           </Button>
           <Button variant="primary" onClick={handleSaveProduct} disabled={productModalLoading}>
             {productModalLoading ? <Spinner animation="border" size="sm" /> : 'Lưu'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal xác nhận xóa sản phẩm */}
+      <Modal show={showDeleteProductModal} onHide={() => setShowDeleteProductModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận xóa sản phẩm</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Bạn có chắc chắn muốn xóa sản phẩm <strong>{deletingProduct?.name}</strong>?
+          <p className="text-danger mt-2">Lưu ý: Hành động này không thể hoàn tác.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteProductModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="danger" onClick={handleDeleteProduct} disabled={deleteProductLoading}>
+            {deleteProductLoading ? <Spinner animation="border" size="sm" /> : 'Xóa'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      
+      {/* Modal xem thuộc tính sản phẩm */}
+      <Modal show={showAttributesModal} onHide={() => setShowAttributesModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Thuộc tính sản phẩm: {selectedProduct?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {attributesError && <Alert variant="danger">{attributesError}</Alert>}
+          
+          {attributesLoading ? (
+            <div className="text-center py-4">
+              <Spinner animation="border" variant="primary" />
+              <p className="mt-2">Đang tải thông tin sản phẩm...</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-4 row">
+                <div className="col-md-6">
+                  <h5>Thông tin cơ bản</h5>
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Tên sản phẩm:</label>
+                    <p>{selectedProduct?.name || 'Chưa cập nhật'}</p>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Mã sản phẩm:</label>
+                    <p>{selectedProduct?.code || 'Chưa cập nhật'}</p>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Giá cơ bản:</label>
+                    <p>{selectedProduct?.basePrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedProduct.basePrice) : 'Chưa cập nhật'}</p>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Mô tả:</label>
+                    <p>{selectedProduct?.description || 'Chưa cập nhật'}</p>
+                  </div>
+                </div>
+                
+                <div className="col-md-6">
+                  <h5 className="mb-3">Hình ảnh sản phẩm</h5>
+                  {selectedProduct && selectedProduct.image && selectedProduct.image.base64 ? (
+                    <div className="text-center">
+                      <Image 
+                        src={`data:image/jpeg;base64,${selectedProduct.image.base64}`} 
+                        alt={selectedProduct.name} 
+                        style={{ maxHeight: '200px', maxWidth: '100%' }} 
+                        thumbnail 
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-muted">Không có hình ảnh</p>
+                  )}
+                </div>
+              </div>
+              
+              <hr />
+              
+              <h5>Thuộc tính sản phẩm</h5>
+              {productAttributes.length === 0 ? (
+                <p className="text-muted">Sản phẩm này chưa có thuộc tính nào</p>
+              ) : (
+                <Table striped bordered hover responsive>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '30%' }}>Tên thuộc tính</th>
+                      <th>Giá trị</th>
+                      <th style={{ width: '15%' }}>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {productAttributes.map((attribute) => (
+                      <tr key={attribute.id}>
+                        <td>{attribute.attribute?.name || 'Không xác định'}</td>
+                        <td>{attribute.value || 'Chưa cập nhật'}</td>
+                        <td>
+                          <Button variant="warning" size="sm" onClick={() => handleEditAttribute(attribute)}>
+                            <i className="bi bi-pencil-square"></i>
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              )}
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAttributesModal(false)}>
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      
+      {/* Modal chỉnh sửa thuộc tính */}
+      <Modal show={showEditAttributeModal} onHide={() => setShowEditAttributeModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Chỉnh sửa thuộc tính: {editingAttribute.attribute?.name || 'Không xác định'}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {attributeModalError && <Alert variant="danger">{attributeModalError}</Alert>}
+          <Form>
+            <Form.Group className="mb-3" controlId="attributeName">
+              <Form.Label>Tên thuộc tính</Form.Label>
+              <Form.Control
+                type="text"
+                value={editingAttribute.attribute?.name || ''}
+                readOnly
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3" controlId="attributeValue">
+              <Form.Label>Giá trị thuộc tính</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Nhập giá trị thuộc tính"
+                value={editingAttribute.value}
+                onChange={(e) => setEditingAttribute({ ...editingAttribute, value: e.target.value })}
+                required
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowEditAttributeModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="primary" onClick={handleSaveAttribute} disabled={attributeModalLoading}>
+            {attributeModalLoading ? <Spinner animation="border" size="sm" /> : 'Lưu'}
           </Button>
         </Modal.Footer>
       </Modal>
