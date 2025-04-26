@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Table, Button, Form, Modal, Spinner, Alert, InputGroup } from 'react-bootstrap';
 import { categoryService } from '../../services/categoryService';
+import { attributeService } from '../../services/attributeService';
 
 const CategoryManagement = () => {
   // State quản lý danh sách danh mục
@@ -29,6 +30,25 @@ const CategoryManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [isSearchResult, setIsSearchResult] = useState(false);
+  
+  // State cho thuộc tính
+  const [attributes, setAttributes] = useState([]);
+  const [showAttributesModal, setShowAttributesModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [attributesLoading, setAttributesLoading] = useState(false);
+  const [attributesError, setAttributesError] = useState('');
+  
+  // State cho modal thêm/sửa thuộc tính
+  const [showAttributeModal, setShowAttributeModal] = useState(false);
+  const [attributeModalTitle, setAttributeModalTitle] = useState('');
+  const [attributeModalLoading, setAttributeModalLoading] = useState(false);
+  const [attributeModalError, setAttributeModalError] = useState('');
+  const [editingAttribute, setEditingAttribute] = useState({ id: null, name: '', categoryId: null });
+  
+  // State cho modal xác nhận xóa thuộc tính
+  const [showDeleteAttributeModal, setShowDeleteAttributeModal] = useState(false);
+  const [deletingAttribute, setDeletingAttribute] = useState(null);
+  const [deleteAttributeLoading, setDeleteAttributeLoading] = useState(false);
 
   // Lấy danh sách danh mục khi component được mount
   useEffect(() => {
@@ -206,6 +226,135 @@ const CategoryManagement = () => {
       setNotification({ show: false, type: '', message: '' });
     }, 3000);
   };
+  
+  // Hàm xem thuộc tính của danh mục
+  const handleViewAttributes = async (category) => {
+    setSelectedCategory(category);
+    setAttributesLoading(true);
+    setAttributesError('');
+    setAttributes([]);
+    setShowAttributesModal(true);
+    
+    try {
+      console.log('[CATEGORY MANAGEMENT] Đang lấy danh sách thuộc tính của danh mục:', category.id);
+      const response = await attributeService.getAttributesByCategory(category.id);
+      
+      if (response && response.data) {
+        console.log('[CATEGORY MANAGEMENT] Đã lấy danh sách thuộc tính:', response.data);
+        setAttributes(response.data);
+      } else {
+        console.error('[CATEGORY MANAGEMENT] Phản hồi API không hợp lệ:', response);
+        setAttributesError('Không thể lấy danh sách thuộc tính');
+      }
+    } catch (err) {
+      console.error('[CATEGORY MANAGEMENT] Lỗi khi lấy danh sách thuộc tính:', err);
+      setAttributesError('Đã xảy ra lỗi khi lấy danh sách thuộc tính');
+    } finally {
+      setAttributesLoading(false);
+    }
+  };
+  
+  // Hàm mở modal thêm thuộc tính mới
+  const handleAddAttribute = () => {
+    setAttributeModalTitle('Thêm thuộc tính mới');
+    setEditingAttribute({ id: null, name: '', categoryId: selectedCategory.id });
+    setAttributeModalError('');
+    setShowAttributeModal(true);
+  };
+  
+  // Hàm mở modal sửa thuộc tính
+  const handleEditAttribute = (attribute) => {
+    setAttributeModalTitle('Cập nhật thuộc tính');
+    setEditingAttribute({ ...attribute });
+    setAttributeModalError('');
+    setShowAttributeModal(true);
+  };
+  
+  // Hàm lưu thuộc tính (thêm mới hoặc cập nhật)
+  const handleSaveAttribute = async () => {
+    // Kiểm tra tên thuộc tính
+    if (!editingAttribute.name.trim()) {
+      setAttributeModalError('Vui lòng nhập tên thuộc tính');
+      return;
+    }
+    
+    try {
+      setAttributeModalLoading(true);
+      setAttributeModalError('');
+      
+      if (editingAttribute.id) {
+        // Cập nhật thuộc tính
+        console.log('[CATEGORY MANAGEMENT] Đang cập nhật thuộc tính:', editingAttribute);
+        const response = await attributeService.updateAttribute(editingAttribute.id, editingAttribute.name);
+        
+        // Cập nhật danh sách
+        if (response && response.data) {
+          setAttributes(prevAttributes => 
+            prevAttributes.map(attr => 
+              attr.id === editingAttribute.id ? response.data : attr
+            )
+          );
+        }
+        
+        // Hiển thị thông báo
+        showNotification('success', 'Cập nhật thuộc tính thành công');
+      } else {
+        // Thêm thuộc tính mới
+        console.log('[CATEGORY MANAGEMENT] Đang thêm thuộc tính mới:', editingAttribute);
+        const response = await attributeService.addAttribute(editingAttribute.name, editingAttribute.categoryId);
+        
+        // Cập nhật danh sách
+        if (response && response.data) {
+          setAttributes(prevAttributes => [...prevAttributes, response.data]);
+        }
+        
+        // Hiển thị thông báo
+        showNotification('success', 'Thêm thuộc tính thành công');
+      }
+      
+      // Đóng modal
+      setShowAttributeModal(false);
+    } catch (err) {
+      console.error('[CATEGORY MANAGEMENT] Lỗi khi lưu thuộc tính:', err);
+      setAttributeModalError('Đã xảy ra lỗi khi lưu thuộc tính');
+    } finally {
+      setAttributeModalLoading(false);
+    }
+  };
+  
+  // Hàm mở modal xác nhận xóa thuộc tính
+  const handleDeleteAttributeConfirm = (attribute) => {
+    setDeletingAttribute(attribute);
+    setShowDeleteAttributeModal(true);
+  };
+  
+  // Hàm xóa thuộc tính
+  const handleDeleteAttribute = async () => {
+    if (!deletingAttribute) return;
+    
+    try {
+      setDeleteAttributeLoading(true);
+      
+      console.log('[CATEGORY MANAGEMENT] Đang xóa thuộc tính:', deletingAttribute);
+      await attributeService.deleteAttribute(deletingAttribute.id);
+      
+      // Cập nhật danh sách
+      setAttributes(prevAttributes => 
+        prevAttributes.filter(attr => attr.id !== deletingAttribute.id)
+      );
+      
+      // Hiển thị thông báo
+      showNotification('success', 'Xóa thuộc tính thành công');
+      
+      // Đóng modal
+      setShowDeleteAttributeModal(false);
+    } catch (err) {
+      console.error('[CATEGORY MANAGEMENT] Lỗi khi xóa thuộc tính:', err);
+      showNotification('danger', 'Đã xảy ra lỗi khi xóa thuộc tính');
+    } finally {
+      setDeleteAttributeLoading(false);
+    }
+  };
 
   return (
     <Container>
@@ -306,6 +455,9 @@ const CategoryManagement = () => {
                     <td>{index + 1}</td>
                     <td>{category.name}</td>
                     <td>
+                      <Button variant="info" size="sm" className="me-2" onClick={() => handleViewAttributes(category)}>
+                        <i className="bi bi-list-ul"></i>
+                      </Button>
                       <Button variant="warning" size="sm" className="me-2" onClick={() => handleEditCategory(category)}>
                         <i className="bi bi-pencil-square"></i>
                       </Button>
@@ -366,6 +518,120 @@ const CategoryManagement = () => {
           </Button>
           <Button variant="danger" onClick={handleDeleteCategory} disabled={deleteLoading}>
             {deleteLoading ? <Spinner animation="border" size="sm" /> : 'Xóa'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal xem thuộc tính của danh mục */}
+      <Modal show={showAttributesModal} onHide={() => setShowAttributesModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Thuộc tính của danh mục: {selectedCategory?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {attributesError && <Alert variant="danger">{attributesError}</Alert>}
+          
+          {attributesLoading ? (
+            <div className="text-center py-4">
+              <Spinner animation="border" variant="primary" />
+              <p className="mt-2">Đang tải danh sách thuộc tính...</p>
+            </div>
+          ) : (
+            <>
+              <div className="d-flex justify-content-end mb-3">
+                <Button variant="primary" size="sm" onClick={handleAddAttribute}>
+                  <i className="bi bi-plus-circle me-1"></i> Thêm thuộc tính
+                </Button>
+              </div>
+              
+              {attributes.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-muted">Chưa có thuộc tính nào cho danh mục này</p>
+                  <Button variant="primary" onClick={handleAddAttribute}>
+                    <i className="bi bi-plus-circle me-1"></i> Thêm thuộc tính mới
+                  </Button>
+                </div>
+              ) : (
+                <Table striped bordered hover responsive>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '5%' }}>#</th>
+                      <th>Tên thuộc tính</th>
+                      <th style={{ width: '15%' }}>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attributes.map((attribute, index) => (
+                      <tr key={attribute.id}>
+                        <td>{index + 1}</td>
+                        <td>{attribute.name}</td>
+                        <td>
+                          <Button variant="warning" size="sm" className="me-2" onClick={() => handleEditAttribute(attribute)}>
+                            <i className="bi bi-pencil-square"></i>
+                          </Button>
+                          <Button variant="danger" size="sm" onClick={() => handleDeleteAttributeConfirm(attribute)}>
+                            <i className="bi bi-trash"></i>
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              )}
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAttributesModal(false)}>
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      
+      {/* Modal thêm/sửa thuộc tính */}
+      <Modal show={showAttributeModal} onHide={() => setShowAttributeModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>{attributeModalTitle}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {attributeModalError && <Alert variant="danger">{attributeModalError}</Alert>}
+          <Form>
+            <Form.Group className="mb-3" controlId="attributeName">
+              <Form.Label>Tên thuộc tính</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Nhập tên thuộc tính"
+                value={editingAttribute.name}
+                onChange={(e) => setEditingAttribute({ ...editingAttribute, name: e.target.value })}
+                required
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAttributeModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="primary" onClick={handleSaveAttribute} disabled={attributeModalLoading}>
+            {attributeModalLoading ? <Spinner animation="border" size="sm" /> : 'Lưu'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      
+      {/* Modal xác nhận xóa thuộc tính */}
+      <Modal show={showDeleteAttributeModal} onHide={() => setShowDeleteAttributeModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận xóa thuộc tính</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Bạn có chắc chắn muốn xóa thuộc tính <strong>{deletingAttribute?.name}</strong>?
+          <p className="text-danger mt-2">Lưu ý: Hành động này không thể hoàn tác.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteAttributeModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="danger" onClick={handleDeleteAttribute} disabled={deleteAttributeLoading}>
+            {deleteAttributeLoading ? <Spinner animation="border" size="sm" /> : 'Xóa'}
           </Button>
         </Modal.Footer>
       </Modal>

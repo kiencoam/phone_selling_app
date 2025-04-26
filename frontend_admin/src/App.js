@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import CategoryManagement from './pages/categories/CategoryManagement';
 import BrandManagement from './pages/brands/BrandManagement';
+import ProductLineManagement from './pages/products/ProductLineManagement';
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="categories" element={<CategoryManagement />} />
           <Route path="brands" element={<BrandManagement />} />
-          <Route path="products" element={<div className="p-4">Trang Sản phẩm - Đang phát triển</div>} />
+          <Route path="products" element={<ProductLineManagement />} />
           <Route path="orders" element={<div className="p-4">Trang Đơn hàng - Đang phát triển</div>} />
           <Route path="promotions" element={<div className="p-4">Trang Khuyến mãi - Đang phát triển</div>} />
           <Route path="customers" element={<div className="p-4">Trang Khách hàng - Đang phát triển</div>} />
