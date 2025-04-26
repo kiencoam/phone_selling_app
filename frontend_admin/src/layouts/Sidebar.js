@@ -11,6 +11,7 @@ const Sidebar = () => {
   const menuItems = [
     { path: '/', icon: 'bi bi-house-fill', label: 'Trang chủ' },
     { path: '/products', icon: 'bi bi-phone-fill', label: 'Sản phẩm' },
+    { path: '/categories', icon: 'bi bi-list-ul', label: 'Danh mục sản phẩm' },
     { path: '/orders', icon: 'bi bi-cart-fill', label: 'Đơn hàng' },
     { path: '/promotions', icon: 'bi bi-tag-fill', label: 'Khuyến mãi' },
     { path: '/customers', icon: 'bi bi-people-fill', label: 'Khách hàng' },
