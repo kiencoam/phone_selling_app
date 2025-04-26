@@ -382,3 +382,382 @@
         </div>
     </div>
 </header>
+<div class="header-overlay">
+    <div>
+        <a href="javascript:;">X</a>
+    </div>
+</div>
+<div class="header-mask"></div>
+<div class="popupPMH"></div>
+<div class="locationbox__overlay"></div>
+<div class="locationbox-v2 v2024 has-suggest-address">
+    <div class="locationbox__item locationbox__item--right">
+        <div class="top-location">
+            <b>Chọn địa chỉ nhận hàng</b>
+            <p class="full-location">
+                <span class="choose-text">Địa chỉ đang chọn: </span>
+                <span class="fulladdress-v2"></span>
+                <a href="javascript:;" class="hide" onclick="changeLocation()">Thay đổi</a>
+            </p>
+            <a class="cls-location" href="javascript:;" onclick="closeLocation()">
+                <i class="close-symbol"></i>
+            </a>
+            <a class="cls-back" href="javascript:;"></a>
+        </div>
+        <div class="location-search hide">
+            <i class="icon-search"></i>
+            <input class="" onkeyup="suggestLocation(event);" id="locationSearch" name="locationSearch" placeholder="Tìm nhanh tỉnh thành, quận huyện, phường xã"/>
+            <a href="javascript:;" class="clear-searchbox" onclick="clearSearchBox()">
+                <span class="box-relative">
+                    <i class="close-symbol"></i>
+                </span>
+            </a>
+        </div>
+        <div class="location-suggestaddress">
+            <i class="icon-search"></i>
+            <input class="" onkeyup="suggestAddress(event);" id="locationSuggestAddress" name="locationSuggestAddress" placeholder="Nhập địa chỉ (Tòa nhà, Số nhà, Tên đường,...)"/>
+            <a href="javascript:;" class="clear-suggestaddress" onclick="clearSuggestAddress()">
+                <span class="box-relative">
+                    <i class="close-symbol"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+    <strong class="choose-province hide">
+        <span>Hoặc chọn</span>
+    </strong>
+    <div class="listing-location">
+        <div id="suggest-location"></div>
+        <div id="suggest-address">
+            <ul class="suggest-location"></ul>
+            <a href="javascript:;" class="suggest-address-notfound">
+                Không tìm thấy địa chỉ nào khác
+            <span>Nhập địa chỉ theo Tỉnh/TP, Quận/Huyện, Phường/ xã</span>
+            </a>
+            <input type="hidden" name="suggest-address-ss" value="">
+        </div>
+        <div class="locationbox__img">
+            <img src="//cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/img-location.png">
+        </div>
+        <div class="lst-tab hide">
+            <a href="javascript:;" data-list="#lst-prov" class="active" onclick="changeLocationTab($(this))">Tỉnh/TP</a>
+            <a href="javascript:;" data-list="#lst-dis" class="disable" onclick="changeLocationTab($(this))">Quận/Huyện</a>
+            <a href="javascript:;" data-list="#lst-ward" class="disable" onclick="changeLocationTab($(this))">Phường/Xã</a>
+        </div>
+        <div id="lst-prov" class="lst-location hide">
+            <div class="listing-locale">
+                <ul>
+                    <li>
+                        <a class="" data-value="3" href="javascript:;" onclick="changePoupProvinceV2(3, this)">H &#x1ED3;Ch &#xED;Minh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="5" href="javascript:;" onclick="changePoupProvinceV2(5, this)">H &#xE0;N &#x1ED9;i
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="9" href="javascript:;" onclick="changePoupProvinceV2(9, this)">&#x110;&#xE0;N &#x1EB5;ng
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="82" href="javascript:;" onclick="changePoupProvinceV2(82, this)">An Giang
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="102" href="javascript:;" onclick="changePoupProvinceV2(102, this)">B &#xE0;R &#x1ECB;a - V &#x169;ng T &#xE0;u
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="103" href="javascript:;" onclick="changePoupProvinceV2(103, this)">B &#x1EAF;c Giang
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="104" href="javascript:;" onclick="changePoupProvinceV2(104, this)">B &#x1EAF;c K &#x1EA1;n
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="105" href="javascript:;" onclick="changePoupProvinceV2(105, this)">B &#x1EA1;c Li &#xEA;u
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="106" href="javascript:;" onclick="changePoupProvinceV2(106, this)">B &#x1EAF;c Ninh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="107" href="javascript:;" onclick="changePoupProvinceV2(107, this)">B &#x1EBF;n Tre
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="108" href="javascript:;" onclick="changePoupProvinceV2(108, this)">B &#xEC;nh &#x110;&#x1ECB;nh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="109" href="javascript:;" onclick="changePoupProvinceV2(109, this)">B &#xEC;nh D &#x1B0;&#x1A1;ng
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="110" href="javascript:;" onclick="changePoupProvinceV2(110, this)">B &#xEC;nh Ph &#x1B0;&#x1EDB;c
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="111" href="javascript:;" onclick="changePoupProvinceV2(111, this)">B &#xEC;nh Thu &#x1EAD;n
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="81" href="javascript:;" onclick="changePoupProvinceV2(81, this)">C &#xE0;Mau
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="7" href="javascript:;" onclick="changePoupProvinceV2(7, this)">C &#x1EA7;n Th &#x1A1;</a>
+                    </li>
+                    <li>
+                        <a class="" data-value="112" href="javascript:;" onclick="changePoupProvinceV2(112, this)">Cao B &#x1EB1;ng
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="6" href="javascript:;" onclick="changePoupProvinceV2(6, this)">&#x110;&#x1EAF;k L &#x1EAF;k
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="113" href="javascript:;" onclick="changePoupProvinceV2(113, this)">&#x110;&#x1EAF;k N &#xF4;ng
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="114" href="javascript:;" onclick="changePoupProvinceV2(114, this)">&#x110;i &#x1EC7;n Bi &#xEA;n
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="8" href="javascript:;" onclick="changePoupProvinceV2(8, this)">&#x110;&#x1ED3;ng Nai
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="115" href="javascript:;" onclick="changePoupProvinceV2(115, this)">&#x110;&#x1ED3;ng Th &#xE1;p
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="116" href="javascript:;" onclick="changePoupProvinceV2(116, this)">Gia Lai
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="117" href="javascript:;" onclick="changePoupProvinceV2(117, this)">H &#xE0;Giang
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="118" href="javascript:;" onclick="changePoupProvinceV2(118, this)">H &#xE0;Nam
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="120" href="javascript:;" onclick="changePoupProvinceV2(120, this)">H &#xE0;T &#x129;nh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="121" href="javascript:;" onclick="changePoupProvinceV2(121, this)">H &#x1EA3;i D &#x1B0;&#x1A1;ng
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="101" href="javascript:;" onclick="changePoupProvinceV2(101, this)">H &#x1EA3;i Ph &#xF2;ng
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="122" href="javascript:;" onclick="changePoupProvinceV2(122, this)">H &#x1EAD;u Giang
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="123" href="javascript:;" onclick="changePoupProvinceV2(123, this)">H &#xF2;a B &#xEC;nh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="124" href="javascript:;" onclick="changePoupProvinceV2(124, this)">H &#x1B0;ng Y &#xEA;n
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="125" href="javascript:;" onclick="changePoupProvinceV2(125, this)">Kh &#xE1;nh H &#xF2;a
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="126" href="javascript:;" onclick="changePoupProvinceV2(126, this)">Ki &#xEA;n Giang
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="127" href="javascript:;" onclick="changePoupProvinceV2(127, this)">Kon Tum
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="128" href="javascript:;" onclick="changePoupProvinceV2(128, this)">Lai Ch &#xE2;u
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="129" href="javascript:;" onclick="changePoupProvinceV2(129, this)">L &#xE2;m &#x110;&#x1ED3;ng
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="130" href="javascript:;" onclick="changePoupProvinceV2(130, this)">L &#x1EA1;ng S &#x1A1;n
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="131" href="javascript:;" onclick="changePoupProvinceV2(131, this)">L &#xE0;o Cai
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="132" href="javascript:;" onclick="changePoupProvinceV2(132, this)">Long An
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="133" href="javascript:;" onclick="changePoupProvinceV2(133, this)">Nam &#x110;&#x1ECB;nh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="134" href="javascript:;" onclick="changePoupProvinceV2(134, this)">Ngh &#x1EC7;An
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="135" href="javascript:;" onclick="changePoupProvinceV2(135, this)">Ninh B &#xEC;nh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="136" href="javascript:;" onclick="changePoupProvinceV2(136, this)">Ninh Thu &#x1EAD;n
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="137" href="javascript:;" onclick="changePoupProvinceV2(137, this)">Ph &#xFA;Th &#x1ECD;</a>
+                    </li>
+                    <li>
+                        <a class="" data-value="138" href="javascript:;" onclick="changePoupProvinceV2(138, this)">Ph &#xFA;Y &#xEA;n
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="139" href="javascript:;" onclick="changePoupProvinceV2(139, this)">Qu &#x1EA3;ng B &#xEC;nh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="140" href="javascript:;" onclick="changePoupProvinceV2(140, this)">Qu &#x1EA3;ng Nam
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="141" href="javascript:;" onclick="changePoupProvinceV2(141, this)">Qu &#x1EA3;ng Ng &#xE3;i
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="142" href="javascript:;" onclick="changePoupProvinceV2(142, this)">Qu &#x1EA3;ng Ninh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="143" href="javascript:;" onclick="changePoupProvinceV2(143, this)">Qu &#x1EA3;ng Tr &#x1ECB;</a>
+                    </li>
+                    <li>
+                        <a class="" data-value="144" href="javascript:;" onclick="changePoupProvinceV2(144, this)">S &#xF3;c Tr &#x103;ng
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="145" href="javascript:;" onclick="changePoupProvinceV2(145, this)">S &#x1A1;n La
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="146" href="javascript:;" onclick="changePoupProvinceV2(146, this)">T &#xE2;y Ninh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="147" href="javascript:;" onclick="changePoupProvinceV2(147, this)">Th &#xE1;i B &#xEC;nh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="148" href="javascript:;" onclick="changePoupProvinceV2(148, this)">Th &#xE1;i Nguy &#xEA;n
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="149" href="javascript:;" onclick="changePoupProvinceV2(149, this)">Thanh H &#xF3;a
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="334" href="javascript:;" onclick="changePoupProvinceV2(334, this)">Th &#xE0;nh ph &#x1ED1;Hu &#x1EBF;</a>
+                    </li>
+                    <li>
+                        <a class="" data-value="151" href="javascript:;" onclick="changePoupProvinceV2(151, this)">Ti &#x1EC1;n Giang
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="152" href="javascript:;" onclick="changePoupProvinceV2(152, this)">Tr &#xE0;Vinh
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="153" href="javascript:;" onclick="changePoupProvinceV2(153, this)">Tuy &#xEA;n Quang
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="154" href="javascript:;" onclick="changePoupProvinceV2(154, this)">V &#x129;nh Long
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="155" href="javascript:;" onclick="changePoupProvinceV2(155, this)">V &#x129;nh Ph &#xFA;c
+        </a>
+                    </li>
+                    <li>
+                        <a class="" data-value="156" href="javascript:;" onclick="changePoupProvinceV2(156, this)">Y &#xEA;n B &#xE1;i
+        </a>
+                    </li>
+                </ul>
+            </div>
+            <a href="javascript:;" class="suggest-address-back">Quay lại gợi ý địa chỉ</a>
+        </div>
+        <div id="lst-dis" class="lst-location hide"></div>
+        <div id="lst-ward" class="lst-location hide"></div>
+        <div id="lst-address" class="lst-location hide">
+            <input type="text" id="hdLocationAddress" name="hdLocationAddress" onkeyup="getLocationAddress(true)" maxlength="255" value="" placeholder="Số nhà, tên đường" autocomplete="off"/>
+            <span>Vui lòng cho Th &#x1EBF;Gi &#x1EDB;i Di &#x110;&#x1ED9;ng biết số nhà, tên đường để thuận tiện giao hàng cho quý khách.</span>
+            <label>Vui lòng nhập địa chỉ số nhà, tên đường để giao hàng.</label>
+        </div>
+    </div>
+    <div class="location-confirm hide">
+        <a href="javascript:;" onclick="locationConfirm()">Xác nhận địa chỉ</a>
+    </div>
+    <div class="location-none hide" onclick="$(this).find('i').toggleClass('active');">
+        <i></i>
+        <span>Không hiển thị lại, tôi sẽ cung cấp địa chỉ sau</span>
+    </div>
+    <input type="hidden" id="hdLocationAddressId" value="-1">
+    <input type="hidden" id="hdLocationProvinceId" value="0">
+    <input type="hidden" id="hdLocationDisId" value="0">
+    <input type="hidden" id="hdLocationWardId" value="0">
+    <b id="h-provincename" style="display:none!important" data-provinceid="0"></b>
+    <div class="locationbox__address">
+        <a href="javascript:;" onclick="closeLocation()">
+            <i class="close-symbol"></i>
+        </a>
+        <b>Thông tin giao hàng</b>
+        <ul></ul>
+        <a href="javascript:;" class="btn-add">Thêm thông tin địa chỉ giao hàng mới</a>
+        <span class="check">
+            <i></i>
+        </span>
+        <a href="javascript:;" class="btn-confirm" onclick="locationConfirm()">Xác nhận</a>
+        <div class="la-delete">
+            <div>
+                <img src="//cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/icon-warning-red.png"/>
+                <b>Xóa địa chỉ</b>
+                <span>Bạn có chắc chắn muốn xóa địa chỉ này không?</span>
+                <a href="javascript:;" class="btn-delete-cancel">Hủy</a>
+                <a href="javascript:;" class="btn-delete-confirm" onclick="deleteAddress()">Xóa</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="locationbox__popup new-popup hide" id="lc_pop--sugg">
+    <div class="locationbox__popup--cnt locationbox__popup--suggestion new-locale">
+        <div class="flex-block">
+            <i class="icon-location"></i>
+            <p>
+                Hãy chọn <b>địa chỉ cụ thể</b>
+                để chúng tôi cung cấp <b>chính xác</b>
+                gi &#xE1;v &#xE0;khuy &#x1EBF;n m &#xE3;i
+            </p>
+        </div>
+        <div class="btn-block">
+            <a href="javascript:;" class="btn-location" onclick="OpenLocation()">
+                <b>Chọn địa chỉ</b>
+            </a>
+            <a href="javascript:;" class="btn-location gray" onclick="SkipLocation()">
+                <b>Đóng</b>
+            </a>
+        </div>
+    </div>
+</div>
