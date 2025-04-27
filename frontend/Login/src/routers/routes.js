@@ -1,11 +1,9 @@
 import LoginPage from '../pages/LoginPage';
-import ProductDetail from '../pages/ProductDetail';
-import PurchaseHistory from '../pages/PurchaseHistory';
+import CartPage from '../pages/CartPage';
 
 const routes = [
   { path: '/', element: <LoginPage /> },
-  { path: '/lich-su-mua-hang/', element: <PurchaseHistory /> },
-  { path: '/dtdd/', element: <ProductDetail /> },
+  { path: '/cart/', element: <CartPage /> },
 ];
 
 export default routes;

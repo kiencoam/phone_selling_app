@@ -20,7 +20,7 @@ const LoginPage = () => {
 
   // Hàm kiểm tra định dạng số điện thoại Việt Nam
   const validatePhoneNumber = (number) => {
-    const PhoneRegex = /^(0|\+84)(3|5|7|8|9)\d{8}$/; // Regex cho số điện thoại Việt Nam
+    const PhoneRegex = /^(0|\+84)(3|5|7|8|9)\d{8}$/; 
     return PhoneRegex.test(number);
   };
 
