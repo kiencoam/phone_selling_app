@@ -32,6 +32,11 @@ const OrderManagement = () => {
   // State cho thông báo
   const [notification, setNotification] = useState({ show: false, type: '', message: '' });
   
+  // Thêm các state mới cho việc cập nhật trạng thái đơn hàng
+  const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [confirmAction, setConfirmAction] = useState({ type: '', title: '', message: '' });
+  
   // Lấy danh sách đơn hàng khi component được mount hoặc khi các tham số thay đổi
   useEffect(() => {
     fetchOrders();
@@ -44,14 +49,25 @@ const OrderManagement = () => {
       setError('');
       
       // Chuẩn bị tham số cho API
-      const params = {
-        page,
-        size,
-        ...activeFilters
-      };
+      const params = {};
+      
+      // Chỉ thêm tham số page và size nếu chúng khác 0 và 10 (giá trị mặc định của API)
+      if (page !== 0) {
+        params.page = page;
+      }
+      
+      if (size !== 10) {
+        params.size = size;
+      }
+      
+      // Thêm các bộ lọc nếu có
+      if (Object.keys(activeFilters).length > 0) {
+        Object.assign(params, activeFilters);
+      }
       
       console.log('[ORDER MANAGEMENT] Đang lấy danh sách đơn hàng với tham số:', params);
-      const response = await orderService.searchOrders(params);
+      // Gọi API không kèm tham số nếu không cần
+      const response = await orderService.searchOrders(Object.keys(params).length > 0 ? params : undefined);
       
       if (response && response.data) {
         console.log('[ORDER MANAGEMENT] Đã lấy danh sách đơn hàng:', response.data);
@@ -66,7 +82,7 @@ const OrderManagement = () => {
       }
     } catch (err) {
       console.error('[ORDER MANAGEMENT] Lỗi khi lấy danh sách đơn hàng:', err);
-      setError('Đã xảy ra lỗi khi lấy danh sách đơn hàng');
+      setError(`Đã xảy ra lỗi khi lấy danh sách đơn hàng: ${err.message}`);
     } finally {
       setLoading(false);
       setFilterLoading(false);
@@ -232,21 +248,21 @@ const OrderManagement = () => {
     switch (status) {
       case 'PENDING':
         badgeClass = 'bg-warning text-dark';
-        statusText = 'Chờ xử lý';
+        statusText = 'Đang chờ xử lý';
         break;
-      case 'PROCESSING':
+      case 'CONFIRMED':
         badgeClass = 'bg-info text-dark';
-        statusText = 'Đang xử lý';
+        statusText = 'Đã xác nhận';
         break;
-      case 'SHIPPED':
+      case 'DELIVERING':
         badgeClass = 'bg-primary';
         statusText = 'Đang giao hàng';
         break;
-      case 'DELIVERED':
+      case 'RECEIVED':
         badgeClass = 'bg-success';
-        statusText = 'Đã giao hàng';
+        statusText = 'Đã nhận hàng';
         break;
-      case 'CANCELLED':
+      case 'CANCELED':
         badgeClass = 'bg-danger';
         statusText = 'Đã hủy';
         break;
@@ -255,6 +271,157 @@ const OrderManagement = () => {
     }
     
     return <span className={`badge ${badgeClass}`}>{statusText}</span>;
+  };
+
+  // Hàm hiển thị modal xác nhận
+  const showConfirmModal = (type, title, message, handler) => {
+    setConfirmAction({
+      type,
+      title,
+      message,
+      handler
+    });
+    setConfirmModalVisible(true);
+  };
+
+  // Hàm xác nhận đơn hàng (chuyển từ PENDING sang CONFIRMED)
+  const handleConfirmOrder = async (orderId) => {
+    showConfirmModal(
+      'confirm',
+      'Xác nhận đơn hàng',
+      'Bạn có chắc chắn muốn xác nhận đơn hàng này?',
+      async () => {
+        try {
+          setStatusUpdateLoading(true);
+          
+          console.log('[ORDER MANAGEMENT] Đang xác nhận đơn hàng có ID:', orderId);
+          await orderService.confirmOrder(orderId);
+          
+          // Cập nhật lại trạng thái đơn hàng trên giao diện
+          setSelectedOrder(prevOrder => ({
+            ...prevOrder,
+            status: 'CONFIRMED'
+          }));
+          
+          // Hiển thị thông báo thành công
+          showNotification('success', 'Đơn hàng đã được xác nhận thành công');
+          
+          // Tải lại danh sách đơn hàng
+          fetchOrders();
+        } catch (err) {
+          console.error('[ORDER MANAGEMENT] Lỗi khi xác nhận đơn hàng:', err);
+          showNotification('danger', `Đã xảy ra lỗi khi xác nhận đơn hàng: ${err.message}`);
+        } finally {
+          setStatusUpdateLoading(false);
+          setConfirmModalVisible(false);
+        }
+      }
+    );
+  };
+
+  // Hàm xác nhận đơn hàng đã nhận
+  const handleReceiveOrder = async (orderId) => {
+    showConfirmModal(
+      'receive',
+      'Xác nhận đã nhận hàng',
+      'Bạn có chắc chắn muốn xác nhận đơn hàng này đã được nhận?',
+      async () => {
+        try {
+          setStatusUpdateLoading(true);
+          
+          console.log('[ORDER MANAGEMENT] Đang xác nhận đơn hàng đã nhận, ID:', orderId);
+          await orderService.receiveOrder(orderId);
+          
+          // Cập nhật lại trạng thái đơn hàng trên giao diện
+          setSelectedOrder(prevOrder => ({
+            ...prevOrder,
+            status: 'RECEIVED'
+          }));
+          
+          // Hiển thị thông báo thành công
+          showNotification('success', 'Đơn hàng đã được xác nhận đã nhận thành công');
+          
+          // Tải lại danh sách đơn hàng
+          fetchOrders();
+        } catch (err) {
+          console.error('[ORDER MANAGEMENT] Lỗi khi xác nhận đơn hàng đã nhận:', err);
+          showNotification('danger', `Đã xảy ra lỗi khi xác nhận đơn hàng đã nhận: ${err.message}`);
+        } finally {
+          setStatusUpdateLoading(false);
+          setConfirmModalVisible(false);
+        }
+      }
+    );
+  };
+
+  // Hàm chuyển đơn hàng sang trạng thái giao hàng
+  const handleDeliverOrder = async (orderId) => {
+    showConfirmModal(
+      'deliver',
+      'Chuyển sang giao hàng',
+      'Bạn có chắc chắn muốn chuyển đơn hàng này sang trạng thái giao hàng?',
+      async () => {
+        try {
+          setStatusUpdateLoading(true);
+          
+          console.log('[ORDER MANAGEMENT] Đang chuyển đơn hàng sang giao hàng, ID:', orderId);
+          await orderService.deliverOrder(orderId);
+          
+          // Cập nhật lại trạng thái đơn hàng trên giao diện
+          setSelectedOrder(prevOrder => ({
+            ...prevOrder,
+            status: 'DELIVERING'
+          }));
+          
+          // Hiển thị thông báo thành công
+          showNotification('success', 'Đơn hàng đã chuyển sang trạng thái giao hàng');
+          
+          // Tải lại danh sách đơn hàng
+          fetchOrders();
+        } catch (err) {
+          console.error('[ORDER MANAGEMENT] Lỗi khi chuyển đơn hàng sang giao hàng:', err);
+          showNotification('danger', 'Đã xảy ra lỗi khi chuyển đơn hàng sang giao hàng');
+        } finally {
+          setStatusUpdateLoading(false);
+          setConfirmModalVisible(false);
+        }
+      }
+    );
+  };
+
+  // Hàm hủy đơn hàng
+  const handleCancelOrder = async (orderId) => {
+    showConfirmModal(
+      'cancel',
+      'Hủy đơn hàng',
+      'Bạn có chắc chắn muốn hủy đơn hàng này? Hành động này không thể hoàn tác.',
+      async () => {
+        try {
+          setStatusUpdateLoading(true);
+          
+          console.log('[ORDER MANAGEMENT] Đang hủy đơn hàng có ID:', orderId);
+          await orderService.cancelOrder(orderId);
+          
+          // Cập nhật lại trạng thái đơn hàng trên giao diện
+          setSelectedOrder(prevOrder => ({
+            ...prevOrder,
+            status: 'CANCELED'
+          }));
+          
+          // Hiển thị thông báo thành công
+          showNotification('success', 'Đơn hàng đã được hủy thành công');
+          
+          // Tải lại danh sách đơn hàng
+          fetchOrders();
+        } catch (err) {
+          console.error('[ORDER MANAGEMENT] Lỗi khi hủy đơn hàng:', err);
+          showNotification('danger', 'Đã xảy ra lỗi khi hủy đơn hàng');
+        } finally {
+          setStatusUpdateLoading(false);
+          setConfirmModalVisible(false);
+        }
+      }
+    );
   };
 
   return (
@@ -520,8 +687,87 @@ const OrderManagement = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDetailModal(false)}>
-            Đóng
+          {selectedOrder && (
+            <div className="d-flex justify-content-between w-100">
+              <div>
+                {/* Các nút chuyển đổi trạng thái */}
+                {selectedOrder.status === 'PENDING' && (
+                  <Button 
+                    variant="success" 
+                    className="me-2"
+                    onClick={() => handleConfirmOrder(selectedOrder.id)}
+                    disabled={statusUpdateLoading}
+                  >
+                    {statusUpdateLoading ? <Spinner animation="border" size="sm" /> : <i className="bi bi-check-circle me-1"></i>}
+                    Xác nhận đơn hàng
+                  </Button>
+                )}
+                
+                {selectedOrder.status === 'CONFIRMED' && selectedOrder.receiveMethod === 'DELIVERY' && (
+                  <Button 
+                    variant="primary" 
+                    className="me-2"
+                    onClick={() => handleDeliverOrder(selectedOrder.id)}
+                    disabled={statusUpdateLoading}
+                  >
+                    {statusUpdateLoading ? <Spinner animation="border" size="sm" /> : <i className="bi bi-truck me-1"></i>}
+                    Chuyển giao hàng
+                  </Button>
+                )}
+                
+                {(selectedOrder.status === 'CONFIRMED' && selectedOrder.receiveMethod === 'PICKUP') || 
+                 (selectedOrder.status === 'DELIVERING') && (
+                  <Button 
+                    variant="success" 
+                    className="me-2"
+                    onClick={() => handleReceiveOrder(selectedOrder.id)}
+                    disabled={statusUpdateLoading}
+                  >
+                    {statusUpdateLoading ? <Spinner animation="border" size="sm" /> : <i className="bi bi-bag-check me-1"></i>}
+                    Xác nhận đã nhận hàng
+                  </Button>
+                )}
+                
+                {/* Nút Hủy đơn hàng luôn hiển thị, trừ khi đơn đã hoàn thành hoặc đã hủy */}
+                {selectedOrder.status !== 'RECEIVED' && selectedOrder.status !== 'CANCELED' && (
+                  <Button 
+                    variant="danger"
+                    onClick={() => handleCancelOrder(selectedOrder.id)}
+                    disabled={statusUpdateLoading}
+                  >
+                    {statusUpdateLoading ? <Spinner animation="border" size="sm" /> : <i className="bi bi-x-circle me-1"></i>}
+                    Hủy đơn hàng
+                  </Button>
+                )}
+              </div>
+              
+              <Button variant="secondary" onClick={() => setShowDetailModal(false)}>
+                Đóng
+              </Button>
+            </div>
+          )}
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal xác nhận thay đổi trạng thái */}
+      <Modal show={confirmModalVisible} onHide={() => setConfirmModalVisible(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{confirmAction.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {confirmAction.message}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setConfirmModalVisible(false)}>
+            Hủy bỏ
+          </Button>
+          <Button 
+            variant={confirmAction.type === 'cancel' ? 'danger' : 'primary'} 
+            onClick={confirmAction.handler}
+            disabled={statusUpdateLoading}
+          >
+            {statusUpdateLoading ? <Spinner animation="border" size="sm" className="me-1" /> : null}
+            Xác nhận
           </Button>
         </Modal.Footer>
       </Modal>
