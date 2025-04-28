@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../assets/styles/CartPage.css";
 import CartItem from "../components/CartItem";
 import Header from "../components/Header";
@@ -6,8 +8,6 @@ import Footer from "../components/Footer";
 import {
   FaMapMarkerAlt,
   FaAngleRight,
-  FaClock,
-  FaChevronDown,
   FaTimes,
   FaPen,
   FaPlus,
@@ -16,8 +16,11 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { IoStorefront } from "react-icons/io5";
 
 const CartPage = () => {
-  // Thêm state cho thông tin người nhận và phương thức giao hàng
-  const [deliveryMethod, setDeliveryMethod] = useState("delivery"); // 'delivery' hoặc 'pickup'
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const [deliveryMethod, setDeliveryMethod] = useState("delivery");
   const [modalDeliveryMethod, setModalDeliveryMethod] = useState("delivery");
 
   const [invoiceData, setInvoiceData] = useState({
@@ -52,34 +55,78 @@ const CartPage = () => {
   };
 
   // Danh sách các địa chỉ người dùng
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      phone: "0865225504",
-      address: "118 đường thư lâm, Xã Thụy Lâm, Huyện Đông Anh, Hà Nội",
-      receiveName: "Chị Thị Linh",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      phone: "0865225504",
-      address: "15 Đường Trần Phú, Phường Mộ Lao, Quận Hà Đông, Hà Nội",
-      receiveName: "Chị Thị Linh",
-      isDefault: false,
-    },
-    {
-      id: 3,
-      phone: "0865225504",
-      address: "48 Tố Hữu, Phường Vạn Phúc, Quận Hà Đông, Hà Nội",
-      receiveName: "Chị Thị Linh",
-      isDefault: false,
-    },
-  ]);
+  const [addresses, setAddresses] = useState([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [addressError, setAddressError] = useState(null);
+
+  const fetchAddresses = async () => {
+    try {
+      setLoadingAddresses(true);
+
+      // Kiểm tra token ngay từ đầu
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        // Nếu không có token, không cần gọi API
+        console.log("Người dùng chưa đăng nhập, bỏ qua việc tải địa chỉ");
+        setLoadingAddresses(false);
+        setAddressError("Vui lòng đăng nhập để xem địa chỉ giao hàng");
+        return;
+      }
+
+      // Gọi API lấy địa chỉ giao hàng
+      const response = await axios.get(
+        "https://phone-selling-app-mw21.onrender.com/api/v1/user/shipping-info",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Kiểm tra response
+      if (
+        response.data &&
+        response.data.data &&
+        response.data.data.length > 0
+      ) {
+        console.log("Shipping addresses:", response.data.data);
+
+        // Cập nhật danh sách địa chỉ
+        const addressesData = response.data.data;
+        setAddresses(addressesData);
+
+        // Chọn địa chỉ mặc định (hoặc địa chỉ đầu tiên)
+        const defaultAddress =
+          addressesData.find((addr) => addr.isDefault) || addressesData[0];
+        setSelectedAddress(defaultAddress);
+        setSelectedAddressId(defaultAddress.id);
+
+        setAddressError(null);
+      } else {
+        // Không có địa chỉ giao hàng
+        setAddressError("Chưa có địa chỉ giao hàng nào");
+        setAddresses([]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lấy địa chỉ giao hàng:", err);
+
+      if (err.response && err.response.status === 401) {
+        setAddressError("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+      } else {
+        setAddressError("Không thể tải địa chỉ giao hàng");
+      }
+    } finally {
+      setLoadingAddresses(false);
+    }
+  };
 
   // Địa chỉ hiện tại được chọn
-  const [selectedAddress, setSelectedAddress] = useState(
-    addresses.find((addr) => addr.isDefault) || addresses[0]
-  );
+  const [selectedAddress, setSelectedAddress] = useState({
+    receiveName: "",
+    phone: "",
+    address: "",
+  });
   const [selectedAddressId, setSelectedAddressId] = useState(
     selectedAddress?.id || null
   );
@@ -98,88 +145,77 @@ const CartPage = () => {
   const [editId, setEditId] = useState(null);
 
   // Products, calculations and other functions as before
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      quantity: 1,
-      catalogItem: {
-        id: 1,
-        name: "Máy tính bảng iPad Air 6 M2 11 inch WiFi 1TB",
-        image: {
-          id: "ipad1",
-          base64:
-            "https://cdn.tgdd.vn/Products/Images/522/302135/ipad-air-m2-wifi-den-thumb-600x600.jpeg",
-          isPrimary: true,
-        },
-        basePrice: 25790000,
-        rating: 4.9,
-        reviewsCount: 241,
-        price: 25790000,
-      },
-      variant: {
-        id: 101,
-        code: "ipad-blue",
-        color: "Màu Xanh Dương",
-        productId: 1,
-        images: [
-          {
-            id: "ipad1-blue",
-            base64:
-              "https://cdn.tgdd.vn/Products/Images/522/302135/ipad-air-m2-wifi-den-thumb-600x600.jpeg",
-            isPrimary: true,
+  const [products, setProducts] = useState([]);
+
+  const fetchCart = async () => {
+    try {
+      setLoading(true);
+
+      // Lấy token từ localStorage
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.log("Người dùng chưa đăng nhập");
+        // Thay vì hiển thị lỗi, có thể chuyển hướng người dùng đến trang đăng nhập
+        // navigate('/login');
+        setLoading(false);
+        return;
+      }
+
+      // Gọi API giỏ hàng với token
+      const response = await axios.get(
+        "https://phone-selling-app-mw21.onrender.com/api/v1/user/cart",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        ],
-        inventory: {
-          id: 1001,
-          available: 15,
-          sold: 85,
-        },
-      },
-      flashSale: {
-        active: true,
-        endTime: "02:52:35",
-      },
-      promotions: 3,
-    },
-    {
-      id: 2,
-      quantity: 1,
-      catalogItem: {
-        id: 2,
-        name: "Tai nghe Có dây AVA+ LiveBass Y231",
-        image: {
-          id: "headphone1",
-          base64:
-            "https://cdn.tgdd.vn/Products/Images/54/248455/tai-nghe-ep-ava-y231-den-thumb-600x600.jpeg",
-          isPrimary: true,
-        },
-        basePrice: 200000,
-        rating: 4.5,
-        reviewsCount: 128,
-        price: 90000,
-      },
-      variant: {
-        id: 201,
-        code: "ava-black",
-        color: "Màu Đen",
-        productId: 2,
-        images: [
-          {
-            id: "headphone1-black",
-            base64:
-              "https://cdn.tgdd.vn/Products/Images/54/248455/tai-nghe-ep-ava-y231-den-thumb-600x600.jpeg",
-            isPrimary: true,
-          },
-        ],
-        inventory: {
-          id: 2001,
-          available: 30,
-          sold: 70,
-        },
-      },
-      promotions: 2,
-    },
-  ]);
+        }
+      );
+
+      // Kiểm tra response
+      if (response.data && response.data.data) {
+        console.log("Cart data:", response.data.data);
+
+        // Cập nhật state products với dữ liệu từ API
+        setProducts(response.data.data);
+        setError(null);
+      } else {
+        // Xử lý khi không có dữ liệu
+        setError("Không tìm thấy sản phẩm trong giỏ hàng");
+        setProducts([]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lấy giỏ hàng:", err);
+
+      if (err.response && err.response.status === 401) {
+        // Token hết hạn hoặc không hợp lệ
+        localStorage.removeItem("token"); // Xóa token không hợp lệ
+        setError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
+        // navigate('/login'); // Có thể chuyển hướng người dùng đến trang đăng nhập
+      } else {
+        setError("Không thể tải giỏ hàng. Vui lòng thử lại sau.");
+      }
+
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      // Chỉ gọi API nếu đã đăng nhập
+      fetchCart();
+      fetchAddresses();
+    } else {
+      // Nếu chưa đăng nhập, không gọi API và kết thúc loading
+      setLoading(false);
+      setLoadingAddresses(false);
+      console.log("Người dùng chưa đăng nhập, bỏ qua việc gọi API");
+    }
+  }, []);
 
   // Calculate totals
   const totalItems = products.reduce(
@@ -200,14 +236,38 @@ const CartPage = () => {
     0
   );
 
-  const updateQuantity = (id, newQuantity) => {
+  const updateQuantity = async (id, newQuantity) => {
     if (newQuantity < 1) return;
 
-    setProducts(
-      products.map((product) =>
-        product.id === id ? { ...product, quantity: newQuantity } : product
-      )
-    );
+    try {
+      // Cập nhật UI trước (optimistic update)
+      setProducts(
+        products.map((product) =>
+          product.id === id ? { ...product, quantity: newQuantity } : product
+        )
+      );
+
+      // Lấy token từ localStorage
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      // Gọi API để cập nhật số lượng
+      await axios.put(
+        `https://phone-selling-app-mw21.onrender.com/api/v1/user/cart/update/${id}`,
+        { quantity: newQuantity },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (err) {
+      console.error("Lỗi khi cập nhật số lượng sản phẩm:", err);
+      alert("Không thể cập nhật số lượng. Vui lòng thử lại.");
+
+      // Rollback UI state nếu API thất bại
+      fetchCart(); // Gọi lại hàm fetchCart để lấy dữ liệu mới nhất
+    }
   };
 
   const removeProduct = (id) => {
@@ -380,58 +440,6 @@ const CartPage = () => {
     <div className="cart-page">
       <Header />
       <div className="container">
-        {/* Delivery Options */}
-        <div className="delivery-options">
-          <label
-            className={`delivery-tab ${
-              deliveryMethod === "delivery" ? "active" : ""
-            }`}
-          >
-            <input
-              type="radio"
-              name="delivery"
-              checked={deliveryMethod === "delivery"}
-              onChange={() => setDeliveryMethod("delivery")}
-            />
-            <span className="tab-label">Giao tận nơi</span>
-          </label>
-          <label
-            className={`delivery-tab ${
-              deliveryMethod === "pickup" ? "active" : ""
-            }`}
-          >
-            <input
-              type="radio"
-              name="delivery"
-              checked={deliveryMethod === "pickup"}
-              onChange={() => setDeliveryMethod("pickup")}
-            />
-            <span className="tab-label">Nhận tại siêu thị</span>
-          </label>
-        </div>
-
-        {/* Recipient Info */}
-        {deliveryMethod === "delivery" && (
-          <div className="recipient-info">
-            <div className="recipient-header">
-              <span className="recipient-name">
-                Người nhận: {selectedAddress.receiveName} -{" "}
-                {selectedAddress.phone}
-              </span>
-              <button className="recipient-edit" onClick={openAddressModal}>
-                <FaAngleRight />
-              </button>
-            </div>
-            <div className="recipient-address">
-              <FaMapMarkerAlt className="location-icon" />
-              <span>{selectedAddress.address}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Products List and other content as before */}
-        {/* ... */}
-
         {/* Modal thay đổi địa chỉ - Theo đúng ảnh mẫu */}
         {showAddressModal && (
           <div className="modal-overlay">
@@ -695,25 +703,218 @@ const CartPage = () => {
           </div>
         )}
 
-        {/* Phần Products List và phần còn lại giữ nguyên */}
-        <div className="products-list">
-          {products.length > 0 ? (
-            products.map((product) => (
-              <CartItem
-                key={product.id}
-                product={product}
-                updateQuantity={updateQuantity}
-                removeProduct={removeProduct}
-                formatPrice={formatPrice}
+        {!localStorage.getItem("token") ? (
+          // Hiển thị thông báo đăng nhập
+          <div className="login-required-container">
+            <div className="login-required-content">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/6357/6357599.png"
+                alt="Yêu cầu đăng nhập"
+                className="login-required-image"
               />
-            ))
-          ) : (
-            <div className="empty-cart">
-              <p>Giỏ hàng của bạn đang trống</p>
-              <button className="continue-shopping">Tiếp tục mua sắm</button>
+              <h2 className="login-required-title">Vui lòng đăng nhập</h2>
+              <p className="login-required-message">
+                Bạn cần đăng nhập để xem giỏ hàng và thông tin giao hàng
+              </p>
+              <div className="login-required-buttons">
+                <button
+                  className="login-button"
+                  onClick={() => navigate("/login")}
+                >
+                  Đăng nhập
+                </button>
+                <button className="home-button" onClick={() => navigate("/")}>
+                  Về trang chủ
+                </button>
+              </div>
+              <div className="customer-support">
+                <p>
+                  Khi cần trợ giúp vui lòng gọi{" "}
+                  <span className="support-phone">1900 232 460</span> hoặc{" "}
+                  <span className="support-phone">028.3622.1060</span>{" "}
+                  <span className="support-time">(8h00 - 21h30)</span>
+                </p>
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        ) : loading ? (
+          // Hiển thị loading khi đang tải giỏ hàng
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Đang tải giỏ hàng...</p>
+          </div>
+        ) : error ? (
+          // Hiển thị lỗi nếu có
+          <div className="error-container">
+            <p className="error-message">{error}</p>
+          </div>
+        ) : (
+          <>
+            {/* Delivery Options */}
+            <div className="delivery-options">
+              <label
+                className={`delivery-tab ${
+                  deliveryMethod === "delivery" ? "active" : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="delivery"
+                  checked={deliveryMethod === "delivery"}
+                  onChange={() => setDeliveryMethod("delivery")}
+                />
+                <span className="tab-label">Giao tận nơi</span>
+              </label>
+              <label
+                className={`delivery-tab ${
+                  deliveryMethod === "pickup" ? "active" : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="delivery"
+                  checked={deliveryMethod === "pickup"}
+                  onChange={() => setDeliveryMethod("pickup")}
+                />
+                <span className="tab-label">Nhận tại siêu thị</span>
+              </label>
+            </div>
+            {/* Recipient Info */}
+            {deliveryMethod === "delivery" && (
+              <div className="recipient-info">
+                {loadingAddresses ? (
+                  <div className="loading-addresses">
+                    <div className="loading-spinner small"></div>
+                    <span>Đang tải địa chỉ...</span>
+                  </div>
+                ) : addressError ? (
+                  <div className="address-error">
+                    <span className="error-message">{addressError}</span>
+                  </div>
+                ) : addresses.length > 0 ? (
+                  <>
+                    <div className="recipient-header">
+                      <span className="recipient-name">
+                        Người nhận:{" "}
+                        {selectedAddress?.receiveName || "Chưa có tên"} -{" "}
+                        {selectedAddress?.phone || "Chưa có số điện thoại"}
+                      </span>
+                      <button
+                        className="recipient-edit"
+                        onClick={openAddressModal}
+                      >
+                        <FaAngleRight />
+                      </button>
+                    </div>
+                    <div className="recipient-address">
+                      <FaMapMarkerAlt className="location-icon" />
+                      <span>
+                        {selectedAddress?.address || "Chưa có địa chỉ"}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="no-address">
+                    <span>Bạn chưa có địa chỉ giao hàng</span>
+                    <button
+                      className="add-address-button"
+                      onClick={handleNewAddress}
+                    >
+                      <FaPlus /> Thêm địa chỉ mới
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Products List */}
+            <div className="products-list">
+              {products.length > 0 ? (
+                products.map((product) => (
+                  <CartItem
+                    key={product.id}
+                    product={product}
+                    updateQuantity={updateQuantity}
+                    removeProduct={removeProduct}
+                    formatPrice={formatPrice}
+                  />
+                ))
+              ) : (
+                <div className="empty-cart-container">
+                  <div className="empty-cart-content">
+                    <img
+                      src="https://cdn.tgdd.vn/mwgcart/v2/vue-pro/img/empty-cart.f6c223c07c1d3d8f81d326a2a.png"
+                      alt="Giỏ hàng trống"
+                      className="empty-cart-image"
+                    />
+                    <h2 className="empty-cart-title">Giỏ hàng trống</h2>
+                    <p className="empty-cart-message">
+                      {!localStorage.getItem("token")
+                        ? "Vui lòng đăng nhập để xem giỏ hàng của bạn"
+                        : "Không có sản phẩm nào trong giỏ hàng"}
+                    </p>
+                    <div className="empty-cart-buttons">
+                      <button
+                        className="home-button"
+                        onClick={() => navigate("/")}
+                      >
+                        Về trang chủ
+                      </button>
+                      {!localStorage.getItem("token") && (
+                        <button
+                          className="login-button"
+                          onClick={() => navigate("/login")}
+                        >
+                          Đăng nhập
+                        </button>
+                      )}
+                    </div>
+                    <div className="customer-support">
+                      <p>
+                        Khi cần trợ giúp vui lòng gọi{" "}
+                        <span className="support-phone">1900 232 460</span> hoặc{" "}
+                        <span className="support-phone">028.3622.1060</span>{" "}
+                        <span className="support-time">(8h00 - 21h30)</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Hiển thị phần còn lại chỉ khi có sản phẩm */}
+            {products.length > 0 && (
+              <>
+                {/* Special Requests */}
+                <div className="order-special-requests">
+                  {/* Giữ nguyên code */}
+                </div>
+
+                {/* Discount Section */}
+                <div className="discount-section">{/* Giữ nguyên code */}</div>
+
+                {/* Grand Total */}
+                <div className="grand-total">
+                  <div className="total-row">
+                    <span className="grand-total-label">Tổng tiền</span>
+                    <span className="grand-total-value">
+                      {formatPrice(subTotal)}
+                    </span>
+                  </div>
+                  <div className="loyalty-earning">
+                    <span>Điểm tích lũy Quà Tặng VIP</span>
+                    <span className="points-value">26.240 điểm</span>
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <button className="checkout-btn">TIẾN HÀNH ĐẶT HÀNG</button>
+                <button className="continue-btn" onClick={() => navigate("/")}>
+                  Tiếp tục mua sắm
+                </button>
+              </>
+            )}
+          </>
+        )}
 
         {products.length > 0 && (
           <>

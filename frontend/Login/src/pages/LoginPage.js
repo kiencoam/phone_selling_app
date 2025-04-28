@@ -1,79 +1,126 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import '../assets/styles/loginpage.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { MdOutlineVisibility, MdOutlineVisibilityOff } from "react-icons/md";
+import "../assets/styles/loginpage.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import axios from "axios"; // Đảm bảo bạn đã cài axios: npm install axios
 
 const LoginPage = () => {
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp, setOtp] = useState(''); // Trạng thái lưu mã OTP người dùng nhập
-  const [generatedOtp, setGeneratedOtp] = useState(''); // Mã OTP được gửi
-  const [error, setError] = useState('');
-  const [otpSent, setOtpSent] = useState(false); // Trạng thái gửi OTP
-  const navigate = useNavigate(); // Khởi tạo hook useNavigate
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Trạng thái loading khi đăng nhập
+  const navigate = useNavigate();
 
-  const validPhoneNumbers = [
-    { phoneNumber: '0987654321', name: 'Nguyen Van A' },
-    { phoneNumber: '0912345678', name: 'Tran Thi B' },
-    { phoneNumber: '0901234567', name: 'Le Van C' },
-  ];
-
-  // Hàm kiểm tra định dạng số điện thoại Việt Nam
-  const validatePhoneNumber = (number) => {
-    const PhoneRegex = /^(0|\+84)(3|5|7|8|9)\d{8}$/; 
-    return PhoneRegex.test(number);
+  // Hàm kiểm tra định dạng email
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  // Hàm xử lý gửi OTP
-  const sendOtp = (number) => {
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // Tạo mã OTP ngẫu nhiên
-    console.log(`Gửi OTP ${otpCode} đến số điện thoại: ${number}`);
-    setGeneratedOtp(otpCode); // Lưu mã OTP đã gửi
-    setOtpSent(true); // Đặt trạng thái OTP đã được gửi
-    setError(''); // Xóa lỗi nếu có
-  };
+  const handleSubmit = async () => {
+    // Reset error message
+    setError("");
 
-  const handleSubmit = () => {
-    if (!phoneNumber) {
-      setError('Vui lòng nhập số điện thoại');
-    } else {
-      const matchedEntry = validPhoneNumbers.find(
-        (entry) => entry.phoneNumber === phoneNumber
-      ); // Kiểm tra số điện thoại trong danh sách
-      if (matchedEntry) {
-        setError('');
-        navigate('/lich-su-mua-hang'); // Chuyển hướng nếu hợp lệ
-      } else if (validatePhoneNumber(phoneNumber)) {
-        setError('');
-        sendOtp(phoneNumber); // Gửi OTP nếu số điện thoại hợp lệ nhưng không có trong danh sách
+    // Validate form
+    if (!email) {
+      setError("Vui lòng nhập email");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError("Email không hợp lệ");
+      return;
+    }
+
+    if (!password) {
+      setError("Vui lòng nhập mật khẩu");
+      return;
+    }
+
+    try {
+      setIsLoading(true); // Bắt đầu loading
+
+      // Gọi API đăng nhập
+      const response = await axios.post(
+        "https://phone-selling-app-mw21.onrender.com/api/v1/auth/customer-login",
+        {
+          email,
+          password,
+        }
+      );
+
+      // Kiểm tra response theo cấu trúc API mới
+      if (
+        response.data &&
+        response.data.meta &&
+        response.data.meta.code === 200
+      ) {
+        // Lưu token vào localStorage
+        localStorage.setItem("token", response.data.data.token);
+
+        // Decode JWT token để lấy thông tin user (nếu cần)
+        // const userInfo = decodeToken(response.data.data.token);
+        // localStorage.setItem("user", JSON.stringify(userInfo));
+
+        // Hiển thị thông báo đăng nhập thành công (tùy chọn)
+        console.log("Đăng nhập thành công!");
+
+        // Chuyển hướng đến trang chính
+        navigate("/");
       } else {
-        setError('Số điện thoại không hợp lệ');
+        // Xử lý trường hợp API trả về code khác 200
+        setError(response.data?.meta?.message || "Đăng nhập không thành công");
       }
+    } catch (err) {
+      // Xử lý lỗi từ API
+      console.error("Login error:", err);
+
+      if (err.response) {
+        // Server trả về lỗi với status code
+        const errorMessage = err.response.data?.meta?.message || 
+                            err.response.data?.message || 
+                            "Email hoặc mật khẩu không chính xác";
+                            
+        if (errorMessage.includes("User not found")) {
+          setError("Không tìm thấy tài khoản với email này");
+        } 
+        else if (errorMessage.includes("Invalid credentials")) {
+          setError("Mật khẩu không chính xác");
+        }
+        else if (errorMessage.includes("Invalid email")) {
+          setError("Email không hợp lệ");
+        }
+        else if (errorMessage.includes("Account locked")) {
+          setError("Tài khoản đã bị khóa. Vui lòng liên hệ hỗ trợ");
+        }
+        else {
+          setError(errorMessage);
+        }
+      } else if (err.request) {
+        // Không nhận được phản hồi từ server
+        setError("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
+      } else {
+        // Lỗi khi thiết lập request
+        setError("Có lỗi xảy ra. Vui lòng thử lại.");
+      }
+    } finally {
+      setIsLoading(false); // Kết thúc loading
     }
   };
 
-  const handleVerifyOtp = () => {
-    if (otp === generatedOtp) {
-      setError('');
-      alert('Xác minh OTP thành công!'); // Thay bằng logic xử lý tiếp theo
-      navigate('/lich-su-mua-hang'); // Chuyển hướng sau khi xác minh thành công
-    } else {
-      setError('Mã OTP không chính xác');
-    }
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
-  const handleResendOtp = () => {
-    sendOtp(phoneNumber); // Gửi lại OTP
-    setError('');
-    alert('Mã OTP đã được gửi lại!');
+  const handleForgotPassword = () => {
+    navigate("/forgot-password");
   };
 
-  const handleChangePhoneNumber = () => {
-    setOtpSent(false); // Quay lại bước nhập số điện thoại
-    setPhoneNumber('');
-    setOtp('');
-    setGeneratedOtp('');
-    setError('');
+  const goToRegister = () => {
+    navigate("/register");
   };
 
   return (
@@ -84,47 +131,62 @@ const LoginPage = () => {
           <img src="../img/TGDD-540x270.png" alt="Illustration" />
         </div>
         <div className="login-form">
-          <h2>Tra cứu thông tin đơn hàng</h2>
-          {!otpSent ? (
-            <>
-              <div className="input-group">
-                <input
-                  type="text"
-                  placeholder="Nhập số điện thoại mua hàng"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                />
-              </div>
-              {error && <p className="error-message">{error}</p>}
-              <button className="continue-btn" onClick={handleSubmit}>
-                TIẾP TỤC
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="success-message">
-                Mã xác nhận đã được gửi qua tin nhắn của số điện thoại {phoneNumber}.
-              </p>
-              <div className="input-group">
-                <input
-                  type="text"
-                  placeholder="Nhập mã OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
-              </div>
-              {error && <p className="error-message">{error}</p>}
-              <button className="continue-btn" onClick={handleVerifyOtp}>
-                XÁC MINH OTP
-              </button>
-              <p className="link" onClick={handleResendOtp}>
-                Gửi lại mã xác nhận
-              </p>
-              <p className="link" onClick={handleChangePhoneNumber}>
-                Đổi số điện thoại
-              </p>
-            </>
-          )}
+          <h2>Đăng nhập</h2>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <div className="input-with-icon">
+              <input
+                type="email"
+                id="email"
+                placeholder="Nhập email của bạn"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="input-group password-group">
+            <label htmlFor="password">Mật khẩu</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              placeholder="Nhập mật khẩu"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autocomplete="new-password"
+              data-lpignore="true"
+            />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={toggleShowPassword}
+              aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+            >
+              {showPassword ? (
+                <MdOutlineVisibilityOff />
+              ) : (
+                <MdOutlineVisibility />
+              )}
+            </button>
+          </div>
+          {error && <p className="error-message">{error}</p>}
+
+          <div className="forgot-password">
+            <span onClick={handleForgotPassword}>Quên mật khẩu?</span>
+          </div>
+
+          <button
+            className={`login-btn ${isLoading ? "loading" : ""}`}
+            onClick={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading ? "ĐANG ĐĂNG NHẬP..." : "ĐĂNG NHẬP"}
+          </button>
+
+          <div className="register-link">
+            <p>
+              Bạn chưa có tài khoản? <span onClick={goToRegister}>Đăng ký</span>
+            </p>
+          </div>
         </div>
       </div>
       <Footer />
