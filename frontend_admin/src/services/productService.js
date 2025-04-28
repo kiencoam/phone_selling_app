@@ -34,7 +34,26 @@ export const productService = {
   createProduct: async (productData) => {
     try {
       console.log('[PRODUCT SERVICE] Đang tạo sản phẩm mới:', productData);
-      const response = await api.post('/api/v1/product', productData);
+      
+      // Đảm bảo dữ liệu hợp lệ
+      const validData = { 
+        name: productData.name,
+        code: productData.code,
+        description: productData.description || '',
+        basePrice: Number(productData.basePrice),
+        productLineId: Number(productData.productLineId)
+      };
+      
+      // Thêm hình ảnh nếu có
+      if (productData.image && productData.image.base64) {
+        validData.image = {
+          base64: productData.image.base64,
+          isPrimary: productData.image.isPrimary || true
+        };
+      }
+      
+      console.log('[PRODUCT SERVICE] Đang gửi dữ liệu sản phẩm:', validData);
+      const response = await api.post('/api/v1/product', validData);
       console.log('[PRODUCT SERVICE] Đã tạo sản phẩm mới:', response.data);
       return response.data;
     } catch (error) {
@@ -47,7 +66,26 @@ export const productService = {
   updateProduct: async (productData) => {
     try {
       console.log('[PRODUCT SERVICE] Đang cập nhật sản phẩm:', productData);
-      const response = await api.put('/api/v1/product', productData);
+      
+      // Đảm bảo dữ liệu hợp lệ
+      const validData = { 
+        id: productData.id,
+        name: productData.name,
+        code: productData.code,
+        description: productData.description || '',
+        basePrice: Number(productData.basePrice)
+      };
+      
+      // Thêm hình ảnh nếu có
+      if (productData.image && productData.image.base64) {
+        validData.image = {
+          base64: productData.image.base64,
+          isPrimary: productData.image.isPrimary || true
+        };
+      }
+      
+      console.log('[PRODUCT SERVICE] Đang gửi dữ liệu cập nhật:', validData);
+      const response = await api.put('/api/v1/product', validData);
       console.log('[PRODUCT SERVICE] Đã cập nhật sản phẩm:', response.data);
       return response.data;
     } catch (error) {
@@ -91,6 +129,99 @@ export const productService = {
       return response.data;
     } catch (error) {
       console.error('[PRODUCT SERVICE] Lỗi khi cập nhật thuộc tính sản phẩm:', error);
+      throw error;
+    }
+  },
+
+  // Lấy danh sách biến thể của sản phẩm theo ID sản phẩm
+  getVariantsByProductId: async (productId) => {
+    try {
+      console.log('[PRODUCT SERVICE] Đang lấy danh sách biến thể của sản phẩm có ID:', productId);
+      const response = await api.get(`/api/v1/variant/product/${productId}`);
+      console.log('[PRODUCT SERVICE] Đã lấy danh sách biến thể:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[PRODUCT SERVICE] Lỗi khi lấy danh sách biến thể:', error);
+      throw error;
+    }
+  },
+
+  // Lấy thông tin chi tiết biến thể theo ID
+  getVariantById: async (variantId) => {
+    try {
+      console.log('[PRODUCT SERVICE] Đang lấy thông tin chi tiết biến thể có ID:', variantId);
+      const response = await api.get(`/api/v1/variant/${variantId}`);
+      console.log('[PRODUCT SERVICE] Đã lấy thông tin chi tiết biến thể:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[PRODUCT SERVICE] Lỗi khi lấy thông tin chi tiết biến thể:', error);
+      throw error;
+    }
+  },
+
+  // Tạo biến thể mới
+  createVariant: async (variantData) => {
+    try {
+      console.log('[PRODUCT SERVICE] Đang tạo biến thể mới:', variantData);
+      
+      // Đảm bảo dữ liệu đầu vào hợp lệ
+      const validData = {
+        code: variantData.code,
+        color: variantData.color,
+        productId: Number(variantData.productId),
+        available: Number(variantData.available),
+        images: variantData.images.map(img => ({
+          // Không gửi ID cho ảnh mới
+          base64: img.base64,
+          isPrimary: img.isPrimary
+        }))
+      };
+      
+      console.log('[PRODUCT SERVICE] Đang gửi dữ liệu biến thể:', validData);
+      const response = await api.post('/api/v1/variant', validData);
+      console.log('[PRODUCT SERVICE] Đã tạo biến thể mới:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[PRODUCT SERVICE] Lỗi khi tạo biến thể mới:', error);
+      throw error;
+    }
+  },
+
+  // Cập nhật số lượng tồn kho cho biến thể
+  updateVariantInventory: async (inventoryData) => {
+    try {
+      console.log('[PRODUCT SERVICE] Đang cập nhật tồn kho biến thể:', inventoryData);
+      const response = await api.put('/api/v1/variant/available', inventoryData);
+      console.log('[PRODUCT SERVICE] Đã cập nhật tồn kho biến thể:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[PRODUCT SERVICE] Lỗi khi cập nhật tồn kho biến thể:', error);
+      throw error;
+    }
+  },
+
+  // Xóa ảnh
+  deleteImage: async (imageId) => {
+    try {
+      console.log('[PRODUCT SERVICE] Đang xóa ảnh có ID:', imageId);
+      const response = await api.delete(`/api/v1/image/${imageId}`);
+      console.log('[PRODUCT SERVICE] Đã xóa ảnh:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[PRODUCT SERVICE] Lỗi khi xóa ảnh:', error);
+      throw error;
+    }
+  },
+
+  // Xóa biến thể sản phẩm
+  deleteVariant: async (variantId) => {
+    try {
+      console.log('[PRODUCT SERVICE] Đang xóa biến thể có ID:', variantId);
+      const response = await api.delete(`/api/v1/variant/${variantId}`);
+      console.log('[PRODUCT SERVICE] Đã xóa biến thể:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[PRODUCT SERVICE] Lỗi khi xóa biến thể:', error);
       throw error;
     }
   }
