@@ -15,7 +15,7 @@ const Sidebar = () => {
     { path: '/brands', icon: 'bi bi-building', label: 'Nhãn hàng' },
     { path: '/orders', icon: 'bi bi-cart-fill', label: 'Đơn hàng' },
     { path: '/promotions', icon: 'bi bi-tag-fill', label: 'Khuyến mãi' },
-    { path: '/customers', icon: 'bi bi-people-fill', label: 'Khách hàng' },
+    // { path: '/customers', icon: 'bi bi-people-fill', label: 'Khách hàng' },
   ];
 
   return (

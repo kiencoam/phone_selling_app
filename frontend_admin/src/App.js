@@ -10,6 +10,7 @@ import CategoryManagement from './pages/categories/CategoryManagement';
 import BrandManagement from './pages/brands/BrandManagement';
 import ProductLineManagement from './pages/products/ProductLineManagement';
 import OrderManagement from './pages/orders/OrderManagement';
+import PromotionManagement from './pages/promotions/PromotionManagement';
 
 function App() {
   return (
@@ -30,8 +31,8 @@ function App() {
           <Route path="brands" element={<BrandManagement />} />
           <Route path="products" element={<ProductLineManagement />} />
           <Route path="orders" element={<OrderManagement />} />
-          <Route path="promotions" element={<div className="p-4">Trang Khuyến mãi - Đang phát triển</div>} />
-          <Route path="customers" element={<div className="p-4">Trang Khách hàng - Đang phát triển</div>} />
+          <Route path="promotions" element={<PromotionManagement />} />
+          {/* // <Route path="customers" element={<div className="p-4">Trang Khách hàng - Đang phát triển</div>} /> */}
         </Route>
         
         {/* Redirect các đường dẫn khác về trang chủ */}
