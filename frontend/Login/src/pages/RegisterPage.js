@@ -17,6 +17,7 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
   // Hàm kiểm tra định dạng email
@@ -27,9 +28,8 @@ const RegisterPage = () => {
 
   // Hàm kiểm tra mật khẩu mạnh
   const validatePassword = (password) => {
-    // Ít nhất 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    // Ít nhất 8 ký tự, có chữ hoa, chữ thường, số
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -68,7 +68,7 @@ const RegisterPage = () => {
 
     if (!validatePassword(formData.password)) {
       setError(
-        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số"
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số."
       );
       return;
     }
@@ -80,8 +80,6 @@ const RegisterPage = () => {
 
     try {
       setIsLoading(true);
-
-      // Gọi API đăng ký
       const response = await axios.post(
         "https://phone-selling-app-mw21.onrender.com/api/v1/auth/customer-register",
         {
@@ -99,12 +97,14 @@ const RegisterPage = () => {
       ) {
         // Lưu token vào localStorage
         localStorage.setItem("token", response.data.data.token);
-
-        // Hiển thị thông báo đăng ký thành công
-        console.log("Đăng ký thành công!");
-
-        // Chuyển hướng đến trang chính
-        navigate("/");
+        
+        // Hiển thị thông báo thành công
+        setSuccessMessage("Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập sau 3 giây.");
+        
+        // Chuyển hướng sau 3 giây
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
       } else {
         // Xử lý trường hợp API trả về code khác 200
         setError(response.data?.meta?.message || "Đăng ký không thành công");
@@ -237,11 +237,20 @@ const RegisterPage = () => {
           </div>
 
           {error && <p className="error-message">{error}</p>}
+          {successMessage && (
+            <div className="success-message">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <span>{successMessage}</span>
+            </div>
+          )}
 
           <button
             className={`register-btn ${isLoading ? "loading" : ""}`}
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isLoading || successMessage}
           >
             {isLoading ? "ĐANG ĐĂNG KÝ..." : "ĐĂNG KÝ"}
           </button>
