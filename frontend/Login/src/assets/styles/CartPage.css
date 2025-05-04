@@ -10,6 +10,101 @@
   padding: 0 10px;
 }
 
+.add-address-button {
+  background-color: #2f80ed;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  max-width: 200px;
+}
+
+.add-address-button:hover {
+  background-color: #1366d6;
+}
+
+.address-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.add-address-button {
+  background-color: #edaa2f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  max-width: 200px;
+}
+
+.add-address-button:hover {
+  background-color: #d67b13;
+}
+
+.no-address {
+  background-color: #fff8f8;
+  border-radius: 4px;
+  padding: 15px;
+  border-left: 3px solid #ff6b6b;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.address-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.address-warning {
+  color: #e74c3c;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.add-address-button {
+  background-color: #f96f3a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  margin-top: 0; /* Bỏ margin-top để tránh khoảng cách dọc */
+}
+
+.add-address-button:hover {
+  background-color: #e59c26;
+}
+
+.no-address {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 /* Tab-style delivery options */
 .delivery-options {
   background-color: #fff;
@@ -608,7 +703,7 @@
   margin-top: 0;
   margin-bottom: 12px;
   font-size: 16px;
-  text-transform:none;
+  text-transform: none;
   font-weight: 600;
 }
 
@@ -801,6 +896,374 @@ input:checked + .slider:before {
 }
 
 /* Form xuất hóa đơn công ty */
+.address-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.address-modal {
+  background-color: #fff;
+  width: 90%;
+  max-width: 550px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  background-color: #F96F3A;
+  color: white;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.modal-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Danh sách địa chỉ */
+.addresses-list {
+  margin-bottom: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.address-item {
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  transition: all 0.2s;
+}
+
+.address-item:hover {
+  border-color: #F96F3A;
+  background-color: #fff9f6;
+}
+
+.address-item.selected {
+  border: 2px solid #F96F3A;
+  background-color: #fff9f6;
+}
+
+.address-content {
+  flex: 1;
+}
+
+.address-name-phone {
+  margin-bottom: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.address-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.address-phone {
+  color: #666;
+}
+
+.address-full {
+  color: #555;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.address-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-address-btn, .delete-address-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-address-btn {
+  background-color: #f1f1f1;
+  color: #555;
+}
+
+.delete-address-btn {
+  background-color: #ffeeee;
+  color: #e74c3c;
+}
+
+.edit-address-btn:hover {
+  background-color: #ddd;
+}
+
+.delete-address-btn:hover {
+  background-color: #ffd9d9;
+}
+
+/* Button thêm địa chỉ */
+.add-address-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #F96F3A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+  margin-top: 15px;
+}
+
+.add-address-btn:hover {
+  background-color: #eba46e;
+}
+
+/* Form thêm/sửa địa chỉ */
+.address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input, .form-group textarea {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+  border-color: #F96F3A;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(249, 111, 58, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.cancel-btn, .save-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.cancel-btn {
+  background-color: #f1f1f1;
+  color: #555;
+}
+
+.save-btn {
+  background-color: #F96F3A;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #ddd;
+}
+
+.save-btn:hover {
+  background-color: #faa434;
+}
+
+/* Hiển thị loading */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  flex-direction: column;
+  gap: 15px;
+  color: #666;
+}
+
+.loading-spinner.small {
+  width: 25px;
+  height: 25px;
+  border: 2px solid rgba(249, 111, 58, 0.2);
+  border-top: 2px solid #F96F3A;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Phần hiển thị khi không có địa chỉ */
+.no-addresses {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+  color: #666;
+  text-align: center;
+}
+
+.no-addresses p {
+  margin-bottom: 20px;
+}
+
+/* Style cho phần hiển thị địa chỉ đã chọn */
+.recipient-info {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.selected-address {
+  width: 100%;
+}
+
+.recipient-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.recipient-info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.recipient-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.recipient-phone {
+  color: #666;
+}
+
+.change-address-btn {
+  background-color: transparent;
+  border: 1px solid #F96F3A;
+  color: #F96F3A;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.change-address-btn:hover {
+  background-color: rgba(249, 111, 58, 0.1);
+}
+
+.recipient-address {
+  display: flex;
+  align-items: flex-start;
+  color: #555;
+  line-height: 1.5;
+}
+
+.location-icon {
+  color: #F96F3A;
+  margin-right: 8px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.no-address-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.no-address-text {
+  display: flex;
+  align-items: center;
+  color: #666;
+}
+
+.location-icon.large {
+  font-size: 20px;
+  margin-right: 10px;
+}
 
 .invoice-field {
   margin-top: auto;
@@ -936,7 +1399,7 @@ input:checked + .slider:before {
 }
 
 .login-button {
-  background-color: #F96F3A;
+  background-color: #f96f3a;
   color: white;
   border: none;
   padding: 12px 30px;
@@ -949,7 +1412,7 @@ input:checked + .slider:before {
 }
 
 .login-button:hover {
-  background-color: #e55c26;
+  background-color: #f8a04d;
 }
 
 .home-button {
@@ -982,4 +1445,243 @@ input:checked + .slider:before {
 
 .support-time {
   color: #999;
+}
+
+/* Phương thức thanh toán */
+.payment-methods {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.payment-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payment-option:hover {
+  border-color: #F96F3A;
+  background-color: #fff9f6;
+}
+
+.payment-option.selected {
+  border-color: #F96F3A;
+  background-color: #fff9f6;
+  position: relative;
+}
+
+.payment-option.selected::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  height: 3px;
+  background-color: #F96F3A;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.payment-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+  accent-color: #F96F3A;
+}
+
+.payment-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+}
+
+.payment-icon img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+
+.payment-info {
+  display: flex;
+  flex-direction: column;
+}
+/* Ghi chú đơn hàng */
+.order-note {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.note-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.note-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.note-input:focus {
+  outline: none;
+  border-color: #F96F3A;
+}
+.payment-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.payment-desc {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Responsive cho payment methods */
+@media (max-width: 768px) {
+  .payment-option {
+    padding: 12px;
+  }
+  
+  .payment-icon {
+    width: 35px;
+    height: 35px;
+    margin-right: 10px;
+  }
+  
+  .payment-icon img {
+    width: 25px;
+    height: 25px;
+  }
+  
+  .payment-name {
+    font-size: 14px;
+  }
+  
+  .payment-desc {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .payment-option input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+  }
+}
+
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 300px;
+  max-width: 400px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: slideInRight 0.3s ease-out;
+  z-index: 1000;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast-notification.success {
+  background-color: #e4f8ef;
+  border-left: 5px solid #28a745;
+}
+
+.toast-notification.error {
+  background-color: #ffeaea;
+  border-left: 5px solid #dc3545;
+}
+
+.toast-notification.info {
+  background-color: #e6f4ff;
+  border-left: 5px solid #0d6efd;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast-icon {
+  font-size: 20px;
+}
+
+.toast-notification.success .toast-icon {
+  color: #28a745;
+}
+
+.toast-notification.error .toast-icon {
+  color: #dc3545;
+}
+
+.toast-notification.info .toast-icon {
+  color: #0d6efd;
+}
+
+.toast-message {
+  font-size: 14px;
+  color: #333;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close:hover {
+  color: #333;
 }

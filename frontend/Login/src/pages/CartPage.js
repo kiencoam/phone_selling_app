@@ -11,6 +11,10 @@ import {
   FaTimes,
   FaPen,
   FaPlus,
+  FaTrash,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaInfoCircle,
 } from "react-icons/fa";
 import { TbTruckDelivery } from "react-icons/tb";
 import { IoStorefront } from "react-icons/io5";
@@ -20,8 +24,8 @@ const CartPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const [deliveryMethod, setDeliveryMethod] = useState("delivery");
-  const [modalDeliveryMethod, setModalDeliveryMethod] = useState("delivery");
+  const [deliveryMethod, setDeliveryMethod] = useState("DELIVERY");
+  const [modalDeliveryMethod, setModalDeliveryMethod] = useState("DELIVERY");
 
   const [invoiceData, setInvoiceData] = useState({
     companyName: "",
@@ -54,27 +58,161 @@ const CartPage = () => {
     });
   };
 
-  // Danh sách các địa chỉ người dùng
+  // Cập nhật state quản lý địa chỉ
   const [addresses, setAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [addressError, setAddressError] = useState(null);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    receiveName: "",
+    phone: "",
+    address: "",
+  });
+  const [editingAddressId, setEditingAddressId] = useState(null);
 
+  // Mở form thêm địa chỉ mới
+  const openAddAddressForm = () => {
+    setAddressForm({
+      receiveName: "",
+      phone: "",
+      address: "",
+    });
+    setEditingAddressId(null);
+    setShowAddressForm(true);
+  };
+
+  // Mở form chỉnh sửa địa chỉ
+  const openEditAddressForm = (address) => {
+    setAddressForm({
+      receiveName: address.receiveName,
+      phone: address.phone,
+      address: address.address,
+    });
+    setEditingAddressId(address.id);
+    setShowAddressForm(true);
+  };
+
+  // Xóa địa chỉ
+  const deleteAddress = async (addressId) => {
+    if (!window.confirm("Bạn có chắc muốn xóa địa chỉ này không?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Vui lòng đăng nhập để xóa địa chỉ!");
+        return;
+      }
+
+      await axios.delete(
+        `https://phone-selling-app-mw21.onrender.com/api/v1/user/shipping-info/${addressId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Cập nhật lại danh sách địa chỉ
+      await fetchAddresses();
+
+      showToast("Xóa địa chỉ thành công!");
+    } catch (error) {
+      console.error("Lỗi khi xóa địa chỉ:", error);
+      showToast("Có lỗi xảy ra khi xóa địa chỉ. Vui lòng thử lại sau.");
+    }
+  };
+
+  // Sửa hàm saveAddress để đảm bảo không gửi ID khi thêm mới
+  const saveAddress = async () => {
+    try {
+      // Kiểm tra dữ liệu
+      if (
+        !addressForm.receiveName ||
+        !addressForm.phone ||
+        !addressForm.address
+      ) {
+        showToast("Vui lòng điền đầy đủ thông tin địa chỉ!");
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Vui lòng đăng nhập để lưu địa chỉ!");
+        return;
+      }
+
+      // Chuẩn bị dữ liệu gửi lên API
+      const addressData = {
+        receiveName: addressForm.receiveName,
+        phone: addressForm.phone,
+        address: addressForm.address,
+      };
+
+      // Nếu đang chỉnh sửa, thêm ID
+      if (editingAddressId) {
+        addressData.id = editingAddressId;
+      }
+
+      // Sử dụng phương thức khác nhau cho thêm mới và cập nhật
+      const method = editingAddressId ? "put" : "post";
+      const url =
+        "https://phone-selling-app-mw21.onrender.com/api/v1/user/shipping-info";
+
+      // Gọi API
+      const response = await axios({
+        method,
+        url,
+        data: addressData,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Nếu thành công, cập nhật danh sách địa chỉ
+      if (response.data && response.data.data) {
+        await fetchAddresses();
+
+        // Cập nhật địa chỉ đã chọn
+        if (!selectedAddressId || editingAddressId) {
+          const newAddress = response.data.data;
+          setSelectedAddressId(newAddress.id);
+          setSelectedAddress(newAddress);
+        }
+      }
+
+      // Đóng form và hiển thị thông báo
+      setShowAddressForm(false);
+      showToast(
+        editingAddressId
+          ? "Cập nhật địa chỉ thành công!"
+          : "Thêm địa chỉ mới thành công!"
+      );
+    } catch (error) {
+      console.error("Lỗi khi lưu địa chỉ:", error);
+      if (error.response && error.response.data) {
+        showToast(
+          `Lỗi: ${error.response.data.meta?.message || "Không thể lưu địa chỉ"}`
+        );
+      } else {
+        showToast("Có lỗi xảy ra khi lưu địa chỉ!");
+      }
+    }
+  };
+
+  // Hàm fetch danh sách địa chỉ
   const fetchAddresses = async () => {
     try {
       setLoadingAddresses(true);
-
-      // Kiểm tra token ngay từ đầu
       const token = localStorage.getItem("token");
 
       if (!token) {
-        // Nếu không có token, không cần gọi API
-        console.log("Người dùng chưa đăng nhập, bỏ qua việc tải địa chỉ");
         setLoadingAddresses(false);
         setAddressError("Vui lòng đăng nhập để xem địa chỉ giao hàng");
         return;
       }
 
-      // Gọi API lấy địa chỉ giao hàng
       const response = await axios.get(
         "https://phone-selling-app-mw21.onrender.com/api/v1/user/shipping-info",
         {
@@ -84,38 +222,26 @@ const CartPage = () => {
         }
       );
 
-      // Kiểm tra response
-      if (
-        response.data &&
-        response.data.data &&
-        response.data.data.length > 0
-      ) {
-        console.log("Shipping addresses:", response.data.data);
-
-        // Cập nhật danh sách địa chỉ
+      if (response.data?.data?.length > 0) {
         const addressesData = response.data.data;
         setAddresses(addressesData);
 
-        // Chọn địa chỉ mặc định (hoặc địa chỉ đầu tiên)
-        const defaultAddress =
-          addressesData.find((addr) => addr.isDefault) || addressesData[0];
-        setSelectedAddress(defaultAddress);
-        setSelectedAddressId(defaultAddress.id);
-
+        // Nếu chưa có địa chỉ được chọn, chọn địa chỉ đầu tiên
+        if (
+          !selectedAddressId ||
+          !addressesData.find((addr) => addr.id === selectedAddressId)
+        ) {
+          setSelectedAddressId(addressesData[0].id);
+          setSelectedAddress(addressesData[0]);
+        }
         setAddressError(null);
       } else {
-        // Không có địa chỉ giao hàng
-        setAddressError("Chưa có địa chỉ giao hàng nào");
         setAddresses([]);
+        setAddressError("Bạn chưa có địa chỉ giao hàng nào");
       }
     } catch (err) {
       console.error("Lỗi khi lấy địa chỉ giao hàng:", err);
-
-      if (err.response && err.response.status === 401) {
-        setAddressError("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
-      } else {
-        setAddressError("Không thể tải địa chỉ giao hàng");
-      }
+      setAddressError("Không thể tải địa chỉ giao hàng. Vui lòng thử lại sau.");
     } finally {
       setLoadingAddresses(false);
     }
@@ -127,20 +253,8 @@ const CartPage = () => {
     phone: "",
     address: "",
   });
-  const [selectedAddressId, setSelectedAddressId] = useState(
-    selectedAddress?.id || null
-  );
 
   // State cho modal
-  const [showAddressModal, setShowAddressModal] = useState(false);
-  const [showAddressForm, setShowAddressForm] = useState(false);
-  const [addressForm, setAddressForm] = useState({
-    gender: "Chị", // "Anh" hoặc "Chị"
-    name: "",
-    phone: "",
-    address: "",
-    isDefault: false,
-  });
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
 
@@ -154,45 +268,83 @@ const CartPage = () => {
       // Lấy token từ localStorage
       const token = localStorage.getItem("token");
 
+      // Log token để kiểm tra
+      console.log(
+        "Token:",
+        token ? `${token.substring(0, 10)}...` : "Không có token"
+      ); // Chỉ hiển thị 10 ký tự đầu của token để bảo mật
+
       if (!token) {
         console.log("Người dùng chưa đăng nhập");
-        // Thay vì hiển thị lỗi, có thể chuyển hướng người dùng đến trang đăng nhập
-        // navigate('/login');
         setLoading(false);
         return;
       }
 
+      console.log("Đang gọi API giỏ hàng với token");
+
       // Gọi API giỏ hàng với token
-      const response = await axios.get(
-        "https://phone-selling-app-mw21.onrender.com/api/v1/user/cart",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      try {
+        const response = await axios.get(
+          "https://phone-selling-app-mw21.onrender.com/api/v1/user/cart",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Log response để kiểm tra
+        console.log("API Response:", response);
+
+        // Kiểm tra response
+        if (response.data && response.data.data) {
+          setProducts(response.data.data);
+          setError(null);
+        } else {
+          // Xử lý trường hợp data là null nhưng không phải lỗi HTTP
+          console.log("Phản hồi API:", response.data);
+
+          // Xử lý lỗi dựa trên mã lỗi
+          if (response.data.meta && response.data.meta.code === 100029) {
+            setError(
+              "Không tìm thấy biến thể sản phẩm trong giỏ hàng. Có thể sản phẩm đã bị gỡ khỏi hệ thống."
+            );
+          } else {
+            setError("Không tìm thấy sản phẩm trong giỏ hàng");
+          }
+          setProducts([]);
         }
-      );
+      } catch (apiError) {
+        // Log lỗi API chi tiết
+        console.error("Chi tiết lỗi API:", {
+          status: apiError.response?.status,
+          statusText: apiError.response?.statusText,
+          data: apiError.response?.data,
+          message: apiError.message,
+        });
 
-      // Kiểm tra response
-      if (response.data && response.data.data) {
-        console.log("Cart data:", response.data.data);
-
-        // Cập nhật state products với dữ liệu từ API
-        setProducts(response.data.data);
-        setError(null);
-      } else {
-        // Xử lý khi không có dữ liệu
-        setError("Không tìm thấy sản phẩm trong giỏ hàng");
-        setProducts([]);
+        throw apiError; // Throw lại để xử lý ở catch bên ngoài
       }
     } catch (err) {
       console.error("Lỗi khi lấy giỏ hàng:", err);
 
+      // Log chi tiết lỗi response
+      if (err.response) {
+        console.error("Thông tin lỗi response:", {
+          status: err.response.status,
+          statusText: err.response.statusText,
+          data: err.response.data,
+          headers: err.response.headers,
+        });
+      }
+
       if (err.response && err.response.status === 401) {
         // Token hết hạn hoặc không hợp lệ
+        console.error("Lỗi xác thực (401): Token không hợp lệ hoặc hết hạn");
         localStorage.removeItem("token"); // Xóa token không hợp lệ
         setError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
-        // navigate('/login'); // Có thể chuyển hướng người dùng đến trang đăng nhập
       } else {
+        console.error("Lỗi khác khi gọi API giỏ hàng:", err.message);
         setError("Không thể tải giỏ hàng. Vui lòng thử lại sau.");
       }
 
@@ -203,10 +355,16 @@ const CartPage = () => {
   };
 
   useEffect(() => {
+    console.log("useEffect CartPage được gọi");
     const token = localStorage.getItem("token");
+    console.log(
+      "Token trong useEffect:",
+      token ? "Có token" : "Không có token"
+    );
 
     if (token) {
       // Chỉ gọi API nếu đã đăng nhập
+      console.log("Gọi API fetchCart và fetchAddresses");
       fetchCart();
       fetchAddresses();
     } else {
@@ -240,6 +398,13 @@ const CartPage = () => {
     if (newQuantity < 1) return;
 
     try {
+      // Tìm sản phẩm trong giỏ hàng theo id
+      const productToUpdate = products.find((product) => product.id === id);
+      if (!productToUpdate) {
+        console.error("Không tìm thấy sản phẩm với ID:", id);
+        return;
+      }
+
       // Cập nhật UI trước (optimistic update)
       setProducts(
         products.map((product) =>
@@ -251,19 +416,30 @@ const CartPage = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      // Gọi API để cập nhật số lượng
+      // Lấy variantId từ sản phẩm
+      const variantId = productToUpdate.variant?.id;
+      if (!variantId) {
+        console.error("Không tìm thấy variant ID cho sản phẩm:", id);
+        return;
+      }
+
       await axios.put(
-        `https://phone-selling-app-mw21.onrender.com/api/v1/user/cart/update/${id}`,
-        { quantity: newQuantity },
+        `https://phone-selling-app-mw21.onrender.com/api/v1/user/cart`,
+        {
+          variantId: variantId,
+          quantity: newQuantity,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
+
+      console.log("Cập nhật số lượng thành công");
     } catch (err) {
       console.error("Lỗi khi cập nhật số lượng sản phẩm:", err);
-      alert("Không thể cập nhật số lượng. Vui lòng thử lại.");
+      showToast("Không thể cập nhật số lượng. Vui lòng thử lại.");
 
       // Rollback UI state nếu API thất bại
       fetchCart(); // Gọi lại hàm fetchCart để lấy dữ liệu mới nhất
@@ -289,7 +465,7 @@ const CartPage = () => {
   };
 
   const openAddressModal = () => {
-    setModalDeliveryMethod("delivery");
+    setModalDeliveryMethod("DELIVERY");
     setShowAddressForm(false);
     setShowAddressModal(true);
     setSelectedAddressId(selectedAddress?.id);
@@ -312,14 +488,23 @@ const CartPage = () => {
     setShowAddressForm(true);
   };
 
+  // Sửa hàm handleNewAddress
   const handleNewAddress = () => {
+    // Lấy thông tin từ selectedAddress hiện tại (tên và số điện thoại)
+    const currentGender = selectedAddress?.receiveName?.split(" ")[0] || "Chị";
+    const currentName =
+      selectedAddress?.receiveName?.split(" ").slice(1).join(" ") || "";
+    const currentPhone = selectedAddress?.phone || "";
+
+    // Pre-fill thông tin hiện có
     setAddressForm({
-      gender: "Chị",
-      name: "",
-      phone: "",
-      address: "",
+      gender: currentGender,
+      name: currentName,
+      phone: currentPhone,
+      address: "", // Chỉ để trống phần địa chỉ
       isDefault: false,
     });
+
     setEditMode(false);
     setShowAddressForm(true);
   };
@@ -340,368 +525,448 @@ const CartPage = () => {
     }
   };
 
-  const selectAddress = (addressId) => {
+  // Sửa lại hàm selectAddress
+  const selectAddress = (address) => {
+    // Lấy id từ địa chỉ
+    const addressId = address.id;
+
+    // Cập nhật id địa chỉ đã chọn
     setSelectedAddressId(addressId);
-    // Tìm và cập nhật selectedAddress khi chọn địa chỉ mới
-    const newSelectedAddress = addresses.find((addr) => addr.id === addressId);
-    if (newSelectedAddress) {
-      // setSelectedAddress(newSelectedAddress); // Có thể uncomment nếu muốn cập nhật ngay
-      // Hoặc giữ nguyên để chỉ cập nhật khi nhấn "Xác nhận"
-    }
+
+    // Cập nhật thông tin địa chỉ đã chọn
+    setSelectedAddress(address);
+
+    // Đóng modal sau khi đã chọn
+    setShowAddressModal(false);
+
+    // Hiển thị thông báo
+    showToast("Đã chọn địa chỉ giao hàng", "success");
   };
 
-  const handleAddressSave = () => {
+  const handleAddressSave = async () => {
     const { gender, name, phone, address, isDefault } = addressForm;
 
     // Validate form
-    if (!name || !phone || !address) {
-      alert("Vui lòng điền đầy đủ thông tin!");
+    if (!address) {
+      showToast("Vui lòng nhập địa chỉ!");
       return;
     }
 
-    if (editMode) {
-      // Cập nhật địa chỉ hiện có
-      const updatedAddresses = addresses.map((addr) => {
-        if (addr.id === editId) {
-          const updatedAddr = {
-            ...addr,
-            receiveName: `${gender} ${name}`,
-            phone,
-            address,
-            isDefault,
-          };
+    if (!name || !phone) {
+      showToast("Vui lòng nhập đầy đủ họ tên và số điện thoại!");
+      return;
+    }
 
-          return updatedAddr;
-        }
-        // Nếu địa chỉ này được thiết lập làm mặc định, thì các địa chỉ khác sẽ không còn là mặc định nữa
-        if (isDefault && addr.id !== editId) {
-          return { ...addr, isDefault: false };
-        }
-        return addr;
-      });
+    try {
+      setLoading(true);
 
-      setAddresses(updatedAddresses);
-      setSelectedAddressId(editId);
-      setShowAddressForm(false);
-    } else {
-      // Tạo địa chỉ mới
-      const newAddress = {
-        id: Date.now(), // ID tạm thời
-        receiveName: `${gender} ${name}`,
+      // Lấy token từ localStorage
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Vui lòng đăng nhập để thêm địa chỉ!");
+        return;
+      }
+
+      // Xác định receiveName
+      const receiveName = `${gender} ${name}`;
+
+      // Chuẩn bị dữ liệu để gửi lên API
+      const addressData = {
+        receiveName,
         phone,
         address,
         isDefault,
       };
 
-      let newAddresses;
-      if (isDefault) {
-        // Nếu là địa chỉ mặc định, cập nhật các địa chỉ khác
-        newAddresses = addresses.map((addr) => ({
-          ...addr,
-          isDefault: false,
-        }));
-        newAddresses.push(newAddress);
-      } else {
-        newAddresses = [...addresses, newAddress];
+      // Nếu đang ở chế độ edit, thêm id vào payload
+      if (editMode && editId) {
+        addressData.id = editId;
       }
 
-      setAddresses(newAddresses);
-      setSelectedAddressId(newAddress.id);
+      // Gọi API PUT để tạo mới hoặc cập nhật địa chỉ
+      const response = await axios.put(
+        "https://phone-selling-app-mw21.onrender.com/api/v1/user/shipping-info",
+        addressData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      console.log("Thêm/cập nhật địa chỉ thành công:", response.data);
+
+      // Lấy địa chỉ vừa tạo/cập nhật từ response
+      const newAddress = response.data.data;
+
+      // Sau khi thêm/cập nhật thành công, cập nhật lại danh sách địa chỉ
+      await fetchAddresses();
+
+      // Cập nhật selectedAddress và selectedAddressId
+      if (newAddress) {
+        setSelectedAddress(newAddress);
+        setSelectedAddressId(newAddress.id);
+      }
+
+      // Đóng form
       setShowAddressForm(false);
+
+      // Đóng modal sau khi thêm địa chỉ thành công
+      setShowAddressModal(false);
+    } catch (error) {
+      console.error("Lỗi xử lý địa chỉ:", error);
+      if (error.response) {
+        console.error("Response error:", error.response.data);
+        showToast(
+          `Lỗi: ${error.response.data.message || "Không thể xử lý địa chỉ"}`
+        );
+      } else {
+        showToast("Có lỗi xảy ra khi xử lý địa chỉ!");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Thêm hàm confirmAddressSelection
   const confirmAddressSelection = () => {
+    // Tìm địa chỉ đã được chọn từ danh sách addresses
     const selectedAddr = addresses.find(
       (addr) => addr.id === selectedAddressId
     );
+
     if (selectedAddr) {
-      // Cập nhật thông tin từ selectedAddr, nhưng giữ lại các thay đổi đã thực hiện
-      // cho người đặt (tên và số điện thoại) từ selectedAddress
-      const updatedAddress = {
-        ...selectedAddr,
-        receiveName: selectedAddress.receiveName, // Giữ lại tên đã chỉnh sửa
-        phone: selectedAddress.phone, // Giữ lại SĐT đã chỉnh sửa
+      // Cập nhật selected address
+      setSelectedAddress(selectedAddr);
+
+      // Nếu phương thức giao hàng trong modal là "PICKUP"
+      // nhưng phương thức hiện tại là "DELIVERY", thì cập nhật
+      if (modalDeliveryMethod === "PICKUP" && deliveryMethod === "DELIVERY") {
+        setDeliveryMethod("PICKUP");
+      } else if (
+        modalDeliveryMethod === "DELIVERY" &&
+        deliveryMethod === "PICKUP"
+      ) {
+        setDeliveryMethod("DELIVERY");
+      }
+    }
+
+    // Đóng modal
+    setShowAddressModal(false);
+  };
+
+  const [orderNote, setOrderNote] = useState("");
+
+  // Thêm state quản lý phương thức thanh toán
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
+
+  // Thêm hàm handleCheckout để tạo đơn hàng
+  const handleCheckout = async () => {
+    try {
+      // Kiểm tra đăng nhập
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Vui lòng đăng nhập để đặt hàng", "error");
+        navigate("/login");
+        return;
+      }
+
+      // Kiểm tra giỏ hàng có sản phẩm không
+      if (products.length === 0) {
+        showToast("Giỏ hàng của bạn đang trống", "error");
+        return;
+      }
+
+      // Kiểm tra địa chỉ giao hàng nếu phương thức là giao hàng
+      if (deliveryMethod === "DELIVERY" && !selectedAddressId) {
+        showToast("Vui lòng chọn địa chỉ giao hàng", "error");
+        openAddressModal();
+        return;
+      }
+
+      // Chuẩn bị dữ liệu đơn hàng
+      const orderData = {
+        shippingInfoId:
+          deliveryMethod === "DELIVERY" ? selectedAddressId : null,
+        paymentMethod: paymentMethod,
+        receiveMethod: deliveryMethod, // delivery hoặc pickup
+        note: orderNote,
       };
 
-      // Cập nhật selectedAddress với thông tin đã kết hợp
-      setSelectedAddress(updatedAddress);
+      console.log("TTin ơn hàng:", orderData);
 
-      // Cập nhật lại danh sách addresses để lưu các thay đổi
-      const updatedAddresses = addresses.map((addr) =>
-        addr.id === selectedAddressId ? updatedAddress : addr
+      // Gọi API tạo đơn hàng
+      const response = await axios.post(
+        "https://phone-selling-app-mw21.onrender.com/api/v1/order/customer/create-from-cart",
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      setAddresses(updatedAddresses);
+
+      if (response.data && response.data.data) {
+        // Hiển thị thông báo thành công
+        showToast("Đặt hàng thành công!", "success");
+
+        // Chuyển hướng đến trang xác nhận đơn hàng
+        navigate("/order-confirmation", {
+          state: {
+            orderId: response.data.data.id,
+            orderInfo: response.data.data,
+          },
+        });
+      }
+    } catch (error) {
+      
+      console.error("Lỗi khi đặt hàng:", error);
+
+      if (error.response && error.response.data) {
+        showToast(
+          `Lỗi: ${error.response.data.meta?.message || "Không thể đặt hàng"}`,
+          "error"
+        );
+      } else {
+        showToast("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại sau.", "error");
+      }
     }
-    setShowAddressModal(false);
+  };
+
+  // Thêm vào đầu component CartPage
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "success", // success, error, info
+  });
+
+  // Hàm hiển thị thông báo
+  const showToast = (message, type = "success") => {
+    setToast({
+      show: true,
+      message,
+      type,
+    });
+
+    // Tự động ẩn toast sau 3 giây
+    setTimeout(() => {
+      setToast((prev) => ({ ...prev, show: false }));
+    }, 3000);
   };
 
   return (
     <div className="cart-page">
       <Header />
       <div className="container">
-        {/* Modal thay đổi địa chỉ - Theo đúng ảnh mẫu */}
+        {/* Modal quản lý địa chỉ */}
         {showAddressModal && (
-          <div className="modal-overlay">
+          <div className="address-modal-overlay">
             <div className="address-modal">
               <div className="modal-header">
-                <h3>Thông tin giao hàng</h3>
+                <h3>
+                  {showAddressForm
+                    ? editingAddressId
+                      ? "Chỉnh sửa địa chỉ"
+                      : "Thêm địa chỉ mới"
+                    : "Địa chỉ giao hàng"}
+                </h3>
                 <button
-                  className="modal-close"
-                  onClick={() => setShowAddressModal(false)}
+                  className="modal-close-btn"
+                  onClick={() => {
+                    setShowAddressModal(false);
+                    setShowAddressForm(false);
+                  }}
                 >
                   <FaTimes />
                 </button>
               </div>
 
-              {!showAddressForm ? (
-                <div className="modal-body">
-                  <div className="modal-section user-info-section">
-                    <h4>Thông tin người đặt</h4>
-                    <div className="gender-selection">
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          checked={selectedAddress?.receiveName?.includes(
-                            "Anh"
-                          )}
-                          onChange={() => handleUserInfoChange("gender", "Anh")}
-                        />
-                        <span>Anh</span>
-                      </label>
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          checked={selectedAddress?.receiveName?.includes(
-                            "Chị"
-                          )}
-                          onChange={() => handleUserInfoChange("gender", "Chị")}
-                        />
-                        <span>Chị</span>
-                      </label>
-                    </div>
-
-                    <div className="info-fields">
-                      <div className="info-field">
-                        <label>Họ và Tên</label>
-                        <input
-                          type="text"
-                          value={
-                            selectedAddress?.receiveName
-                              ?.split(" ")
-                              .slice(1)
-                              .join(" ") || ""
-                          }
-                          onChange={(e) =>
-                            handleUserInfoChange("name", e.target.value)
-                          }
-                        />
+              <div className="modal-body">
+                {!showAddressForm ? (
+                  // Danh sách địa chỉ
+                  <>
+                    {loadingAddresses ? (
+                      <div className="loading-container">
+                        <div className="loading-spinner small"></div>
+                        <span>Đang tải danh sách địa chỉ...</span>
                       </div>
-
-                      <div className="info-field">
-                        <label>Số điện thoại</label>
-                        <input
-                          type="text"
-                          value={selectedAddress?.phone || ""}
-                          onChange={(e) =>
-                            handleUserInfoChange("phone", e.target.value)
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="modal-section">
-                    <h4>Chọn hình thức giao hàng</h4>
-                    <div className="delivery-method-tabs">
-                      <div
-                        className={`delivery-method-tab ${
-                          modalDeliveryMethod === "delivery" ? "active" : ""
-                        }`}
-                        onClick={() => setModalDeliveryMethod("delivery")}
-                      >
-                        <TbTruckDelivery className="tab-icon" />
-                        <span>Giao tận nơi</span>
-                      </div>
-                      <div
-                        className={`delivery-method-tab ${
-                          modalDeliveryMethod === "pickup" ? "active" : ""
-                        }`}
-                        onClick={() => setModalDeliveryMethod("pickup")}
-                      >
-                        <IoStorefront className="tab-icon" />
-                        <span>Nhận tại siêu thị</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {modalDeliveryMethod === "delivery" && (
-                    <div className="modal-section addresses-section">
-                      {addresses.map((address) => (
-                        <div
-                          key={address.id}
-                          className={`address-item ${
-                            selectedAddressId === address.id ? "selected" : ""
-                          }`}
-                          onClick={() => selectAddress(address.id)}
+                    ) : addresses.length === 0 ? (
+                      <div className="no-addresses">
+                        <p>Bạn chưa có địa chỉ giao hàng nào</p>
+                        <button
+                          className="add-address-btn"
+                          onClick={openAddAddressForm}
                         >
-                          <div className="address-selector">
-                            <input
-                              type="radio"
-                              checked={selectedAddressId === address.id}
-                              readOnly
-                            />
-                          </div>
-                          <div className="address-content">
-                            <div className="address-text">
-                              {address.address}
-                            </div>
-                            {address.isDefault && (
-                              <span className="default-badge">Mặc định</span>
-                            )}
-                          </div>
-                          <div className="address-actions">
-                            <button
-                              className="edit-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditAddress(address);
-                              }}
+                          <FaPlus /> Thêm địa chỉ mới
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="addresses-list">
+                          {addresses.map((address) => (
+                            <div
+                              key={address.id}
+                              className={`address-item ${
+                                selectedAddressId === address.id
+                                  ? "selected"
+                                  : ""
+                              }`}
+                              onClick={() => selectAddress(address)} // Chọn địa chỉ trực tiếp khi click
                             >
-                              <FaPen /> Chỉnh sửa
-                            </button>
-                          </div>
+                              <div className="address-content">
+                                <div className="address-name-phone">
+                                  <span className="address-name">
+                                    {address.receiveName}
+                                  </span>
+                                  <span className="address-phone">
+                                    {address.phone}
+                                  </span>
+                                </div>
+                                <div className="address-full">
+                                  {address.address}
+                                </div>
+                              </div>
+                              <div
+                                className="address-actions"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  className="edit-address-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openEditAddressForm(address);
+                                  }}
+                                >
+                                  <FaPen />
+                                </button>
+                                <button
+                                  className="delete-address-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteAddress(address.id);
+                                  }}
+                                >
+                                  <FaTrash />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
 
-                      <button
-                        className="add-address-btn"
-                        onClick={handleNewAddress}
-                      >
-                        <FaPlus /> Thêm thông tin địa chỉ giao hàng mới
-                      </button>
-                    </div>
-                  )}
-
-                  {modalDeliveryMethod === "pickup" && (
-                    <div className="modal-section store-section">
-                      <div className="store-search">
-                        <input
-                          type="text"
-                          placeholder="Nhập tên đường, quận, huyện để tìm kiếm siêu thị"
-                          className="store-search-input"
-                        />
-                      </div>
-                      <div className="store-list">
-                        <p>Vui lòng nhập địa chỉ để tìm cửa hàng gần nhất</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                // Form thêm/chỉnh sửa địa chỉ
-                <div className="modal-body">
-                  <div className="modal-section">
-                    <div className="form-group gender-group">
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          name="gender"
-                          value="Anh"
-                          checked={addressForm.gender === "Anh"}
-                          onChange={handleAddressFormChange}
-                        />
-                        <span>Anh</span>
-                      </label>
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          name="gender"
-                          value="Chị"
-                          checked={addressForm.gender === "Chị"}
-                          onChange={handleAddressFormChange}
-                        />
-                        <span>Chị</span>
-                      </label>
-                    </div>
-
+                        <button
+                          className="add-address-btn"
+                          onClick={openAddAddressForm}
+                        >
+                          <FaPlus /> Thêm địa chỉ mới
+                        </button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  // Form thêm/chỉnh sửa địa chỉ
+                  <div className="address-form">
                     <div className="form-group">
-                      <label>Họ và Tên</label>
+                      <label htmlFor="receiveName">Họ và tên người nhận</label>
                       <input
                         type="text"
-                        name="name"
-                        placeholder="Họ và Tên"
-                        value={addressForm.name}
+                        id="receiveName"
+                        name="receiveName"
+                        value={addressForm.receiveName}
                         onChange={handleAddressFormChange}
+                        placeholder="Nhập họ tên người nhận hàng"
                       />
                     </div>
 
                     <div className="form-group">
-                      <label>Số điện thoại</label>
+                      <label htmlFor="phone">Số điện thoại</label>
                       <input
                         type="text"
+                        id="phone"
                         name="phone"
-                        placeholder="Số điện thoại"
                         value={addressForm.phone}
                         onChange={handleAddressFormChange}
+                        placeholder="Nhập số điện thoại liên hệ"
                       />
                     </div>
-                  </div>
 
-                  <div className="modal-section">
-                    <div className="address-field">
-                      <label>
-                        <FaMapMarkerAlt className="location-icon" />
-                        <span>
-                          {editMode ? "Địa chỉ hiện tại" : "Thêm địa chỉ mới"}
-                        </span>
-                      </label>
+                    <div className="form-group">
+                      <label htmlFor="address">Địa chỉ nhận hàng</label>
                       <textarea
+                        id="address"
                         name="address"
-                        placeholder="Nhập địa chỉ giao hàng"
                         value={addressForm.address}
                         onChange={handleAddressFormChange}
+                        placeholder="Nhập địa chỉ chi tiết (số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố)"
+                        rows="3"
                       ></textarea>
                     </div>
 
-                    <label className="default-address">
-                      <input
-                        type="checkbox"
-                        name="isDefault"
-                        checked={addressForm.isDefault}
-                        onChange={handleAddressFormChange}
-                      />
-                      <span>Đặt làm địa chỉ mặc định</span>
-                    </label>
+                    <div className="form-actions">
+                      <button
+                        className="cancel-btn"
+                        onClick={() => setShowAddressForm(false)}
+                      >
+                        Hủy
+                      </button>
+                      <button className="save-btn" onClick={saveAddress}>
+                        {editingAddressId ? "Cập nhật" : "Thêm mới"}
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="form-actions">
-                    <button
-                      className="cancel-btn"
-                      onClick={() => setShowAddressForm(false)}
-                    >
-                      Hủy
-                    </button>
-                    <button className="save-btn" onClick={handleAddressSave}>
-                      Lưu
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {!showAddressForm && (
-                <div className="modal-footer">
-                  <button
-                    className="modal-btn confirm-btn"
-                    onClick={confirmAddressSelection}
-                  >
-                    Xác Nhận
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         )}
+
+        {/* Hiển thị địa chỉ đã chọn */}
+        {/*deliveryMethod === "DELIVERY" && (
+          <div className="recipient-info">
+            {loadingAddresses ? (
+              <div className="loading-addresses">
+                <div className="loading-spinner small"></div>
+                <span>Đang tải địa chỉ...</span>
+              </div>
+            ) : addressError ? (
+              <div className="address-error">
+                <span className="error-message">{addressError}</span>
+                <button className="add-address-btn" onClick={() => {
+                  setShowAddressModal(true);
+                  openAddAddressForm();
+                }}>
+                  <FaPlus /> Thêm địa chỉ mới
+                </button>
+              </div>
+            ) : addresses.length > 0 ? (
+              <div className="selected-address">
+                <div className="recipient-header">
+                  <div className="recipient-info">
+                    <span className="recipient-name">{selectedAddress?.receiveName}</span>
+                    <span className="recipient-phone">{selectedAddress?.phone}</span>
+                  </div>
+                  <button className="change-address-btn" onClick={() => setShowAddressModal(true)}>
+                    Thay đổi
+                  </button>
+                </div>
+                <div className="recipient-address">
+                  <FaMapMarkerAlt className="location-icon" />
+                  <span>{selectedAddress?.address}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="no-address-info">
+                <div className="no-address-text">
+                  <FaMapMarkerAlt className="location-icon large" />
+                  <span>Bạn chưa có địa chỉ giao hàng nào</span>
+                </div>
+                <button className="add-address-btn" onClick={() => {
+                  setShowAddressModal(true);
+                  openAddAddressForm();
+                }}>
+                  <FaPlus /> Thêm địa chỉ mới
+                </button>
+              </div>
+            )}
+          </div>
+        )*/}
 
         {!localStorage.getItem("token") ? (
           // Hiển thị thông báo đăng nhập
@@ -754,33 +1019,33 @@ const CartPage = () => {
             <div className="delivery-options">
               <label
                 className={`delivery-tab ${
-                  deliveryMethod === "delivery" ? "active" : ""
+                  deliveryMethod === "DELIVERY" ? "active" : ""
                 }`}
               >
                 <input
                   type="radio"
-                  name="delivery"
-                  checked={deliveryMethod === "delivery"}
-                  onChange={() => setDeliveryMethod("delivery")}
+                  name="DELIVERY"
+                  checked={deliveryMethod === "DELIVERY"}
+                  onChange={() => setDeliveryMethod("DELIVERY")}
                 />
                 <span className="tab-label">Giao tận nơi</span>
               </label>
               <label
                 className={`delivery-tab ${
-                  deliveryMethod === "pickup" ? "active" : ""
+                  deliveryMethod === "PICKUP" ? "active" : ""
                 }`}
               >
                 <input
                   type="radio"
-                  name="delivery"
-                  checked={deliveryMethod === "pickup"}
-                  onChange={() => setDeliveryMethod("pickup")}
+                  name="DELIVERY"
+                  checked={deliveryMethod === "PICKUP"}
+                  onChange={() => setDeliveryMethod("PICKUP")}
                 />
                 <span className="tab-label">Nhận tại siêu thị</span>
               </label>
             </div>
             {/* Recipient Info */}
-            {deliveryMethod === "delivery" && (
+            {deliveryMethod === "DELIVERY" && (
               <div className="recipient-info">
                 {loadingAddresses ? (
                   <div className="loading-addresses">
@@ -790,6 +1055,12 @@ const CartPage = () => {
                 ) : addressError ? (
                   <div className="address-error">
                     <span className="error-message">{addressError}</span>
+                    <button
+                      className="add-address-button"
+                      onClick={openAddressModal}
+                    >
+                      <FaPlus /> Thêm địa chỉ mới
+                    </button>
                   </div>
                 ) : addresses.length > 0 ? (
                   <>
@@ -815,13 +1086,17 @@ const CartPage = () => {
                   </>
                 ) : (
                   <div className="no-address">
-                    <span>Bạn chưa có địa chỉ giao hàng</span>
-                    <button
-                      className="add-address-button"
-                      onClick={handleNewAddress}
-                    >
-                      <FaPlus /> Thêm địa chỉ mới
-                    </button>
+                    <div className="address-header">
+                      <span className="address-warning">
+                        Chưa có địa chỉ giao hàng nào
+                      </span>
+                      <button
+                        className="add-address-button"
+                        onClick={openAddressModal}
+                      >
+                        <FaPlus /> Thêm địa chỉ mới
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -884,15 +1159,6 @@ const CartPage = () => {
             {/* Hiển thị phần còn lại chỉ khi có sản phẩm */}
             {products.length > 0 && (
               <>
-                {/* Special Requests */}
-                <div className="order-special-requests">
-                  {/* Giữ nguyên code */}
-                </div>
-
-                {/* Discount Section */}
-                <div className="discount-section">{/* Giữ nguyên code */}</div>
-
-                {/* Grand Total */}
                 <div className="grand-total">
                   <div className="total-row">
                     <span className="grand-total-label">Tổng tiền</span>
@@ -900,156 +1166,144 @@ const CartPage = () => {
                       {formatPrice(subTotal)}
                     </span>
                   </div>
-                  <div className="loyalty-earning">
-                    <span>Điểm tích lũy Quà Tặng VIP</span>
-                    <span className="points-value">26.240 điểm</span>
-                  </div>
                 </div>
 
-                {/* Buttons */}
-                <button className="checkout-btn">TIẾN HÀNH ĐẶT HÀNG</button>
-                <button className="continue-btn" onClick={() => navigate("/")}>
-                  Tiếp tục mua sắm
-                </button>
-              </>
-            )}
-          </>
-        )}
-
-        {products.length > 0 && (
-          <>
-            {/* Order Summary */}
-
-            <div className="order-special-requests">
-              <h4>Yêu cầu đặc biệt</h4>
-              <div className="special-request-options">
-                <label className="request-option">
-                  <input
-                    type="checkbox"
-                    name="instruction"
-                    checked={specialRequests.instruction}
-                    onChange={handleSpecialRequestChange}
-                  />
-                  <span>Hướng dẫn sử dụng, giải đáp thắc mắc sản phẩm</span>
-                </label>
-                <label className="request-option">
-                  <input
-                    type="checkbox"
-                    name="invoice"
-                    checked={specialRequests.invoice}
-                    onChange={handleSpecialRequestChange}
-                  />
-                  <span>Xuất hóa đơn công ty</span>
-                </label>
-                {specialRequests.invoice && (
-                  <div className="invoice-form">
-                    <div className="invoice-field">
-                      <input
-                        type="text"
-                        name="companyName"
-                        value={invoiceData.companyName}
-                        onChange={handleInvoiceInputChange}
-                        placeholder="Tên công ty"
-                      />
-                    </div>
-                    <div className="invoice-field">
-                      <input
-                        type="text"
-                        name="companyAddress"
-                        value={invoiceData.companyAddress}
-                        onChange={handleInvoiceInputChange}
-                        placeholder="Địa chỉ công ty"
-                      />
-                    </div>
-                    <div className="invoice-field">
-                      <input
-                        type="text"
-                        name="taxCode"
-                        value={invoiceData.taxCode}
-                        onChange={handleInvoiceInputChange}
-                        placeholder="Mã số thuế"
-                      />
-                    </div>
-                    <div className="invoice-field">
-                      <input
-                        type="email"
-                        name="email"
-                        value={invoiceData.email}
-                        onChange={handleInvoiceInputChange}
-                        placeholder="Email (không bắt buộc)"
-                      />
-                    </div>
-                  </div>
-                )}
-                <label className="request-option">
-                  <input
-                    type="checkbox"
-                    name="other"
-                    checked={specialRequests.other}
-                    onChange={handleSpecialRequestChange}
-                  />
-                  <span>Yêu cầu khác</span>
-                </label>
-              </div>
-
-              {/* Thêm textarea cho yêu cầu khác nếu cần */}
-              {specialRequests.other && (
-                <div className="invoice-field">
-                  <input placeholder="Yêu cầu khác"></input>
+                <div className="order-note">
+                  <h3 className="note-title">Ghi chú đơn hàng</h3>
+                  <textarea
+                    className="note-input"
+                    placeholder="Nhập ghi chú cho đơn hàng (nếu có)"
+                    value={orderNote}
+                    onChange={(e) => setOrderNote(e.target.value)}
+                    rows="2"
+                  ></textarea>
                 </div>
-              )}
-            </div>
 
-            <div className="discount-section">
-              <div className="discount-code">
-                <div className="discount-icon">
-                  <i className="fa-solid fa-ticket"></i>
-                </div>
-                <div className="discount-text">Sử dụng mã giảm giá</div>
-                <div className="discount-arrow">
-                  <FaAngleRight />
-                </div>
-              </div>
+                <div className="payment-methods">
+                  <h3 className="payment-title">Phương thức thanh toán</h3>
 
-              <div className="loyalty-points">
-                <div className="loyalty-option">
-                  <div className="loyalty-icon">
-                    <img
-                      src="https://cdn-icons-png.flaticon.com/512/1041/1041373.png"
-                      alt="Points"
-                      width="20"
-                      height="20"
-                    />
-                  </div>
-                  <div className="loyalty-text">Dùng điểm Quà Tặng VIP</div>
-                  <div className="loyalty-toggle">
-                    <label className="switch">
-                      <input type="checkbox" />
-                      <span className="slider round"></span>
+                  <div className="payment-options">
+                    <label
+                      className={`payment-option ${
+                        paymentMethod === "CASH" ? "selected" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        checked={paymentMethod === "CASH"}
+                        onChange={() => setPaymentMethod("CASH")}
+                      />
+                      <div className="payment-icon">
+                        <img
+                          src="https://cdn-icons-png.flaticon.com/512/2331/2331895.png"
+                          alt="COD"
+                        />
+                      </div>
+                      <div className="payment-info">
+                        <span className="payment-name">
+                          Thanh toán khi nhận hàng
+                        </span>
+                        <span className="payment-desc">
+                          Thanh toán bằng tiền mặt khi nhận hàng
+                        </span>
+                      </div>
+                    </label>
+
+                    <label
+                      className={`payment-option ${
+                        paymentMethod === "banking" ? "selected" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        checked={paymentMethod === "banking"}
+                        onChange={() => setPaymentMethod("BANK_TRANSFER")}
+                      />
+                      <div className="payment-icon">
+                        <img
+                          src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png"
+                          alt="Banking"
+                        />
+                      </div>
+                      <div className="payment-info">
+                        <span className="payment-name">
+                          Chuyển khoản ngân hàng
+                        </span>
+                        <span className="payment-desc">
+                          Thanh toán qua Internet Banking, ATM
+                        </span>
+                      </div>
+                    </label>
+
+                    <label
+                      className={`payment-option ${
+                        paymentMethod === "e-wallet" ? "selected" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        checked={paymentMethod === "e-wallet"}
+                        onChange={() => setPaymentMethod("MOMO")}
+                      />
+                      <div className="payment-icon">
+                        <img
+                          src="https://cdn-icons-png.flaticon.com/512/2091/2091665.png"
+                          alt="E-wallet"
+                        />
+                      </div>
+                      <div className="payment-info">
+                        <span className="payment-name">Ví điện tử MOMO</span>
+                        <span className="payment-desc">
+                          Thanh toán qua MoMo
+                        </span>
+                      </div>
                     </label>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="grand-total">
-              <div className="total-row">
-                <span className="grand-total-label">Tổng tiền</span>
-                <span className="grand-total-value">
-                  {formatPrice(subTotal)}
-                </span>
-              </div>
-              <div className="loyalty-earning">
-                <span>Điểm tích lũy Quà Tặng VIP</span>
-                <span className="points-value">26.240 điểm</span>
-              </div>
-            </div>
+                {/* Toast Notification */}
+                {toast.show && (
+                  <div className={`toast-notification ${toast.type}`}>
+                    <div className="toast-content">
+                      {toast.type === "success" && (
+                        <FaCheckCircle className="toast-icon" />
+                      )}
+                      {toast.type === "error" && (
+                        <FaExclamationCircle className="toast-icon" />
+                      )}
+                      {toast.type === "info" && (
+                        <FaInfoCircle className="toast-icon" />
+                      )}
+                      <span className="toast-message">{toast.message}</span>
+                    </div>
+                    <button
+                      className="toast-close"
+                      onClick={() =>
+                        setToast((prev) => ({ ...prev, show: false }))
+                      }
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                )}
 
-            {/* Checkout Button */}
-            <button className="checkout-btn">TIẾN HÀNH ĐẶT HÀNG</button>
-
-            {/* Continue Shopping */}
-            <button className="continue-btn">Tiếp tục mua sắm</button>
+                <button
+                  className="checkout-btn"
+                  onClick={handleCheckout}
+                  disabled={
+                    products.length === 0 ||
+                    (deliveryMethod === "DELIVERY" && !selectedAddressId) ||
+                    (deliveryMethod === "PICKUP" &&
+                      document.querySelector(".store-select")?.value === "")
+                  }
+                >
+                  TIẾN HÀNH ĐẶT HÀNG
+                </button>
+              </>
+            )}
           </>
         )}
       </div>

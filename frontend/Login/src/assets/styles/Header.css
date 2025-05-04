@@ -1,0 +1,312 @@
+/* Header Styles - Improved version */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffce00;
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Logo styling */
+.logo {
+  width: 250px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Search bar styling - matching TheGioiDiDong style */
+.search-bar {
+  flex: 1;
+  max-width: 650px;
+  margin: 0 24px;
+  position: relative;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.search-bar input:focus {
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header right section */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Button styling */
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  font-size: 17px;
+}
+
+.btn p {
+  margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Login button specific */
+.login-btn {
+  position: relative;
+}
+
+.login-btn::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: width 0.2s ease;
+}
+
+.login-btn:hover::after {
+  width: 70%;
+}
+
+/* Cart button specific */
+.cart-btn {
+  position: relative;
+}
+
+.cart-btn .cart-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #f96f3a;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(249, 111, 58, 0.25);
+}
+
+/* User account logged in */
+.user-account {
+  position: relative;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-info:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.user-icon {
+  font-size: 19px;
+  color: #333;
+}
+
+.username {
+  font-weight: 500;
+  font-size: 14px;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333;
+}
+
+/* Dropdown menu */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 220px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 10;
+  animation: dropdownFadeIn 0.25s ease;
+  transform-origin: top right;
+}
+
+/* Dropdown animation */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Add triangle pointer to dropdown */
+.user-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  transform: rotate(45deg);
+  box-shadow: -3px -3px 5px rgba(0, 0, 0, 0.04);
+}
+
+/* Dropdown items */
+.dropdown-item {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f8f8;
+}
+
+.dropdown-icon {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Special styling for logout button */
+.dropdown-item.logout {
+  border-top: 1px solid #eee;
+  color: #f96f3a;
+}
+
+.dropdown-item.logout .dropdown-icon {
+  color: #f96f3a;
+}
+
+.dropdown-item.logout:hover {
+  background-color: #fff0eb;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .header {
+    padding: 10px 16px;
+  }
+
+  .search-bar {
+    max-width: 400px;
+    margin: 0 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-bar {
+    max-width: 100%;
+    margin: 8px 0;
+    order: 3;
+    width: 100%;
+  }
+
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .username {
+    display: none;
+  }
+
+  .btn p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  .btn p {
+    display: none;
+  }
+
+  .btn-icon,
+  .user-icon {
+    font-size: 20px;
+  }
+
+  .btn,
+  .user-info {
+    padding: 8px 10px;
+  }
+
+  .logo {
+    width: 140px;
+  }
+}
+
+/* Cart badge animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cart-btn .cart-count.updated {
+  animation: pulse 0.5s ease;
+}

@@ -1,16 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaUser, FaShoppingCart, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
+import '../assets/styles/Header.css';
 
 const Header = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập mỗi khi component mount
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+      
+      // Lấy thông tin người dùng từ localStorage (nếu có)
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        try {
+          const parsedInfo = JSON.parse(userInfo);
+          setUsername(parsedInfo.name || parsedInfo.email || 'Tài khoản');
+        } catch (error) {
+          setUsername('Tài khoản');
+        }
+      } else {
+        setUsername('Tài khoản');
+      }
+    } else {
+      setIsLoggedIn(false);
+      setUsername('');
+    }
+  }, []);
 
   const goToCart = () => {
-    // Bạn có thể thêm logic trước khi chuyển hướng nếu cần
     navigate('/cart');
   };
 
   const goToLogin = () => {
     navigate('/login');
+  };
+
+  const handleLogout = () => {
+    // Xóa token và thông tin người dùng
+    localStorage.removeItem('token');
+    localStorage.removeItem('userInfo');
+    
+    // Cập nhật state
+    setIsLoggedIn(false);
+    setUsername('');
+    setShowDropdown(false);
+    
+    // Chuyển hướng về trang chủ
+    navigate('/');
+  };
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
   };
 
   return (
@@ -20,14 +66,29 @@ const Header = () => {
           <img src="./img/tgdd.png" alt="Logo" />
         </a>
       </div>
+      
       <div className="search-bar">
         <input type="text" placeholder="Bạn tìm gì..." />
       </div>
+      
       <div className="header-right">
-        <div className="btn" onClick={goToLogin}>
-          <p>Đăng nhập</p>
-        </div>
-        <div className="btn" onClick={goToCart}>
+        {isLoggedIn ? (
+          <div className="user-account">
+            <div className="user-info" onClick={toggleDropdown}>
+              <FaUserCircle className="user-icon" />
+              <span className="username">{username}</span>
+            </div>
+            
+          </div>
+        ) : (
+          <div className="btn login-btn" onClick={goToLogin}>
+            <FaUser className="btn-icon" />
+            <p>Đăng nhập</p>
+          </div>
+        )}
+        
+        <div className="btn cart-btn" onClick={goToCart}>
+          <FaShoppingCart className="btn-icon" />
           <p>Giỏ hàng</p>
         </div>
       </div>
