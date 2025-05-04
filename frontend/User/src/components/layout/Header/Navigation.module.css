@@ -1,0 +1,92 @@
+.navigation {
+  background-color: var(--header-bg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 0;
+}
+
+.navList {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.navList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.navItem {
+  flex: 0 0 auto;
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+.navLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 15px;
+  color: var(--header-text);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-size: 13px;
+}
+
+.navLink i {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.navItem:hover .navLink,
+.navItem.active .navLink {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Skeleton loading */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 15px;
+}
+
+.skeletonIcon {
+  width: 16px;
+  height: 16px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  margin-bottom: 5px;
+  animation: pulse 1.5s infinite;
+}
+
+.skeletonText {
+  width: 60px;
+  height: 13px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 768px) {
+  .navLink {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  
+  .navLink i {
+    font-size: 14px;
+  }
+} 

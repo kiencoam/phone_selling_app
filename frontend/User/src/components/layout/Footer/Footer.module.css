@@ -1,0 +1,132 @@
+.footer {
+  background-color: var(--footer-bg);
+  color: var(--footer-text);
+  padding: 40px 0 20px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 30px;
+}
+
+.footerContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.footerSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.footerHeading {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+}
+
+.footerLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerLinks li {
+  margin-bottom: 10px;
+}
+
+.footerLinks li a {
+  color: var(--text-secondary);
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.footerLinks li a:hover {
+  color: var(--primary-color);
+}
+
+.paymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.paymentMethods img {
+  height: 25px;
+  width: auto;
+  border-radius: 4px;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.socialLinks a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.socialLinks a:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: translateY(-3px);
+}
+
+.appLinks {
+  display: flex;
+  gap: 10px;
+}
+
+.appLinks img {
+  height: 40px;
+  width: auto;
+}
+
+.footerBottom {
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.copyright {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-bottom: 10px;
+}
+
+.companyInfo {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 30px 0 20px;
+  }
+  
+  .footerContent {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .companyInfo p {
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .footerContent {
+    grid-template-columns: 1fr;
+  }
+} 

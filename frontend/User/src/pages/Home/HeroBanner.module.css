@@ -1,0 +1,137 @@
+.bannerContainer {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  border-radius: var(--border-radius-md);
+  margin-top: 15px;
+}
+
+.bannerWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.bannerSlide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.bannerSlide.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bannerControl {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.bannerControl:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.prevControl {
+  left: 15px;
+}
+
+.nextControl {
+  right: 15px;
+}
+
+.bannerDots {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.bannerDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bannerDot.active {
+  background-color: white;
+  transform: scale(1.2);
+}
+
+.emptyBanner {
+  height: 300px;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+.emptyBannerPlaceholder {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-tertiary);
+  background-image: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 0%,
+    var(--bg-muted) 50%,
+    var(--bg-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .bannerContainer {
+    height: 200px;
+  }
+  
+  .emptyBanner {
+    height: 200px;
+  }
+  
+  .bannerControl {
+    width: 30px;
+    height: 30px;
+  }
+} 

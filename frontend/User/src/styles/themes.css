@@ -1,0 +1,71 @@
+/* Light Theme (Default) */
+:root[data-theme="light"], 
+:root {
+  /* Background */
+  --bg-primary: #F4F4F4;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #EEEEEE;
+  
+  /* Text */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-tertiary: #888888;
+  
+  /* Border */
+  --border-color: #E1E1E1;
+  
+  /* Card */
+  --card-bg: #FFFFFF;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  /* Header */
+  --header-bg: #D70018;
+  --header-text: #FFFFFF;
+  
+  /* Footer */
+  --footer-bg: #FFFFFF;
+  --footer-text: #333333;
+  
+  /* Hover states */
+  --hover-bg: #F9F9F9;
+}
+
+/* Dark Theme */
+:root[data-theme="dark"] {
+  /* Background */
+  --bg-primary: #212121;
+  --bg-secondary: #333333;
+  --bg-tertiary: #444444;
+  
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #DDDDDD;
+  --text-tertiary: #AAAAAA;
+  
+  /* Border */
+  --border-color: #444444;
+  
+  /* Card */
+  --card-bg: #333333;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  
+  /* Header */
+  --header-bg: #D70018;
+  --header-text: #FFFFFF;
+  
+  /* Footer */
+  --footer-bg: #333333;
+  --footer-text: #FFFFFF;
+  
+  /* Hover states */
+  --hover-bg: #444444;
+}
+
+/* Theme Transition */
+.theme-transition {
+  transition: 
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+} 

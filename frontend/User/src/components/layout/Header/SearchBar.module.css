@@ -1,0 +1,121 @@
+.searchContainer {
+  position: relative;
+  flex-grow: 1;
+  max-width: 500px;
+  margin: 0 20px;
+}
+
+.searchForm {
+  display: flex;
+  position: relative;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 50px 10px 15px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  outline: none;
+  font-size: 14px;
+  background-color: white;
+}
+
+.searchInput:focus {
+  border-color: var(--primary-color-dark);
+}
+
+.searchButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 45px;
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+  background-color: var(--secondary-color-dark);
+}
+
+.suggestionsContainer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: white;
+  border-radius: 0 0 4px 4px;
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-index-dropdown);
+  margin-top: 2px;
+}
+
+.suggestionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.clearButton {
+  color: var(--primary-color);
+  background: none;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.clearButton:hover {
+  text-decoration: underline;
+}
+
+.suggestionsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.suggestionItem:hover {
+  background-color: var(--hover-bg);
+}
+
+.suggestionItem i {
+  margin-right: 10px;
+  color: var(--text-muted);
+  width: 16px;
+  text-align: center;
+}
+
+.noResults {
+  padding: 15px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .searchContainer {
+    margin: 0;
+    max-width: 100%;
+  }
+} 

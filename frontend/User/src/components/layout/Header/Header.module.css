@@ -1,0 +1,167 @@
+.header {
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-sticky);
+  box-shadow: var(--shadow-md);
+}
+
+.topBar {
+  padding: 10px 0;
+}
+
+.topBarContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.logo img {
+  max-height: 30px;
+  width: auto;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+}
+
+.cartLink {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  color: var(--header-text);
+  position: relative;
+}
+
+.cartLink i {
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+.cartLabel {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cartCount {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--secondary-color);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.userContainer {
+  position: relative;
+}
+
+.userButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--header-text);
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.userButton i {
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+.loginLink {
+  display: flex;
+  align-items: center;
+  color: var(--header-text);
+}
+
+.loginLink i {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.userMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 200px;
+  background-color: white;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-index-dropdown);
+  margin-top: 5px;
+}
+
+.userMenuItem {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  color: var(--text-primary);
+  text-decoration: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.userMenuItem:hover {
+  background-color: var(--hover-bg);
+}
+
+.userMenuItem i {
+  margin-right: 10px;
+  width: 16px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .cartLabel, 
+  .userButton span {
+    display: none;
+  }
+  
+  .cartLink, 
+  .userButton {
+    margin-right: 10px;
+  }
+  
+  .topBarContent {
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    order: 1;
+    flex-basis: 40%;
+  }
+  
+  .headerActions {
+    order: 2;
+    flex-basis: 60%;
+    justify-content: flex-end;
+  }
+  
+  .searchContainer {
+    order: 3;
+    flex-basis: 100%;
+    margin-top: 10px;
+  }
+} 
