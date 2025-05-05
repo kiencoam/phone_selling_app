@@ -1,0 +1,89 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  gap: 8px;
+}
+
+/* TGDD Button Variants */
+.primary {
+  background-color: var(--secondary-color);
+  color: white;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.secondary {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.outline {
+  border: 1px solid var(--secondary-color);
+  color: var(--secondary-color);
+  background: white;
+}
+
+.link {
+  color: var(--link-color);
+  background: none;
+  padding: 0;
+}
+
+/* Button Sizes */
+.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.medium {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.large {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+/* States */
+.button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Loading state */
+.loading {
+  position: relative;
+  color: transparent;
+}
+
+.spinner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

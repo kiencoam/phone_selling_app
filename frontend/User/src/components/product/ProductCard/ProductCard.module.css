@@ -106,3 +106,60 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+.productCard {
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.productImage {
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.productTitle {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 8px 0;
+  height: 40px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.price {
+  color: var(--price-color);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.oldPrice {
+  color: var(--old-price-color);
+  text-decoration: line-through;
+  font-size: 13px;
+}
+
+.discountBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--sale-price-color);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.installment {
+  display: inline-block;
+  background: #f1f1f1;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 12px;
+  color: #333;
+  margin-top: 8px;
+}
