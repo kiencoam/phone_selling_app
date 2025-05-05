@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ApiService } from '../../services/api.service';
+import { ApiService } from '../../services/api';
 import HeroBanner from './HeroBanner';
 import FeaturedProducts from './FeaturedProducts';
 import styles from './Home.module.css';

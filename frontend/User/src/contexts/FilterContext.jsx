@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ApiService } from '../services/api.service';
+import { ApiService } from '../services/api';
 
 export const FilterContext = createContext();
 

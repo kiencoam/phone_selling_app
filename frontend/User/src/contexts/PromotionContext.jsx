@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { ApiService } from '../services/api.service';
+import { ApiService } from '../services/api';
 
 export const PromotionContext = createContext();
 

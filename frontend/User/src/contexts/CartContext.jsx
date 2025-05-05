@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { ApiService } from '../services/api.service';
+import { ApiService } from '../services/api';
 
 export const CartContext = createContext();
 

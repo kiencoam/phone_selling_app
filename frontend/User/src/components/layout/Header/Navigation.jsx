@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styles from './Navigation.module.css';
-import { ApiService } from '../../../services/api.service';
+import { ApiService } from '../../../services/api';
 
 const Navigation = () => {
   const [categories, setCategories] = useState([]);
