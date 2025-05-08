@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import ProductGrid from '../../components/product/ProductGrid';
-import LaptopFilter from './components/LaptopFilter';
+import LaptopFilter from './components/LaptopFilter/LaptopFilter';
 import styles from './LaptopHome.module.css';
 
 const LaptopHome = () => {

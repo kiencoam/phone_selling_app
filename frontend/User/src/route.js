@@ -3,18 +3,18 @@ import { createBrowserRouter } from 'react-router-dom';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
-import AccountLayout from './layouts/AccountLayout';
-import CheckoutLayout from './layouts/CheckoutLayout';
+//import AccountLayout from './layouts/AccountLayout';
+//import CheckoutLayout from './layouts/CheckoutLayout';
 
 // Lazy loading các trang để cải thiện hiệu suất
 const Home = lazy(() => import('./pages/Home'));
 const Category = lazy(() => import('./pages/Category'));
-const ProductDetail = lazy(() => import('./pages/ProductDetail'));
-const Cart = lazy(() => import('./pages/Cart'));
-const Checkout = lazy(() => import('./pages/Checkout'));
-const Account = lazy(() => import('./pages/Account/Dashboard'));
-const Orders = lazy(() => import('./pages/Account/Orders'));
-const Wishlist = lazy(() => import('./pages/Account/Wishlist'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail/ProductDetail'));
+//const Cart = lazy(() => import('./pages/Cart'));
+//const Checkout = lazy(() => import('./pages/Checkout'));
+//const Account = lazy(() => import('./pages/Account/Dashboard'));
+//const Orders = lazy(() => import('./pages/Account/Orders'));
+//const Wishlist = lazy(() => import('./pages/Account/Wishlist'));
 const Profile = lazy(() => import('./pages/Account/Profile'));
 const Search = lazy(() => import('./pages/Search'));
 const Comparison = lazy(() => import('./pages/Comparison'));

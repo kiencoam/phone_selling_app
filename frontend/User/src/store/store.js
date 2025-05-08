@@ -4,10 +4,7 @@ import promotionReducer from './slices/promotionSlice';
 
 export const store = configureStore({
   reducer: {
-    cart: cartReducer,
-    auth: authReducer,
     products: productsReducer,
-    wishlist: wishlistReducer,
     promotion: promotionReducer,
   },
 });

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../../hooks/useCart';
-import { useAuth } from '../../hooks/useAuth';
+//import { useAuth } from '../../hooks/useAuth';
 import Navigation from './Navigation';
 import SearchBar from './SearchBar';
 import styles from './Header.module.css';
@@ -16,7 +15,7 @@ const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   
   // Lấy số lượng sản phẩm trong giỏ hàng
-  const cartItemsCount = cart?.items?.length || 0;
+ // const cartItemsCount = cart?.items?.length || 0;
 
   // Kiểm tra scroll để thay đổi hiệu ứng của header
   useEffect(() => {

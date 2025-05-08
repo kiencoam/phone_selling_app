@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePromotion } from '../../contexts/PromotionContext';
-import PromotionCard from '../../components/promotion/PromotionCard';
-import FlashSale from '../../components/promotion/FlashSale';
+import PromotionCard from '../../components/promotion/PromotionCard/PromotionCard';
+import FlashSale from '../../components/promotion/FlashSale/FlashSale';
 import styles from './AllPromotions.module.css';
 
 const AllPromotions = () => {

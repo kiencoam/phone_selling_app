@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import ProductGrid from '../../components/product/ProductGrid';
-import PhoneFilter from './components/PhoneFilter';
+import ProductFilter from '../../components/product/ProductFilter/ProductFilter';
+import PromotionBanner from '../../components/promotion/PromotionBanner/PromotionBanner';
 import styles from './PhoneHome.module.css';
 
 const PhoneHome = () => {
@@ -13,12 +14,17 @@ const PhoneHome = () => {
 
   return (
     <div className={styles.phonePage}>
-      <div className={styles.sidebar}>
-        <PhoneFilter />
-      </div>
-      <div className={styles.content}>
-        <h1>Điện thoại</h1>
-        <ProductGrid products={phones} loading={loading} />
+      <PhoneBanner />
+      <div className={styles.mainContent}>
+        <div className={styles.filterSection}>
+          <PhoneFilter />
+        </div>
+        <div className={styles.productSection}>
+          <div className={styles.filterTags}>
+            {/* Filter tags will be added here */}
+          </div>
+          <ProductGrid products={phones} loading={loading} />
+        </div>
       </div>
     </div>
   );

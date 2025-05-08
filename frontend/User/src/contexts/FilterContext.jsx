@@ -1,8 +1,10 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ApiService } from '../services/api';
+import { useContext } from 'react';
 
 export const FilterContext = createContext();
+export const useFilter = () => useContext(FilterContext);
 
 export const FilterProvider = ({ children }) => {
   const location = useLocation();
@@ -133,4 +135,6 @@ export const FilterProvider = ({ children }) => {
   };
 
   return <FilterContext.Provider value={value}>{children}</FilterContext.Provider>;
-}; 
+
+ 
+  }; 

@@ -1,0 +1,36 @@
+.filterContainer {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filterSection {
+  margin-bottom: 1.5rem;
+}
+
+.filterSection h3 {
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 1rem;
+}
+
+.filterContainer select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.filterContainer select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.filterContainer h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  color: #333;
+}

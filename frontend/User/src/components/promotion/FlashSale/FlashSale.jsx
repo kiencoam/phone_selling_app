@@ -11,14 +11,14 @@ const FlashSale = () => {
   return (
     <div className={styles.flashSaleContainer}>
       <div className={styles.header}>
-        <h2>Flash Sale</h2>
+        <h2>Flash Sale 🔥</h2>
         <div className={styles.timer}>
           <PromotionCountdown endDate={flashSales.endTime} />
         </div>
       </div>
       
       <div className={styles.productsGrid}>
-        {flashSales.products?.map(product => (
+        {flashSales.products?.slice(0, 10).map(product => (
           <ProductCard 
             key={product.id}
             product={product}

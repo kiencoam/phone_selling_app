@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { usePromotion } from '../../contexts/PromotionContext';
 import ProductGrid from '../../components/product/ProductGrid';
-import PromotionCountdown from '../../components/promotion/PromotionCountdown';
+//import PromotionCountdown from '../../components/promotion/PromotionCountdown';
 import styles from './PromotionDetail.module.css';
 
 const PromotionDetail = () => {
@@ -15,13 +15,17 @@ const PromotionDetail = () => {
 
   return (
     <div className={styles.promotionDetail}>
-      <div className={styles.promotionHeader}>
-        <h1>{promotion.title}</h1>
-        <PromotionCountdown endDate={promotion.endDate} />
-      </div>
-      <div className={styles.promotionContent}>
-        <ProductGrid products={products} loading={loading} />
-      </div>
+      {promotion && (
+        <>
+          <div className={styles.promotionHeader}>
+            <h1>{promotion.title}</h1>
+            <PromotionCountdown endDate={promotion.endDate} />
+          </div>
+          <div className={styles.promotionContent}>
+            <ProductGrid products={products} loading={loading} />
+          </div>
+        </>
+      )}
     </div>
   );
 };

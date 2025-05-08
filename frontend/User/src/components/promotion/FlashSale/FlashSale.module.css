@@ -1,0 +1,55 @@
+.flashSaleContainer {
+  padding: 10px 15px;
+  background: #fff;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #f1f1f1;
+  padding-bottom: 10px;
+}
+
+.header h2 {
+  color: #CD1817;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.timer {
+  background: #CD1817;
+  padding: 5px 15px;
+  border-radius: 20px;
+  color: #fff;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  padding: 10px 0;
+}
+
+.skeleton {
+  height: 300px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}

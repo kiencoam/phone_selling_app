@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from '../components/layout/Header';
-import Footer from '../../../../../frontend/User/src/components/layout/Footer';
-import MobileMenu from '../components/layout/MobileMenu';
+import Footer from '../components/layout/Footer';
+//import MobileMenu from '../components/layout/MobileMenu';
 import { useWindowSize } from '../hooks/useWindowSize';
 
 const MainLayout = () => {
