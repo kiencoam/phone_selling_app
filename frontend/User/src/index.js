@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import router from './routes';
+import router from './route';
 import { store } from './store/store';
 import './styles/global.css';
 

@@ -8,6 +8,8 @@ const Button = ({
   fullWidth = false,
   loading = false,
   disabled = false,
+  rounded = false,
+  uppercase = false,
   leftIcon,
   rightIcon,
   onClick,
@@ -18,6 +20,8 @@ const Button = ({
     styles.button,
     styles[variant],
     styles[size],
+    rounded && styles.rounded,
+    uppercase && styles.uppercase,
     fullWidth && styles.fullWidth,
     loading && styles.loading,
   ].filter(Boolean).join(' ');

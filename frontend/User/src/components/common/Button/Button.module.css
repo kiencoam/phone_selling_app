@@ -13,10 +13,30 @@
 
 /* TGDD Button Variants */
 .primary {
-  background-color: var(--secondary-color);
+  background-color: #288ad6;
   color: white;
   border-radius: 4px;
   font-weight: bold;
+}
+
+.buy {
+  background-color: #fb6e2e;
+  color: white;
+}
+
+.installment {
+  background-color: #288ad6;
+  color: white;
+  border: 1px solid #0064d2;
+}
+
+.rounded {
+  border-radius: 20px;
+}
+
+.uppercase {
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .secondary {

@@ -1,0 +1,45 @@
+.breadcrumb {
+  background: #fff;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+}
+
+.homeLink {
+  display: flex;
+  align-items: center;
+  color: #288ad6;
+  text-decoration: none;
+}
+
+.homeIcon {
+  margin-right: 5px;
+  font-size: 18px;
+}
+
+.separator {
+  margin: 0 8px;
+  color: #999;
+}
+
+.current {
+  color: #333;
+  font-weight: 500;
+}
+
+.breadcrumb a {
+  color: #288ad6;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
