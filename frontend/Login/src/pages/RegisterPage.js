@@ -20,15 +20,12 @@ const RegisterPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
-  // Hàm kiểm tra định dạng email
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Hàm kiểm tra mật khẩu mạnh
   const validatePassword = (password) => {
-    // Ít nhất 8 ký tự, có chữ hoa, chữ thường, số
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     return passwordRegex.test(password);
   };
@@ -42,10 +39,8 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async () => {
-    // Reset error message
     setError("");
 
-    // Validate form
     if (!formData.email) {
       setError("Vui lòng nhập email");
       return;
@@ -89,32 +84,27 @@ const RegisterPage = () => {
         }
       );
 
-      // Kiểm tra response
       if (
         response.data &&
         response.data.meta &&
         response.data.meta.code === 200
       ) {
-        // Lưu token vào localStorage
         localStorage.setItem("token", response.data.data.token);
-        
-        // Hiển thị thông báo thành công
-        setSuccessMessage("Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập sau 3 giây.");
-        
-        // Chuyển hướng sau 3 giây
+
+        setSuccessMessage(
+          "Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập sau 3 giây."
+        );
+
         setTimeout(() => {
           navigate("/login");
         }, 3000);
       } else {
-        // Xử lý trường hợp API trả về code khác 200
         setError(response.data?.meta?.message || "Đăng ký không thành công");
       }
     } catch (err) {
-      // Xử lý lỗi từ API
       console.error("Register error:", err);
 
       if (err.response) {
-        // Server trả về lỗi với status code
         const errorMessage =
           err.response.data?.meta?.message ||
           err.response.data?.message ||
@@ -128,14 +118,12 @@ const RegisterPage = () => {
           setError(errorMessage);
         }
       } else if (err.request) {
-        // Không nhận được phản hồi từ server
         setError("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
       } else {
-        // Lỗi khi thiết lập request
         setError("Có lỗi xảy ra. Vui lòng thử lại.");
       }
     } finally {
-      setIsLoading(false); // Kết thúc loading
+      setIsLoading(false);
     }
   };
 
@@ -239,7 +227,17 @@ const RegisterPage = () => {
           {error && <p className="error-message">{error}</p>}
           {successMessage && (
             <div className="success-message">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>

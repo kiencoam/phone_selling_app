@@ -116,7 +116,6 @@ const CartPage = () => {
         }
       );
 
-      // Cập nhật lại danh sách địa chỉ
       await fetchAddresses();
 
       showToast("Xóa địa chỉ thành công!");
@@ -126,10 +125,8 @@ const CartPage = () => {
     }
   };
 
-  // Sửa hàm saveAddress để đảm bảo không gửi ID khi thêm mới
   const saveAddress = async () => {
     try {
-      // Kiểm tra dữ liệu
       if (
         !addressForm.receiveName ||
         !addressForm.phone ||
@@ -145,24 +142,20 @@ const CartPage = () => {
         return;
       }
 
-      // Chuẩn bị dữ liệu gửi lên API
       const addressData = {
         receiveName: addressForm.receiveName,
         phone: addressForm.phone,
         address: addressForm.address,
       };
 
-      // Nếu đang chỉnh sửa, thêm ID
       if (editingAddressId) {
         addressData.id = editingAddressId;
       }
 
-      // Sử dụng phương thức khác nhau cho thêm mới và cập nhật
       const method = editingAddressId ? "put" : "post";
       const url =
         "https://phone-selling-app-mw21.onrender.com/api/v1/user/shipping-info";
 
-      // Gọi API
       const response = await axios({
         method,
         url,
@@ -170,11 +163,8 @@ const CartPage = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Nếu thành công, cập nhật danh sách địa chỉ
       if (response.data && response.data.data) {
         await fetchAddresses();
-
-        // Cập nhật địa chỉ đã chọn
         if (!selectedAddressId || editingAddressId) {
           const newAddress = response.data.data;
           setSelectedAddressId(newAddress.id);
@@ -182,7 +172,6 @@ const CartPage = () => {
         }
       }
 
-      // Đóng form và hiển thị thông báo
       setShowAddressForm(false);
       showToast(
         editingAddressId
@@ -200,8 +189,6 @@ const CartPage = () => {
       }
     }
   };
-
-  // Hàm fetch danh sách địa chỉ
   const fetchAddresses = async () => {
     try {
       setLoadingAddresses(true);
@@ -226,7 +213,6 @@ const CartPage = () => {
         const addressesData = response.data.data;
         setAddresses(addressesData);
 
-        // Nếu chưa có địa chỉ được chọn, chọn địa chỉ đầu tiên
         if (
           !selectedAddressId ||
           !addressesData.find((addr) => addr.id === selectedAddressId)
@@ -247,32 +233,25 @@ const CartPage = () => {
     }
   };
 
-  // Địa chỉ hiện tại được chọn
   const [selectedAddress, setSelectedAddress] = useState({
     receiveName: "",
     phone: "",
     address: "",
   });
 
-  // State cho modal
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  // Products, calculations and other functions as before
   const [products, setProducts] = useState([]);
 
   const fetchCart = async () => {
     try {
       setLoading(true);
-
-      // Lấy token từ localStorage
       const token = localStorage.getItem("token");
-
-      // Log token để kiểm tra
       console.log(
         "Token:",
         token ? `${token.substring(0, 10)}...` : "Không có token"
-      ); // Chỉ hiển thị 10 ký tự đầu của token để bảo mật
+      );
 
       if (!token) {
         console.log("Người dùng chưa đăng nhập");
@@ -281,8 +260,6 @@ const CartPage = () => {
       }
 
       console.log("Đang gọi API giỏ hàng với token");
-
-      // Gọi API giỏ hàng với token
       try {
         const response = await axios.get(
           "https://phone-selling-app-mw21.onrender.com/api/v1/user/cart",
@@ -292,19 +269,12 @@ const CartPage = () => {
             },
           }
         );
-
-        // Log response để kiểm tra
         console.log("API Response:", response);
-
-        // Kiểm tra response
         if (response.data && response.data.data) {
           setProducts(response.data.data);
           setError(null);
         } else {
-          // Xử lý trường hợp data là null nhưng không phải lỗi HTTP
           console.log("Phản hồi API:", response.data);
-
-          // Xử lý lỗi dựa trên mã lỗi
           if (response.data.meta && response.data.meta.code === 100029) {
             setError(
               "Không tìm thấy biến thể sản phẩm trong giỏ hàng. Có thể sản phẩm đã bị gỡ khỏi hệ thống."
@@ -315,7 +285,6 @@ const CartPage = () => {
           setProducts([]);
         }
       } catch (apiError) {
-        // Log lỗi API chi tiết
         console.error("Chi tiết lỗi API:", {
           status: apiError.response?.status,
           statusText: apiError.response?.statusText,
@@ -323,12 +292,10 @@ const CartPage = () => {
           message: apiError.message,
         });
 
-        throw apiError; // Throw lại để xử lý ở catch bên ngoài
+        throw apiError;
       }
     } catch (err) {
       console.error("Lỗi khi lấy giỏ hàng:", err);
-
-      // Log chi tiết lỗi response
       if (err.response) {
         console.error("Thông tin lỗi response:", {
           status: err.response.status,
@@ -339,9 +306,8 @@ const CartPage = () => {
       }
 
       if (err.response && err.response.status === 401) {
-        // Token hết hạn hoặc không hợp lệ
         console.error("Lỗi xác thực (401): Token không hợp lệ hoặc hết hạn");
-        localStorage.removeItem("token"); // Xóa token không hợp lệ
+        localStorage.removeItem("token");
         setError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
       } else {
         console.error("Lỗi khác khi gọi API giỏ hàng:", err.message);
@@ -363,34 +329,18 @@ const CartPage = () => {
     );
 
     if (token) {
-      // Chỉ gọi API nếu đã đăng nhập
       console.log("Gọi API fetchCart và fetchAddresses");
       fetchCart();
       fetchAddresses();
     } else {
-      // Nếu chưa đăng nhập, không gọi API và kết thúc loading
       setLoading(false);
       setLoadingAddresses(false);
       console.log("Người dùng chưa đăng nhập, bỏ qua việc gọi API");
     }
   }, []);
 
-  // Calculate totals
-  const totalItems = products.reduce(
-    (sum, product) => sum + product.quantity,
-    0
-  );
-
   const subTotal = products.reduce(
     (sum, product) => sum + product.catalogItem.price * product.quantity,
-    0
-  );
-
-  const totalDiscount = products.reduce(
-    (sum, product) =>
-      sum +
-      (product.catalogItem.basePrice - product.catalogItem.price) *
-        product.quantity,
     0
   );
 
@@ -398,25 +348,18 @@ const CartPage = () => {
     if (newQuantity < 1) return;
 
     try {
-      // Tìm sản phẩm trong giỏ hàng theo id
       const productToUpdate = products.find((product) => product.id === id);
       if (!productToUpdate) {
         console.error("Không tìm thấy sản phẩm với ID:", id);
         return;
       }
-
-      // Cập nhật UI trước (optimistic update)
       setProducts(
         products.map((product) =>
           product.id === id ? { ...product, quantity: newQuantity } : product
         )
       );
-
-      // Lấy token từ localStorage
       const token = localStorage.getItem("token");
       if (!token) return;
-
-      // Lấy variantId từ sản phẩm
       const variantId = productToUpdate.variant?.id;
       if (!variantId) {
         console.error("Không tìm thấy variant ID cho sản phẩm:", id);
@@ -440,9 +383,7 @@ const CartPage = () => {
     } catch (err) {
       console.error("Lỗi khi cập nhật số lượng sản phẩm:", err);
       showToast("Không thể cập nhật số lượng. Vui lòng thử lại.");
-
-      // Rollback UI state nếu API thất bại
-      fetchCart(); // Gọi lại hàm fetchCart để lấy dữ liệu mới nhất
+      fetchCart();
     }
   };
 
@@ -454,7 +395,6 @@ const CartPage = () => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
   };
 
-  // Xử lý form địa chỉ
   const handleAddressFormChange = (e) => {
     const { name, value, type, checked } = e.target;
     console.log("Form change:", name, value, type, checked);
@@ -488,20 +428,17 @@ const CartPage = () => {
     setShowAddressForm(true);
   };
 
-  // Sửa hàm handleNewAddress
   const handleNewAddress = () => {
-    // Lấy thông tin từ selectedAddress hiện tại (tên và số điện thoại)
     const currentGender = selectedAddress?.receiveName?.split(" ")[0] || "Chị";
     const currentName =
       selectedAddress?.receiveName?.split(" ").slice(1).join(" ") || "";
     const currentPhone = selectedAddress?.phone || "";
 
-    // Pre-fill thông tin hiện có
     setAddressForm({
       gender: currentGender,
       name: currentName,
       phone: currentPhone,
-      address: "", // Chỉ để trống phần địa chỉ
+      address: "",
       isDefault: false,
     });
 
@@ -525,28 +462,17 @@ const CartPage = () => {
     }
   };
 
-  // Sửa lại hàm selectAddress
   const selectAddress = (address) => {
-    // Lấy id từ địa chỉ
     const addressId = address.id;
-
-    // Cập nhật id địa chỉ đã chọn
     setSelectedAddressId(addressId);
-
-    // Cập nhật thông tin địa chỉ đã chọn
     setSelectedAddress(address);
-
-    // Đóng modal sau khi đã chọn
     setShowAddressModal(false);
-
-    // Hiển thị thông báo
     showToast("Đã chọn địa chỉ giao hàng", "success");
   };
 
   const handleAddressSave = async () => {
     const { gender, name, phone, address, isDefault } = addressForm;
 
-    // Validate form
     if (!address) {
       showToast("Vui lòng nhập địa chỉ!");
       return;
@@ -559,31 +485,21 @@ const CartPage = () => {
 
     try {
       setLoading(true);
-
-      // Lấy token từ localStorage
       const token = localStorage.getItem("token");
       if (!token) {
         showToast("Vui lòng đăng nhập để thêm địa chỉ!");
         return;
       }
-
-      // Xác định receiveName
       const receiveName = `${gender} ${name}`;
-
-      // Chuẩn bị dữ liệu để gửi lên API
       const addressData = {
         receiveName,
         phone,
         address,
         isDefault,
       };
-
-      // Nếu đang ở chế độ edit, thêm id vào payload
       if (editMode && editId) {
         addressData.id = editId;
       }
-
-      // Gọi API PUT để tạo mới hoặc cập nhật địa chỉ
       const response = await axios.put(
         "https://phone-selling-app-mw21.onrender.com/api/v1/user/shipping-info",
         addressData,
@@ -593,23 +509,13 @@ const CartPage = () => {
       );
 
       console.log("Thêm/cập nhật địa chỉ thành công:", response.data);
-
-      // Lấy địa chỉ vừa tạo/cập nhật từ response
       const newAddress = response.data.data;
-
-      // Sau khi thêm/cập nhật thành công, cập nhật lại danh sách địa chỉ
       await fetchAddresses();
-
-      // Cập nhật selectedAddress và selectedAddressId
       if (newAddress) {
         setSelectedAddress(newAddress);
         setSelectedAddressId(newAddress.id);
       }
-
-      // Đóng form
       setShowAddressForm(false);
-
-      // Đóng modal sau khi thêm địa chỉ thành công
       setShowAddressModal(false);
     } catch (error) {
       console.error("Lỗi xử lý địa chỉ:", error);
@@ -625,20 +531,13 @@ const CartPage = () => {
       setLoading(false);
     }
   };
-
-  // Thêm hàm confirmAddressSelection
   const confirmAddressSelection = () => {
-    // Tìm địa chỉ đã được chọn từ danh sách addresses
     const selectedAddr = addresses.find(
       (addr) => addr.id === selectedAddressId
     );
 
     if (selectedAddr) {
-      // Cập nhật selected address
       setSelectedAddress(selectedAddr);
-
-      // Nếu phương thức giao hàng trong modal là "PICKUP"
-      // nhưng phương thức hiện tại là "DELIVERY", thì cập nhật
       if (modalDeliveryMethod === "PICKUP" && deliveryMethod === "DELIVERY") {
         setDeliveryMethod("PICKUP");
       } else if (
@@ -648,52 +547,37 @@ const CartPage = () => {
         setDeliveryMethod("DELIVERY");
       }
     }
-
-    // Đóng modal
     setShowAddressModal(false);
   };
 
   const [orderNote, setOrderNote] = useState("");
-
-  // Thêm state quản lý phương thức thanh toán
   const [paymentMethod, setPaymentMethod] = useState("CASH");
-
-  // Thêm hàm handleCheckout để tạo đơn hàng
   const handleCheckout = async () => {
     try {
-      // Kiểm tra đăng nhập
       const token = localStorage.getItem("token");
       if (!token) {
         showToast("Vui lòng đăng nhập để đặt hàng", "error");
         navigate("/login");
         return;
       }
-
-      // Kiểm tra giỏ hàng có sản phẩm không
       if (products.length === 0) {
         showToast("Giỏ hàng của bạn đang trống", "error");
         return;
       }
-
-      // Kiểm tra địa chỉ giao hàng nếu phương thức là giao hàng
       if (deliveryMethod === "DELIVERY" && !selectedAddressId) {
         showToast("Vui lòng chọn địa chỉ giao hàng", "error");
         openAddressModal();
         return;
       }
-
-      // Chuẩn bị dữ liệu đơn hàng
       const orderData = {
         shippingInfoId:
           deliveryMethod === "DELIVERY" ? selectedAddressId : null,
         paymentMethod: paymentMethod,
-        receiveMethod: deliveryMethod, // delivery hoặc pickup
+        receiveMethod: deliveryMethod,
         note: orderNote,
       };
 
       console.log("TTin ơn hàng:", orderData);
-
-      // Gọi API tạo đơn hàng
       const response = await axios.post(
         "https://phone-selling-app-mw21.onrender.com/api/v1/order/customer/create-from-cart",
         orderData,
@@ -705,10 +589,7 @@ const CartPage = () => {
       );
 
       if (response.data && response.data.data) {
-        // Hiển thị thông báo thành công
         showToast("Đặt hàng thành công!", "success");
-
-        // Chuyển hướng đến trang xác nhận đơn hàng
         navigate("/order-confirmation", {
           state: {
             orderId: response.data.data.id,
@@ -717,7 +598,6 @@ const CartPage = () => {
         });
       }
     } catch (error) {
-      
       console.error("Lỗi khi đặt hàng:", error);
 
       if (error.response && error.response.data) {
@@ -730,23 +610,17 @@ const CartPage = () => {
       }
     }
   };
-
-  // Thêm vào đầu component CartPage
   const [toast, setToast] = useState({
     show: false,
     message: "",
-    type: "success", // success, error, info
+    type: "success",
   });
-
-  // Hàm hiển thị thông báo
   const showToast = (message, type = "success") => {
     setToast({
       show: true,
       message,
       type,
     });
-
-    // Tự động ẩn toast sau 3 giây
     setTimeout(() => {
       setToast((prev) => ({ ...prev, show: false }));
     }, 3000);
@@ -781,7 +655,6 @@ const CartPage = () => {
 
               <div className="modal-body">
                 {!showAddressForm ? (
-                  // Danh sách địa chỉ
                   <>
                     {loadingAddresses ? (
                       <div className="loading-container">
@@ -809,7 +682,7 @@ const CartPage = () => {
                                   ? "selected"
                                   : ""
                               }`}
-                              onClick={() => selectAddress(address)} // Chọn địa chỉ trực tiếp khi click
+                              onClick={() => selectAddress(address)}
                             >
                               <div className="address-content">
                                 <div className="address-name-phone">
@@ -861,7 +734,6 @@ const CartPage = () => {
                     )}
                   </>
                 ) : (
-                  // Form thêm/chỉnh sửa địa chỉ
                   <div className="address-form">
                     <div className="form-group">
                       <label htmlFor="receiveName">Họ và tên người nhận</label>
@@ -969,7 +841,6 @@ const CartPage = () => {
         )*/}
 
         {!localStorage.getItem("token") ? (
-          // Hiển thị thông báo đăng nhập
           <div className="login-required-container">
             <div className="login-required-content">
               <img
@@ -1003,13 +874,11 @@ const CartPage = () => {
             </div>
           </div>
         ) : loading ? (
-          // Hiển thị loading khi đang tải giỏ hàng
           <div className="loading-container">
             <div className="loading-spinner"></div>
             <p>Đang tải giỏ hàng...</p>
           </div>
         ) : error ? (
-          // Hiển thị lỗi nếu có
           <div className="error-container">
             <p className="error-message">{error}</p>
           </div>
@@ -1155,8 +1024,6 @@ const CartPage = () => {
                 </div>
               )}
             </div>
-
-            {/* Hiển thị phần còn lại chỉ khi có sản phẩm */}
             {products.length > 0 && (
               <>
                 <div className="grand-total">

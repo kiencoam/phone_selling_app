@@ -1,30 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineVisibility, MdOutlineVisibilityOff } from "react-icons/md";
+import { FaCheckCircle } from "react-icons/fa";
 import "../assets/styles/loginpage.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import axios from "axios"; // Đảm bảo bạn đã cài axios: npm install axios
+import axios from "axios";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Trạng thái loading khi đăng nhập
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [redirectCountdown, setRedirectCountdown] = useState(3);
   const navigate = useNavigate();
 
-  // Hàm kiểm tra định dạng email
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setToast({
+        show: true,
+        message: "Bạn đã đăng nhập! Đang chuyển hướng về trang chủ...",
+        type: "info",
+      });
+
+      const timer = setInterval(() => {
+        setRedirectCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            navigate("/");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [navigate]);
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
   const handleSubmit = async () => {
-    // Reset error message
     setError("");
 
-    // Validate form
     if (!email) {
       setError("Vui lòng nhập email");
       return;
@@ -41,9 +66,8 @@ const LoginPage = () => {
     }
 
     try {
-      setIsLoading(true); // Bắt đầu loading
+      setIsLoading(true);
 
-      // Gọi API đăng nhập
       const response = await axios.post(
         "https://phone-selling-app-mw21.onrender.com/api/v1/auth/customer-login",
         {
@@ -52,62 +76,59 @@ const LoginPage = () => {
         }
       );
 
-      // Kiểm tra response theo cấu trúc API mới
       if (
         response.data &&
         response.data.meta &&
         response.data.meta.code === 200
       ) {
-        // Lưu token vào localStorage
         localStorage.setItem("token", response.data.data.token);
 
-        // Decode JWT token để lấy thông tin user (nếu cần)
-        // const userInfo = decodeToken(response.data.data.token);
-        // localStorage.setItem("user", JSON.stringify(userInfo));
+        if (response.data.data.user) {
+          localStorage.setItem(
+            "userInfo",
+            JSON.stringify(response.data.data.user)
+          );
+        }
 
-        // Hiển thị thông báo đăng nhập thành công (tùy chọn)
-        console.log("Đăng nhập thành công!");
+        setToast({
+          show: true,
+          message: "Đăng nhập thành công! Đang chuyển hướng...",
+          type: "success",
+        });
 
-        // Chuyển hướng đến trang chính
-        navigate("/");
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
       } else {
-        // Xử lý trường hợp API trả về code khác 200
         setError(response.data?.meta?.message || "Đăng nhập không thành công");
       }
     } catch (err) {
-      // Xử lý lỗi từ API
       console.error("Login error:", err);
 
       if (err.response) {
-        // Server trả về lỗi với status code
-        const errorMessage = err.response.data?.meta?.message || 
-                            err.response.data?.message || 
-                            "Email hoặc mật khẩu không chính xác";
-                            
+        const errorMessage =
+          err.response.data?.meta?.message ||
+          err.response.data?.message ||
+          "Email hoặc mật khẩu không chính xác";
+
         if (errorMessage.includes("User not found")) {
           setError("Không tìm thấy tài khoản với email này");
-        } 
-        else if (errorMessage.includes("Invalid credentials")) {
+        } else if (errorMessage.includes("Invalid credentials")) {
           setError("Mật khẩu không chính xác");
-        }
-        else if (errorMessage.includes("Invalid email")) {
+        } else if (errorMessage.includes("Invalid email")) {
           setError("Email không hợp lệ");
-        }
-        else if (errorMessage.includes("Account locked")) {
+        } else if (errorMessage.includes("Account locked")) {
           setError("Tài khoản đã bị khóa. Vui lòng liên hệ hỗ trợ");
-        }
-        else {
+        } else {
           setError(errorMessage);
         }
       } else if (err.request) {
-        // Không nhận được phản hồi từ server
         setError("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
       } else {
-        // Lỗi khi thiết lập request
         setError("Có lỗi xảy ra. Vui lòng thử lại.");
       }
     } finally {
-      setIsLoading(false); // Kết thúc loading
+      setIsLoading(false);
     }
   };
 
@@ -132,6 +153,20 @@ const LoginPage = () => {
         </div>
         <div className="login-form">
           <h2>Đăng nhập</h2>
+
+          {/* Toast thông báo */}
+          {toast.show && (
+            <div className={`toast-notification ${toast.type}`}>
+              {toast.type === "success" && (
+                <FaCheckCircle className="toast-icon" />
+              )}
+              <span>{toast.message}</span>
+              {toast.type === "info" && redirectCountdown > 0 && (
+                <span className="countdown">({redirectCountdown})</span>
+              )}
+            </div>
+          )}
+
           <div className="input-group">
             <label htmlFor="email">Email</label>
             <div className="input-with-icon">
@@ -152,7 +187,7 @@ const LoginPage = () => {
               placeholder="Nhập mật khẩu"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autocomplete="new-password"
+              autoComplete="new-password"
               data-lpignore="true"
             />
             <button
@@ -177,7 +212,7 @@ const LoginPage = () => {
           <button
             className={`login-btn ${isLoading ? "loading" : ""}`}
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isLoading || toast.show}
           >
             {isLoading ? "ĐANG ĐĂNG NHẬP..." : "ĐĂNG NHẬP"}
           </button>
