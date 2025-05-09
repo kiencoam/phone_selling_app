@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API base URL - this would be replaced with your actual API URL
-const API_BASE_URL = 'https://api.phonesellingapp.com/api';
+const API_BASE_URL = 'https://phone-selling-app-mw21.onrender.com';
 
 // Create an axios instance
 const apiClient = axios.create({
@@ -15,26 +15,56 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('authToken');
+    console.log(`[API Request] ${config.method.toUpperCase()} ${config.url}`, {
+      hasToken: !!token,
+      params: config.params
+    });
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => {
+    console.error('[API Request Error]', error);
     return Promise.reject(error);
   }
 );
 
 // Add response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`[API Response] ${response.config.method.toUpperCase()} ${response.config.url}`, {
+      status: response.status,
+      data: response.data ? (typeof response.data === 'object' ? 'Object Data' : 'Data') : null
+    });
+    return response;
+  },
   (error) => {
+    console.error(`[API Error] ${error.config?.method?.toUpperCase() || 'UNKNOWN'} ${error.config?.url || 'unknown'}`, {
+      status: error.response?.status,
+      message: error.message,
+      data: error.response?.data
+    });
+    
     // Handle 401 Unauthorized errors
     if (error.response && error.response.status === 401) {
-      // Clear local storage and redirect to login
+      // Clear local storage but don't redirect automatically
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      
+      // Chỉ chuyển hướng nếu đang ở trang yêu cầu xác thực
+      const protectedRoutes = ['/cart', '/checkout', '/profile', '/orders'];
+      const currentPath = window.location.pathname;
+      
+      console.log('[Auth] 401 Error - Protected route check', {
+        currentPath,
+        isProtected: protectedRoutes.some(route => currentPath.startsWith(route))
+      });
+      
+      if (protectedRoutes.some(route => currentPath.startsWith(route))) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -250,36 +280,41 @@ const mockOrders = [
 export class ApiService {
   // Banners
   static async fetchBanners() {
+    console.log('[ApiService] fetchBanners - start');
     try {
       // For demo, return mock data
       // In production, uncomment the following:
       // const response = await apiClient.get('/banners');
       // return response.data;
       
+      console.log('[ApiService] fetchBanners - success (mock data)');
       return mockBanners;
     } catch (error) {
-      console.error('Error fetching banners:', error);
+      console.error('[ApiService] fetchBanners - error:', error);
       throw error;
     }
   }
 
   // Categories
   static async fetchCategories() {
+    console.log('[ApiService] fetchCategories - start');
     try {
       // For demo, return mock data
       // In production, uncomment the following:
       // const response = await apiClient.get('/categories');
       // return response.data;
       
+      console.log('[ApiService] fetchCategories - success (mock data)');
       return mockCategories;
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('[ApiService] fetchCategories - error:', error);
       throw error;
     }
   }
 
   // Products
   static async fetchProducts(filters = {}) {
+    console.log('[ApiService] fetchProducts - start', { filters });
     try {
       // For demo, return mock data with filtering
       // In production, uncomment the following:
@@ -317,9 +352,12 @@ export class ApiService {
         );
       }
       
+      console.log('[ApiService] fetchProducts - success (mock data)', { 
+        resultCount: filteredProducts.length
+      });
       return filteredProducts;
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('[ApiService] fetchProducts - error:', error);
       throw error;
     }
   }
@@ -370,6 +408,70 @@ export class ApiService {
     } catch (error) {
       console.error('Error searching products:', error);
       throw error;
+    }
+  }
+
+  // Fetch Hot Phones
+  static async fetchHotPhones() {
+    console.log('[ApiService] fetchHotPhones - start');
+    try {
+      let phonesData = [];
+      
+      try {
+        // Kiểm tra token trước khi gọi API
+        const token = localStorage.getItem('authToken');
+        console.log('[ApiService] fetchHotPhones - auth check', { hasToken: !!token });
+        
+        // Nếu không có token, sử dụng dữ liệu mẫu luôn để tránh lỗi 401
+        if (!token) {
+          console.info('[ApiService] fetchHotPhones - no auth token, using mock data');
+          return mockProducts
+            .filter(p => p.categoryId === 'phone')
+            .slice(0, 10);
+        }
+        
+        console.log('[ApiService] fetchHotPhones - calling actual API');
+        const response = await apiClient.get('/api/products/search', { 
+          params: { 
+            page: 1, 
+            size: 10, 
+            categoryId: 2
+          } 
+        });
+        
+        if (response?.data?.content && Array.isArray(response.data.content)) {
+          // API trả về dạng phân trang
+          console.log('[ApiService] fetchHotPhones - API returned paginated data');
+          phonesData = response.data.content;
+        } else if (response?.data && Array.isArray(response.data)) {
+          // API trả về mảng trực tiếp
+          console.log('[ApiService] fetchHotPhones - API returned array data');
+          phonesData = response.data;
+        }
+      } catch (apiError) {
+        console.error('[ApiService] fetchHotPhones - API call error:', apiError);
+        // API gọi thất bại, sẽ sử dụng dữ liệu mẫu
+      }
+      
+      // Nếu không có dữ liệu hoặc mảng rỗng, sử dụng dữ liệu mẫu
+      if (!phonesData || phonesData.length === 0) {
+        console.info('[ApiService] fetchHotPhones - no data from API, using mock data');
+        phonesData = mockProducts
+          .filter(p => p.categoryId === 'phone')
+          .slice(0, 10);
+      }
+      
+      console.log('[ApiService] fetchHotPhones - success', { 
+        resultCount: phonesData.length,
+        source: phonesData === mockProducts.filter(p => p.categoryId === 'phone').slice(0, 10) ? 'mock' : 'api'
+      });
+      return phonesData;
+    } catch (error) {
+      console.error('[ApiService] fetchHotPhones - unexpected error:', error);
+      // Fallback to mock data on error
+      return mockProducts
+        .filter(p => p.categoryId === 'phone')
+        .slice(0, 10);
     }
   }
 
@@ -457,6 +559,7 @@ export class ApiService {
 
   // Authentication
   static async login(email, password) {
+    console.log('[ApiService] login - start', { email });
     try {
       // For demo, uncomment in production:
       // const response = await apiClient.post('/auth/login', { email, password });
@@ -478,12 +581,14 @@ export class ApiService {
         localStorage.setItem('authToken', mockToken);
         localStorage.setItem('user', JSON.stringify(mockUser));
         
+        console.log('[ApiService] login - success', { user: mockUser });
         return mockUser;
       } else {
+        console.log('[ApiService] login - invalid credentials');
         throw new Error('Invalid credentials');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('[ApiService] login - error:', error);
       throw error;
     }
   }
@@ -503,11 +608,13 @@ export class ApiService {
   }
 
   static async logout() {
+    console.log('[ApiService] logout - start');
     // For demo, uncomment in production:
     // await apiClient.post('/auth/logout');
     
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    console.log('[ApiService] logout - success');
     return { success: true };
   }
 

@@ -41,4 +41,31 @@ export const PromotionProvider = ({ children }) => {
   );
 };
 
-export const usePromotion = () => useContext(PromotionContext);
+export const usePromotion = () => {
+  try {
+    const context = useContext(PromotionContext);
+    
+    if (!context) {
+      console.warn('usePromotion was used outside of PromotionProvider, using fallback values');
+      return {
+        activePromotions: [],
+        flashSales: [],
+        loading: false,
+        fetchActivePromotions: () => {
+          console.warn('fetchActivePromotions called outside PromotionProvider');
+          return Promise.resolve([]);
+        }
+      };
+    }
+    
+    return context;
+  } catch (error) {
+    console.error('Error in usePromotion hook:', error);
+    return {
+      activePromotions: [],
+      flashSales: [],
+      loading: false,
+      fetchActivePromotions: () => Promise.resolve([])
+    };
+  }
+};

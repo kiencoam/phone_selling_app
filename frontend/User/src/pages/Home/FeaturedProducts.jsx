@@ -24,66 +24,77 @@ const FeaturedProducts = ({ products = [] }) => {
 
   return (
     <div className={styles.productsGrid}>
-      {products.map(product => (
-        <div key={product.id} className={styles.productCard}>
-          <Link to={`/product/${product.id}`} className={styles.productLink}>
-            <div className={styles.productImageWrapper}>
-              <img 
-                src={product.imageUrl} 
-                alt={product.name} 
-                className={styles.productImage} 
-              />
-              
-              {product.discountPrice && (
-                <div className={styles.discountBadge}>
-                  -{Math.round((1 - product.discountPrice / product.price) * 100)}%
-                </div>
-              )}
-            </div>
-            
-            <h3 className={styles.productName}>{product.name}</h3>
-            
-            <div className={styles.productPriceWrapper}>
-              {product.discountPrice ? (
-                <>
-                  <span className={styles.productPrice}>
-                    {formatPrice(product.discountPrice)}
-                  </span>
-                  <span className={styles.productPriceOriginal}>
-                    {formatPrice(product.price)}
-                  </span>
-                </>
-              ) : (
-                <span className={styles.productPrice}>
-                  {formatPrice(product.price)}
-                </span>
-              )}
-            </div>
-            
-            <div className={styles.productRating}>
-              <div className={styles.ratingStars}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <i 
-                    key={star} 
-                    className={`fas fa-star ${star <= Math.round(product.rating) ? styles.filled : ''}`}
-                  ></i>
-                ))}
+      {products.map(product => {
+        // Đảm bảo tương thích với dữ liệu API và dữ liệu mẫu
+        const productId = product.id || product.productId;
+        const productName = product.name || product.productName;
+        const productImage = product.imageUrl || product.image || '';
+        const productPrice = product.price || 0;
+        const productDiscountPrice = product.discountPrice || product.salePrice;
+        const productRating = product.rating || 5;
+        const productReviewCount = product.reviewCount || 0;
+        
+        return (
+          <div key={productId} className={styles.productCard}>
+            <Link to={`/product/${productId}`} className={styles.productLink}>
+              <div className={styles.productImageWrapper}>
+                <img 
+                  src={productImage} 
+                  alt={productName} 
+                  className={styles.productImage} 
+                />
+                
+                {productDiscountPrice && productDiscountPrice < productPrice && (
+                  <div className={styles.discountBadge}>
+                    -{Math.round((1 - productDiscountPrice / productPrice) * 100)}%
+                  </div>
+                )}
               </div>
-              <span className={styles.reviewCount}>
-                {product.reviewCount} đánh giá
-              </span>
-            </div>
-          </Link>
-          
-          <button 
-            className={styles.addToCartBtn}
-            onClick={() => addToCart(product)}
-            disabled={loading}
-          >
-            <i className="fas fa-shopping-cart"></i> Thêm vào giỏ
-          </button>
-        </div>
-      ))}
+              
+              <h3 className={styles.productName}>{productName}</h3>
+              
+              <div className={styles.productPriceWrapper}>
+                {productDiscountPrice && productDiscountPrice < productPrice ? (
+                  <>
+                    <span className={styles.productPrice}>
+                      {formatPrice(productDiscountPrice)}
+                    </span>
+                    <span className={styles.productPriceOriginal}>
+                      {formatPrice(productPrice)}
+                    </span>
+                  </>
+                ) : (
+                  <span className={styles.productPrice}>
+                    {formatPrice(productPrice)}
+                  </span>
+                )}
+              </div>
+              
+              <div className={styles.productRating}>
+                <div className={styles.ratingStars}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <i 
+                      key={star} 
+                      className={`fas fa-star ${star <= Math.round(productRating) ? styles.filled : ''}`}
+                    ></i>
+                  ))}
+                </div>
+                <span className={styles.reviewCount}>
+                  {productReviewCount} đánh giá
+                </span>
+              </div>
+            </Link>
+            
+            <button 
+              className={styles.addToCartBtn}
+              onClick={() => addToCart(product)}
+              disabled={loading}
+            >
+              <i className="fas fa-shopping-cart"></i> Thêm vào giỏ
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 };

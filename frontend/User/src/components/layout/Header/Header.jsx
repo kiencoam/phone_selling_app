@@ -80,10 +80,7 @@ const Header = () => {
             {/* Actions */}
             <div className={styles.actions}>
              
-
-              /* Giỏ hàng */
-
-             
+              {/* Giỏ hàng */}
 
               {/* Nút toggle menu trên mobile */}
               <button
