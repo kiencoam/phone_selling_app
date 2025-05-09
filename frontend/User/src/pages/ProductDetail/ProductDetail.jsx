@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-//import { useCart } from '../../hooks/useCart';
-// ProductGallery from '../../components/product/ProductGallery';
-//import ProductSpecifications from './ProductSpecifications';
-//import ProductReviews from '../../components/product/ProductReviews';
-//import AddToCartButton from '../../components/cart/AddToCartButton';
+import useCart from '../../hooks/useCart';
+import ProductGallery from '../../components/product/ProductGallery';
+import ProductSpecifications from './ProductSpecifications';
+import ProductReviews from '../../components/product/ProductReviews';
+import AddToCartButton from '../../components/cart/AddToCartButton';
 import styles from './ProductDetail.module.css';
 
 const ProductDetail = () => {

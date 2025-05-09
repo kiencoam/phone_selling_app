@@ -1,0 +1,106 @@
+.addToCartContainer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.quantityControls {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.quantityButton {
+  width: 42px;
+  height: 42px;
+  background-color: #f5f5f5;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantityButton:hover {
+  background-color: #e5e5e5;
+}
+
+.quantityButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.quantityInput {
+  width: 50px;
+  height: 42px;
+  border: none;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  text-align: center;
+  font-size: 1rem;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.quantityInput::-webkit-outer-spin-button,
+.quantityInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.addButton {
+  height: 42px;
+  padding: 0 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  flex: 1;
+}
+
+.addButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primaryButton {
+  background-color: #ff5722;
+  color: white;
+}
+
+.primaryButton:hover {
+  background-color: #e64a19;
+}
+
+.secondaryButton {
+  background-color: #1976D2;
+  color: white;
+}
+
+.secondaryButton:hover {
+  background-color: #1565C0;
+}
+
+.loadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+} 

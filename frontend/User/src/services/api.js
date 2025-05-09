@@ -400,6 +400,23 @@ export class ApiService {
     }
   }
 
+  static async addToCart(productId, quantity = 1) {
+    try {
+      // Trong production, sẽ gọi API thật
+      // const response = await apiClient.post('/cart', { productId, quantity });
+      // return response.data;
+      
+      console.log(`Added product ${productId} to cart with quantity ${quantity}`);
+      return {
+        success: true,
+        message: 'Product added to cart successfully'
+      };
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      throw error;
+    }
+  }
+
   // Order methods
   static async getOrders() {
     try {

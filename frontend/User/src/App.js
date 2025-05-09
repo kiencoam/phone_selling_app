@@ -4,19 +4,19 @@ import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Category from './pages/Category';
 import ProductDetail from './pages/ProductDetail';
-//import Cart from './pages/Cart';
-//import Checkout from './pages/Checkout';
-//import Search from './pages/Search';
-//import { AuthProvider } from './contexts/AuthContext';
-//import { CartProvider } from './contexts/CartContext';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import Search from './pages/Search';
+import { AuthProvider } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
 import { FilterProvider } from './contexts/FilterContext';
 import { PromotionProvider } from './contexts/PromotionContext';
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
+      <CartProvider>
+        <AuthProvider>
           <FilterProvider>
             <PromotionProvider>
               <Routes>
@@ -24,7 +24,9 @@ function App() {
                   <Route index element={<Home />} />
                   <Route path="category/:categoryId" element={<Category />} />
                   <Route path="product/:productId" element={<ProductDetail />} />
-    
+                  <Route path="cart" element={<Cart />} />
+                  <Route path="checkout" element={<Checkout />} />
+                  <Route path="search" element={<Search />} />
                   <Route path="phone" element={<Category />} />
                   <Route path="laptop" element={<Category />} />
                   <Route path="accessory" element={<Category />} />
@@ -32,8 +34,8 @@ function App() {
               </Routes>
             </PromotionProvider>
           </FilterProvider>
-        </CartProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </CartProvider>
     </BrowserRouter>
   );
 }

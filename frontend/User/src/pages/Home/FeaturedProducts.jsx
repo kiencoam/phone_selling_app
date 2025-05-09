@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-//import { useCart } from '../../hooks/useCart';
+import useCart from '../../hooks/useCart';
 import styles from './FeaturedProducts.module.css';
 
 const FeaturedProducts = ({ products = [] }) => {
-  //const { addToCart, loading } = useCart();
-  
-
+  const { addToCart, loading } = useCart();
   
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -77,7 +75,13 @@ const FeaturedProducts = ({ products = [] }) => {
             </div>
           </Link>
           
-          
+          <button 
+            className={styles.addToCartBtn}
+            onClick={() => addToCart(product)}
+            disabled={loading}
+          >
+            <i className="fas fa-shopping-cart"></i> Thêm vào giỏ
+          </button>
         </div>
       ))}
     </div>
