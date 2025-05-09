@@ -11,8 +11,8 @@ import { ShoppingCart, Heart, User, Menu, X, Bell } from 'lucide-react';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { cart } = useCart();
-  const { user, isAuthenticated, logout } = useAuth();
+  //const { cart } = useCart();
+  //const { user, isAuthenticated, logout } = useAuth();
   
   // Lấy số lượng sản phẩm trong giỏ hàng
  // const cartItemsCount = cart?.items?.length || 0;
@@ -79,40 +79,11 @@ const Header = () => {
 
             {/* Actions */}
             <div className={styles.actions}>
-              <Link to="/wishlist" className={styles.actionIcon}>
-                <Heart size={22} />
-                <span className={styles.actionLabel}>Yêu thích</span>
-              </Link>
+             
 
-              <Link to="/cart" className={styles.actionIcon}>
-                <div className={styles.cartIconWrapper}>
-                  <ShoppingCart size={22} />
-                  {cartItemsCount > 0 && (
-                    <span className={styles.cartBadge}>{cartItemsCount}</span>
-                  )}
-                </div>
-                <span className={styles.actionLabel}>Giỏ hàng</span>
-              </Link>
+              /* Giỏ hàng */
 
-              {isAuthenticated ? (
-                <div className={styles.userDropdown}>
-                  <button className={styles.userButton}>
-                    <User size={22} />
-                    <span className={styles.actionLabel}>{user?.firstName || 'Tài khoản'}</span>
-                  </button>
-                  <div className={styles.dropdownMenu}>
-                    <Link to="/account" className={styles.dropdownItem}>Tài khoản của tôi</Link>
-                    <Link to="/account/orders" className={styles.dropdownItem}>Đơn hàng</Link>
-                    <Link to="/account/wishlist" className={styles.dropdownItem}>Danh sách yêu thích</Link>
-                    <button onClick={logout} className={styles.dropdownItem}>Đăng xuất</button>
-                  </div>
-                </div>
-              ) : (
-                <Link to="/login" className={styles.actionIcon}>
-                  <User size={22} />
-                  <span className={styles.actionLabel}>Đăng nhập</span>
-                </Link>
-              )}
+             
 
               {/* Nút toggle menu trên mobile */}
               <button
@@ -154,32 +125,7 @@ const Header = () => {
                 Hỗ trợ
               </Link>
             </div>
-            <div className={styles.mobileMenuDivider}></div>
-            {isAuthenticated ? (
-              <div className={styles.mobileMenuUserLinks}>
-                <Link to="/account" className={styles.mobileMenuLink} onClick={toggleMobileMenu}>
-                  Tài khoản của tôi
-                </Link>
-                <Link to="/account/orders" className={styles.mobileMenuLink} onClick={toggleMobileMenu}>
-                  Đơn hàng
-                </Link>
-                <Link to="/account/wishlist" className={styles.mobileMenuLink} onClick={toggleMobileMenu}>
-                  Danh sách yêu thích
-                </Link>
-                <button onClick={() => { logout(); toggleMobileMenu(); }} className={styles.mobileMenuButton}>
-                  Đăng xuất
-                </button>
-              </div>
-            ) : (
-              <div className={styles.mobileMenuAuth}>
-                <Link to="/login" className={styles.mobileMenuAuthButton} onClick={toggleMobileMenu}>
-                  Đăng nhập
-                </Link>
-                <Link to="/register" className={styles.mobileMenuAuthButtonOutline} onClick={toggleMobileMenu}>
-                  Đăng ký
-                </Link>
-              </div>
-            )}
+            
           </div>
         </div>
       )}

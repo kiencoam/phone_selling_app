@@ -4,12 +4,9 @@ import { Link } from 'react-router-dom';
 import styles from './FeaturedProducts.module.css';
 
 const FeaturedProducts = ({ products = [] }) => {
-  const { addToCart, loading } = useCart();
+  //const { addToCart, loading } = useCart();
   
-  const handleAddToCart = (e, product) => {
-    e.preventDefault();
-    addToCart(product, 1);
-  };
+
   
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -80,14 +77,7 @@ const FeaturedProducts = ({ products = [] }) => {
             </div>
           </Link>
           
-          <button 
-            className={styles.addToCartButton}
-            onClick={(e) => handleAddToCart(e, product)}
-            disabled={loading}
-          >
-            <i className="fas fa-shopping-cart"></i>
-            Thêm vào giỏ
-          </button>
+          
         </div>
       ))}
     </div>

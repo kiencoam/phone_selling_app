@@ -15,20 +15,20 @@ const ProductDetail = lazy(() => import('./pages/ProductDetail/ProductDetail'));
 //const Account = lazy(() => import('./pages/Account/Dashboard'));
 //const Orders = lazy(() => import('./pages/Account/Orders'));
 //const Wishlist = lazy(() => import('./pages/Account/Wishlist'));
-const Profile = lazy(() => import('./pages/Account/Profile'));
-const Search = lazy(() => import('./pages/Search'));
-const Comparison = lazy(() => import('./pages/Comparison'));
+//const Profile = lazy(() => import('./pages/Account/Profile'));
+//const Search = lazy(() => import('./pages/Search'));
+//const Comparison = lazy(() => import('./pages/Comparison'));
 
 // Các trang chuyên biệt cho từng loại sản phẩm
 const PhoneHome = lazy(() => import('./pages/Phone/PhoneHome'));
-const PhoneBrand = lazy(() => import('./pages/Phone/PhoneBrand'));
+//const PhoneBrand = lazy(() => import('./pages/Phone/PhoneBrand'));
 const LaptopHome = lazy(() => import('./pages/Laptop/LaptopHome'));
-const LaptopBrand = lazy(() => import('./pages/Laptop/LaptopBrand'));
+//const LaptopBrand = lazy(() => import('./pages/Laptop/LaptopBrand'));
 
 // Các trang khuyến mãi
 const AllPromotions = lazy(() => import('./pages/Promotion/AllPromotions'));
 const PromotionDetail = lazy(() => import('./pages/Promotion/PromotionDetail'));
-const FlashSale = lazy(() => import('./pages/Promotion/FlashSale'));
+//const FlashSale = lazy(() => import('./pages/Promotion/FlashSale'));
 
 // Fallback component khi đang tải
 const Loader = () => (
@@ -66,14 +66,7 @@ const router = createBrowserRouter([
           </Suspense>
         ),
       },
-      {
-        path: 'cart',
-        element: (
-          <Suspense fallback={<Loader />}>
-            <Cart />
-          </Suspense>
-        ),
-      },
+      /*{
       {
         path: 'search',
         element: (
@@ -89,7 +82,7 @@ const router = createBrowserRouter([
             <Comparison />
           </Suspense>
         ),
-      },
+      },*/
       {
         path: 'phone',
         children: [
@@ -101,14 +94,7 @@ const router = createBrowserRouter([
               </Suspense>
             ),
           },
-          {
-            path: ':brand',
-            element: (
-              <Suspense fallback={<Loader />}>
-                <PhoneBrand />
-              </Suspense>
-            ),
-          },
+         
         ],
       },
       {
@@ -122,14 +108,7 @@ const router = createBrowserRouter([
               </Suspense>
             ),
           },
-          {
-            path: ':brand',
-            element: (
-              <Suspense fallback={<Loader />}>
-                <LaptopBrand />
-              </Suspense>
-            ),
-          },
+          
         ],
       },
       {
@@ -151,19 +130,12 @@ const router = createBrowserRouter([
               </Suspense>
             ),
           },
-          {
-            path: 'flash-sale',
-            element: (
-              <Suspense fallback={<Loader />}>
-                <FlashSale />
-              </Suspense>
-            ),
-          },
+         
         ],
       },
     ],
   },
-  {
+ /* {
     path: '/checkout',
     element: <CheckoutLayout />,
     children: [
@@ -214,7 +186,8 @@ const router = createBrowserRouter([
         ),
       },
     ],
-  },
+  },*/
 ]);
 
+// Xuất router để sử dụng trong ứng dụng
 export default router;

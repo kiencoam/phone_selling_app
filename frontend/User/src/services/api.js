@@ -207,6 +207,45 @@ const mockProducts = [
   }
 ];
 
+// Thêm mock data cho cart
+const mockCart = {
+  items: [
+    {
+      productId: 1,
+      quantity: 2,
+      product: mockProducts[0]
+    },
+    {
+      productId: 2,
+      quantity: 1,
+      product: mockProducts[1]
+    }
+  ],
+  total: 95970000
+};
+
+// Thêm mock data cho orders
+const mockOrders = [
+  {
+    id: 1,
+    orderNumber: "ORD001",
+    date: "2024-02-20",
+    status: "delivered",
+    items: [mockProducts[0]],
+    total: 32990000,
+    shippingAddress: "123 Đường ABC, Quận 1, TP.HCM"
+  },
+  {
+    id: 2, 
+    orderNumber: "ORD002",
+    date: "2024-02-21",
+    status: "processing",
+    items: [mockProducts[1], mockProducts[2]],
+    total: 48480000,
+    shippingAddress: "456 Đường XYZ, Quận 2, TP.HCM"
+  }
+];
+
 // API Service class
 export class ApiService {
   // Banners
@@ -334,17 +373,67 @@ export class ApiService {
     }
   }
 
-  // Cart
-  static async addToCart(productId, quantity = 1) {
+  // Cart methods
+  static async getCart() {
     try {
-      // For demo, uncomment in production:
-      // const response = await apiClient.post('/cart', { productId, quantity });
+      // Trong production sẽ gọi API thật
+      // const response = await apiClient.get('/cart');
       // return response.data;
-      
-      // For demo purposes, just return success
-      return { success: true, message: 'Product added to cart' };
+      return mockCart;
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('Error getting cart:', error);
+      throw error;
+    }
+  }
+
+  static async updateCartItem(productId, quantity) {
+    try {
+      // const response = await apiClient.put(`/cart/${productId}`, { quantity });
+      // return response.data;
+      return {
+        success: true,
+        message: 'Cart updated successfully'
+      };
+    } catch (error) {
+      console.error('Error updating cart:', error);
+      throw error;
+    }
+  }
+
+  // Order methods
+  static async getOrders() {
+    try {
+      // const response = await apiClient.get('/orders');
+      // return response.data;
+      return mockOrders;
+    } catch (error) {
+      console.error('Error getting orders:', error);
+      throw error;
+    }
+  }
+
+  static async getOrderById(orderId) {
+    try {
+      // const response = await apiClient.get(`/orders/${orderId}`);
+      // return response.data;
+      return mockOrders.find(order => order.id === orderId);
+    } catch (error) {
+      console.error('Error getting order:', error);
+      throw error;
+    }
+  }
+
+  static async createOrder(orderData) {
+    try {
+      // const response = await apiClient.post('/orders', orderData);
+      // return response.data;
+      return {
+        success: true,
+        orderId: Date.now(),
+        message: 'Order created successfully'
+      };
+    } catch (error) {
+      console.error('Error creating order:', error);
       throw error;
     }
   }
@@ -441,4 +530,4 @@ export class ApiService {
       throw error;
     }
   }
-} 
+}

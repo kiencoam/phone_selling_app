@@ -1,4 +1,5 @@
-import api from './api';
+import { ApiService as api } from './api';
+
 
 export const PromotionService = {
   getAllPromotions: async () => {
