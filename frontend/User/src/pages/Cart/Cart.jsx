@@ -3,8 +3,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ".CartPage.css";
 import CartItem from "../../components/cart/CartItem/CartItem";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 import {
   FaMapMarkerAlt,
   FaAngleRight,
@@ -24,13 +22,6 @@ const CartPage = () => {
 
   const [deliveryMethod, setDeliveryMethod] = useState("DELIVERY");
   const [modalDeliveryMethod, setModalDeliveryMethod] = useState("DELIVERY");
-
-  const [invoiceData, setInvoiceData] = useState({
-    companyName: "",
-    companyAddress: "",
-    taxCode: "",
-    email: "",
-  });
 
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -601,7 +592,6 @@ const CartPage = () => {
 
   return (
     <div className="cart-page">
-      <Header />
       <div className="container">
         {/* Modal quản lý địa chỉ */}
         {showAddressModal && (
@@ -1141,7 +1131,6 @@ const CartPage = () => {
           </>
         )}
       </div>
-      <Footer />
     </div>
   );
 };

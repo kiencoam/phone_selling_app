@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import "../assets/styles/OrderConfirmation.css";
+import Header from "../../components/layout/Header/index";
+import Footer from "../../components/layout/Footer/index";
+import "./OrderConfirmation.css";
 import {
   FaCheckCircle,
   FaInfoCircle,
