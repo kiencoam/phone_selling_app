@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineVisibility, MdOutlineVisibilityOff } from "react-icons/md";
 import "../assets/styles/registerpage.css";
@@ -18,7 +18,27 @@ const RegisterPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [isAlreadyLoggedIn, setIsAlreadyLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        setIsAlreadyLoggedIn(true);
+      } else {
+        setIsAlreadyLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+
+    window.addEventListener('focus', checkLoginStatus);
+
+    return () => {
+      window.removeEventListener('focus', checkLoginStatus);
+    };
+  }, []);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,12 +109,10 @@ const RegisterPage = () => {
         response.data.meta &&
         response.data.meta.code === 200
       ) {
-        localStorage.setItem("token", response.data.data.token);
 
         setSuccessMessage(
           "Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập sau 3 giây."
         );
-
         setTimeout(() => {
           navigate("/login");
         }, 3000);
@@ -138,6 +156,41 @@ const RegisterPage = () => {
   const goToLogin = () => {
     navigate("/login");
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    setIsAlreadyLoggedIn(false);
+
+    console.log("Đã đăng xuất, token đã bị xóa");
+  };
+
+  const goToHome = () => {
+    navigate("/");
+  };
+
+  if (isAlreadyLoggedIn) {
+    return (
+      <div className="register-page">
+        <Header />
+        <div className="main-content">
+          <div className="register-form">
+            <h2>Bạn đã đăng nhập</h2>
+            <p>Bạn đã đăng nhập vào hệ thống.</p>
+            <div className="button-group">
+              <button className="primary-btn" onClick={goToHome}>
+                Về trang chủ
+              </button>
+              <button className="secondary-btn" onClick={handleLogout}>
+                Đăng xuất
+              </button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="register-page">

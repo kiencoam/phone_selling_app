@@ -26,7 +26,6 @@
   height: auto;
 }
 
-/* Cập nhật registration form styling để giống login */
 .register-form {
   flex: 1;
   width: 420px;
@@ -34,7 +33,6 @@
   border-radius: 16px;
   padding: 35px 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  min-height: 550px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -152,8 +150,10 @@
   padding: 10px;
   border-left: 4px solid #e74c3c;
   border-radius: 4px;
-  overflow-wrap: break-word; /* Đảm bảo text dài sẽ được xuống dòng */
-  max-width: 100%; /* Giới hạn chiều rộng */
+  overflow-wrap: break-word;
+  /* Đảm bảo text dài sẽ được xuống dòng */
+  max-width: 100%;
+  /* Giới hạn chiều rộng */
 }
 
 /* Cập nhật nút đăng ký */
@@ -225,7 +225,7 @@
   left: 20%;
   right: 20%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
 }
 
 .login-link p {
@@ -239,6 +239,89 @@
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
+}
+
+/* Thêm các styles này vào cuối file CSS */
+
+/* Tùy chỉnh giao diện cho màn hình đã đăng nhập */
+.register-form h2 {
+  font-weight: 600;
+  font-size: 26px;
+  margin-bottom: 15px;
+  text-align: center;
+  color: #333;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+/* Style cho thông báo đã đăng nhập */
+.register-form p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Style cho button group khi đã đăng nhập */
+.register-form .button-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  justify-content: center;
+}
+
+/* Style nút primary */
+.register-form .primary-btn {
+  background: linear-gradient(to right, #F96F3A, #ff9966);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(249, 111, 58, 0.25);
+  border: none;
+  min-width: 140px;
+}
+
+.register-form .primary-btn:hover {
+  box-shadow: 0 6px 20px rgba(249, 111, 58, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Style nút secondary */
+.register-form .secondary-btn {
+  background-color: transparent;
+  color: #F96F3A;
+  border: 2px solid #F96F3A;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.register-form .secondary-btn:hover {
+  background-color: rgba(249, 111, 58, 0.08);
+  box-shadow: 0 2px 10px rgba(249, 111, 58, 0.15);
+}
+
+/* Thêm hiệu ứng cho màn hình đã đăng nhập */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Khi hiển thị màn hình đã đăng nhập, thêm animation */
+.register-page .register-form {
+  animation: fadeIn 0.5s ease-out;
 }
 
 .login-link span:hover {
@@ -306,7 +389,7 @@
   .main-content {
     padding: 20px 10px;
   }
-  
+
   .register-form {
     padding: 20px 15px;
   }
@@ -337,6 +420,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
