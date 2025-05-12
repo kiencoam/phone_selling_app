@@ -10,7 +10,7 @@ import MainLayout from './layouts/MainLayout';
 const Home = lazy(() => import('./pages/Home'));
 const Category = lazy(() => import('./pages/Category'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail/ProductDetail'));
-//const Cart = lazy(() => import('./pages/Cart'));
+const Cart = lazy(() => import('./pages/Cart'));
 //const Checkout = lazy(() => import('./pages/Checkout'));
 //const Account = lazy(() => import('./pages/Account/Dashboard'));
 //const Orders = lazy(() => import('./pages/Account/Orders'));
