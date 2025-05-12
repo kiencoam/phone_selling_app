@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "../assets/styles/CartItem.css";
+import "./CartItem.css";
 import {
   FaAngleDown,
-  FaPercentage
 } from "react-icons/fa";
 
 const CartItem = ({ product, updateQuantity, removeProduct, formatPrice }) => {
@@ -10,34 +9,27 @@ const CartItem = ({ product, updateQuantity, removeProduct, formatPrice }) => {
     "https://via.placeholder.com/100x100?text=Loading"
   );
 
-  // Kiểm tra xem sản phẩm có đang giảm giá không
   const isDiscounted =
     product.catalogItem.basePrice > product.catalogItem.price;
 
-  // Tính phần trăm giảm giá
   const discountPercent = isDiscounted
     ? Math.round(
-        ((product.catalogItem.basePrice - product.catalogItem.price) /
-          product.catalogItem.basePrice) *
-          100
-      )
+      ((product.catalogItem.basePrice - product.catalogItem.price) /
+        product.catalogItem.basePrice) *
+      100
+    )
     : 0;
 
-  // Xử lý ảnh base64
   useEffect(() => {
-    // Lấy ảnh từ variant hoặc từ catalogItem
     const base64Data = product.variant?.images?.[0]?.base64 || product.catalogItem?.image?.base64;
-    
+
     if (base64Data && typeof base64Data === 'string' && base64Data.length > 0) {
-      // Kiểm tra xem chuỗi base64 đã có đầu "data:image/" chưa
       if (base64Data.startsWith('data:image/')) {
         setImageUrl(base64Data);
       } else {
-        // Nếu là chuỗi base64 thuần, thêm prefix
         setImageUrl(`data:image/jpeg;base64,${base64Data}`);
       }
     } else {
-      // Ảnh mặc định nếu không có base64
       setImageUrl("https://via.placeholder.com/100x100?text=No+Image");
     }
   }, [product]);

@@ -14,34 +14,16 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
-  const [redirectCountdown, setRedirectCountdown] = useState(3);
+  const [isAlreadyLoggedIn, setIsAlreadyLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      setToast({
-        show: true,
-        message: "Bạn đã đăng nhập! Đang chuyển hướng về trang chủ...",
-        type: "info",
-      });
-
-      const timer = setInterval(() => {
-        setRedirectCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            navigate("/");
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => {
-        clearInterval(timer);
-      };
+      setIsAlreadyLoggedIn(true);
     }
-  }, [navigate]);
+  }, []);
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -144,6 +126,39 @@ const LoginPage = () => {
     navigate("/register");
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    setIsAlreadyLoggedIn(false);
+  };
+
+  const goToHome = () => {
+    navigate("/");
+  };
+
+  if (isAlreadyLoggedIn) {
+    return (
+      <div className="login-page">
+        <Header />
+        <div className="main-content">
+          <div className="login-form">
+            <h2>Bạn đã đăng nhập</h2>
+            <p>Bạn đã đăng nhập vào hệ thống.</p>
+            <div className="button-group">
+              <button className="primary-btn" onClick={goToHome}>
+                Về trang chủ
+              </button>
+              <button className="secondary-btn" onClick={handleLogout}>
+                Đăng xuất
+              </button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="login-page">
       <Header />
@@ -161,9 +176,6 @@ const LoginPage = () => {
                 <FaCheckCircle className="toast-icon" />
               )}
               <span>{toast.message}</span>
-              {toast.type === "info" && redirectCountdown > 0 && (
-                <span className="countdown">({redirectCountdown})</span>
-              )}
             </div>
           )}
 
