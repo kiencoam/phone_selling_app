@@ -1,0 +1,7 @@
+This is a placeholder for product images.
+For actual images, replace with real image files (.jpg, .png) and use the same filename as referenced in the API data.
+Example:
+- iphone-15-pro-max.jpg
+- samsung-galaxy-s24.jpg
+- macbook-pro-16.jpg
+- etc. 

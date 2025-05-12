@@ -28,16 +28,32 @@ const SearchBar = ({ onSubmit }) => {
   // Update suggestions when the query changes
   useEffect(() => {
     if (query.trim()) {
-      // Here you would normally fetch suggestions from an API
-      // For now, we'll just filter from history
-      const filtered = searchHistory.filter(item => 
-        item.toLowerCase().includes(query.toLowerCase())
-      );
-      setSuggestions(filtered);
-    } else {
-      setSuggestions([]);
+      // Thêm debounce để tránh gọi API quá nhiều
+      const timer = setTimeout(async () => {
+        try {
+          // Trong production sẽ gọi API thật
+          // const response = await ApiService.searchSuggestions(query);
+          // setSuggestions(response.data);
+          
+          // Mock data
+          const mockSuggestions = [
+            {
+              id: 1,
+              name: `iPhone 15 Pro Max ${query}`,
+              price: 32990000,
+              image: '/assets/images/products/iphone-15-pro-max.jpg'
+            },
+            // Thêm mock data khác
+          ];
+          setSuggestions(mockSuggestions);
+        } catch (error) {
+          console.error('Error fetching suggestions:', error);
+        }
+      }, 300);
+
+      return () => clearTimeout(timer);
     }
-  }, [query, searchHistory]);
+  }, [query]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -115,11 +131,14 @@ const SearchBar = ({ onSubmit }) => {
                 suggestions.map((suggestion, index) => (
                   <li 
                     key={`suggestion-${index}`}
-                    onClick={() => handleSuggestionClick(suggestion)}
+                    onClick={() => handleSuggestionClick(suggestion.name)}
                     className={styles.suggestionItem}
                   >
-                    <i className="fas fa-search"></i>
-                    <span>{suggestion}</span>
+                    <img src={suggestion.image} alt={suggestion.name} className={styles.suggestionImage} />
+                    <div className={styles.suggestionDetails}>
+                      <span className={styles.suggestionName}>{suggestion.name}</span>
+                      <span className={styles.suggestionPrice}>{suggestion.price.toLocaleString()} VND</span>
+                    </div>
                   </li>
                 ))
               ) : (
@@ -135,4 +154,4 @@ const SearchBar = ({ onSubmit }) => {
   );
 };
 
-export default SearchBar; 
+export default SearchBar;

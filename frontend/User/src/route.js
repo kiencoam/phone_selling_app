@@ -10,13 +10,14 @@ import MainLayout from './layouts/MainLayout';
 const Home = lazy(() => import('./pages/Home'));
 const Category = lazy(() => import('./pages/Category'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail/ProductDetail'));
-const Cart = lazy(() => import('./pages/Cart'));
-//const Checkout = lazy(() => import('./pages/Checkout'));
+const Cart = lazy(() => import('./pages/Cart/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout'));
 //const Account = lazy(() => import('./pages/Account/Dashboard'));
 //const Orders = lazy(() => import('./pages/Account/Orders'));
 //const Wishlist = lazy(() => import('./pages/Account/Wishlist'));
-//const Profile = lazy(() => import('./pages/Account/Profile'));
-//const Search = lazy(() => import('./pages/Search'));
+const Login = lazy(() => import('./pages/Account/Login'));
+const Register = lazy(() => import('./pages/Account/Register'));
+const Search = lazy(() => import('./pages/Search'));
 //const Comparison = lazy(() => import('./pages/Comparison'));
 
 // Các trang chuyên biệt cho từng loại sản phẩm
@@ -37,10 +38,15 @@ const Loader = () => (
   </div>
 );
 
+// Component ProtectedRoute được sử dụng để bảo vệ các route yêu cầu đăng nhập
+import ProtectedRoute from './components/common/ProtectedRoute';
+import ErrorBoundary from './components/common/ErrorBoundary';
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
@@ -66,7 +72,6 @@ const router = createBrowserRouter([
           </Suspense>
         ),
       },
-      /*{
       {
         path: 'search',
         element: (
@@ -75,14 +80,6 @@ const router = createBrowserRouter([
           </Suspense>
         ),
       },
-      {
-        path: 'comparison',
-        element: (
-          <Suspense fallback={<Loader />}>
-            <Comparison />
-          </Suspense>
-        ),
-      },*/
       {
         path: 'phone',
         children: [
@@ -132,6 +129,50 @@ const router = createBrowserRouter([
           },
          
         ],
+      },
+      {
+        path: 'login',
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Login />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'register',
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Register />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'cart',
+        element: (
+          <Suspense fallback={<Loader />}>
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          </Suspense>
+        ),
+      },
+      {
+        path: 'checkout',
+        element: (
+          <Suspense fallback={<Loader />}>
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          </Suspense>
+        ),
+      },
+      {
+        path: 'accessory',
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Category />
+          </Suspense>
+        ),
       },
     ],
   },

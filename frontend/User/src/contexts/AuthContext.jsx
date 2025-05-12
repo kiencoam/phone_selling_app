@@ -1,99 +1,82 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { ApiService } from '../services/api';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { AuthService } from '../services/auth.service';
 
-export const AuthContext = createContext();
-
-export const useAuth = () => useContext(AuthContext);
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useLocalStorage('user', null);
-  const [token, setToken] = useLocalStorage('authToken', null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Ghi log khi khởi tạo context
   useEffect(() => {
-    console.log('[AuthContext] Initialized', { 
-      isAuthenticated: !!user,
-      user: user ? { id: user.id, email: user.email } : null
-    });
+    // Kiểm tra token và user trong localStorage khi khởi động
+    const checkAuth = async () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        try {
+          const userData = await AuthService.fetchUserProfile();
+          setUser(userData);
+        } catch (error) {
+          console.error('Auth check failed:', error);
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
-  // Ghi log khi trạng thái thay đổi
-  useEffect(() => {
-    console.log('[AuthContext] Auth state changed', { 
-      isAuthenticated: !!user,
-      user: user ? { id: user.id, email: user.email } : null
-    });
-  }, [user, token]);
-
   const login = async (email, password) => {
-    console.log('[AuthContext] login - start', { email });
-    setLoading(true);
-    setError(null);
-    
     try {
-      const response = await ApiService.login(email, password);
-      console.log('[AuthContext] login - success', { userId: response.id });
-      setUser(response.user);
-      setToken(response.token);
-      return response;
-    } catch (err) {
-      console.error('[AuthContext] login - error', err);
-      setError(err.message || 'Login failed');
-      throw err;
-    } finally {
-      setLoading(false);
+      const userData = await AuthService.login(email, password);
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      throw error;
     }
   };
 
   const logout = async () => {
-    console.log('[AuthContext] logout - start');
-    setLoading(true);
-    
     try {
-      await ApiService.logout();
-      console.log('[AuthContext] logout - success');
+      await AuthService.logout();
       setUser(null);
-      setToken(null);
-    } catch (err) {
-      console.error('[AuthContext] logout - error', err);
-    } finally {
-      setLoading(false);
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
 
   const register = async (userData) => {
-    console.log('[AuthContext] register - start', { email: userData.email });
-    setLoading(true);
-    setError(null);
-    
     try {
-      const response = await ApiService.register(userData);
-      console.log('[AuthContext] register - success');
-      setUser(response.user);
-      setToken(response.token);
+      const response = await AuthService.register(userData);
       return response;
-    } catch (err) {
-      console.error('[AuthContext] register - error', err);
-      setError(err.message || 'Registration failed');
-      throw err;
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      throw error;
     }
   };
 
   const value = {
     user,
-    token,
-    loading,
-    error,
     isAuthenticated: !!user,
+    loading,
     login,
     logout,
     register
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}; 
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

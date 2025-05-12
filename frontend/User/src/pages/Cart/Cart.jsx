@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import ".CartPage.css";
+import "./CartPage.css";
 import CartItem from "../../components/cart/CartItem/CartItem";
 import {
   FaMapMarkerAlt,

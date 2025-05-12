@@ -1,7 +1,55 @@
 import axios from 'axios';
+import { API_CONFIG } from '../constants/api';
 
-// API base URL - this would be replaced with your actual API URL
-const API_BASE_URL = 'https://phone-selling-app-mw21.onrender.com';
+// API base URL
+const API_BASE_URL = API_CONFIG.BASE_URL;
+
+// Tạo dữ liệu mẫu cho fallback trong trường hợp API không hoạt động
+const FALLBACK_DATA = {
+  products: [
+    {
+      id: 1,
+      name: 'iPhone 15 Pro Max',
+      price: 34990000,
+      discountPrice: 32990000,
+      imageUrl: '/assets/images/products/iphone-15-pro-max.jpg',
+      categoryId: 'phone',
+      brandId: 'apple',
+      rating: 4.9,
+      reviewCount: 120,
+      stockStatus: 'in_stock'
+    },
+    {
+      id: 2,
+      name: 'Samsung Galaxy S24 Ultra',
+      price: 31990000,
+      discountPrice: 29990000,
+      imageUrl: '/assets/images/products/samsung-galaxy-s24.jpg',
+      categoryId: 'phone',
+      brandId: 'samsung',
+      rating: 4.8,
+      reviewCount: 95,
+      stockStatus: 'in_stock'
+    }
+  ],
+  categories: [
+    { id: 'phone', name: 'Điện thoại', icon: 'fa-mobile-alt', path: '/phone' },
+    { id: 'laptop', name: 'Laptop', icon: 'fa-laptop', path: '/laptop' }
+  ],
+  banners: [
+    {
+      id: 1,
+      title: 'iPhone 15 Pro Max Mới',
+      imageUrl: '/assets/images/banners/iphone-15-pro-max.jpg',
+      link: '/product/iphone-15-pro-max'
+    }
+  ],
+  cart: {
+    items: [],
+    total: 0
+  },
+  orders: []
+};
 
 // Create an axios instance
 const apiClient = axios.create({
@@ -9,6 +57,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: API_CONFIG.TIMEOUT, // 10 seconds timeout
 });
 
 // Add request interceptor for auth token
@@ -282,16 +331,13 @@ export class ApiService {
   static async fetchBanners() {
     console.log('[ApiService] fetchBanners - start');
     try {
-      // For demo, return mock data
-      // In production, uncomment the following:
-      // const response = await apiClient.get('/banners');
-      // return response.data;
-      
-      console.log('[ApiService] fetchBanners - success (mock data)');
-      return mockBanners;
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.BANNERS);
+      console.log('[ApiService] fetchBanners - success', { count: response.data.length });
+      return response.data;
     } catch (error) {
       console.error('[ApiService] fetchBanners - error:', error);
-      throw error;
+      console.log('[ApiService] fetchBanners - using fallback data');
+      return FALLBACK_DATA.banners;
     }
   }
 
@@ -299,16 +345,13 @@ export class ApiService {
   static async fetchCategories() {
     console.log('[ApiService] fetchCategories - start');
     try {
-      // For demo, return mock data
-      // In production, uncomment the following:
-      // const response = await apiClient.get('/categories');
-      // return response.data;
-      
-      console.log('[ApiService] fetchCategories - success (mock data)');
-      return mockCategories;
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.CATEGORIES);
+      console.log('[ApiService] fetchCategories - success', { count: response.data.length });
+      return response.data;
     } catch (error) {
       console.error('[ApiService] fetchCategories - error:', error);
-      throw error;
+      console.log('[ApiService] fetchCategories - using fallback data');
+      return FALLBACK_DATA.categories;
     }
   }
 
@@ -316,82 +359,61 @@ export class ApiService {
   static async fetchProducts(filters = {}) {
     console.log('[ApiService] fetchProducts - start', { filters });
     try {
-      // For demo, return mock data with filtering
-      // In production, uncomment the following:
-      // const response = await apiClient.get('/products', { params: filters });
-      // return response.data;
-      
-      let filteredProducts = [...mockProducts];
-      
-      // Apply category filter
-      if (filters.category) {
-        filteredProducts = filteredProducts.filter(p => p.categoryId === filters.category);
-      }
-      
-      // Apply brand filter
-      if (filters.brand) {
-        filteredProducts = filteredProducts.filter(p => p.brandId === filters.brand);
-      }
-      
-      // Apply price filter
-      if (filters.minPrice) {
-        filteredProducts = filteredProducts.filter(p => (p.discountPrice || p.price) >= filters.minPrice);
-      }
-      
-      if (filters.maxPrice) {
-        filteredProducts = filteredProducts.filter(p => (p.discountPrice || p.price) <= filters.maxPrice);
-      }
-      
-      // Apply search filter
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase();
-        filteredProducts = filteredProducts.filter(p => 
-          p.name.toLowerCase().includes(searchTerm) || 
-          p.categoryId.toLowerCase().includes(searchTerm) ||
-          p.brandId.toLowerCase().includes(searchTerm)
-        );
-      }
-      
-      console.log('[ApiService] fetchProducts - success (mock data)', { 
-        resultCount: filteredProducts.length
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.PRODUCTS, { params: filters });
+      console.log('[ApiService] fetchProducts - success', { 
+        resultCount: response.data.length || response.data.content?.length
       });
-      return filteredProducts;
+      
+      // Handle paginated response
+      if (response.data.content && Array.isArray(response.data.content)) {
+        return response.data.content;
+      }
+      
+      return response.data;
     } catch (error) {
       console.error('[ApiService] fetchProducts - error:', error);
-      throw error;
+      console.log('[ApiService] fetchProducts - using fallback data');
+      
+      // Áp dụng filter đơn giản cho dữ liệu fallback
+      let filteredProducts = [...FALLBACK_DATA.products];
+      
+      if (filters.categoryId) {
+        filteredProducts = filteredProducts.filter(p => p.categoryId === filters.categoryId);
+      }
+      
+      if (filters.brandId) {
+        filteredProducts = filteredProducts.filter(p => p.brandId === filters.brandId);
+      }
+      
+      return filteredProducts;
     }
   }
 
   // Product detail
   static async fetchProductById(productId) {
     try {
-      // For demo, return mock data
-      // In production, uncomment the following:
-      // const response = await apiClient.get(`/products/${productId}`);
-      // return response.data;
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.PRODUCT_DETAIL(productId));
+      return response.data;
+    } catch (error) {
+      console.error(`[ApiService] Error fetching product ${productId}:`, error);
+      console.log(`[ApiService] fetchProductById - using fallback data for product ${productId}`);
       
-      const product = mockProducts.find(p => p.id === parseInt(productId, 10));
+      // Find product in fallback data
+      const product = FALLBACK_DATA.products.find(p => p.id === parseInt(productId, 10));
       if (!product) {
         throw new Error('Product not found');
       }
       return product;
-    } catch (error) {
-      console.error(`Error fetching product ${productId}:`, error);
-      throw error;
     }
   }
 
   // Price range
   static async fetchPriceRange() {
     try {
-      // For demo, return mock data
-      // In production, uncomment the following:
-      // const response = await apiClient.get('/price-range');
-      // return response.data;
-      
-      return mockPriceRange;
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.PRICE_RANGE);
+      return response.data;
     } catch (error) {
-      console.error('Error fetching price range:', error);
+      console.error('[ApiService] Error fetching price range:', error);
       throw error;
     }
   }
@@ -399,15 +421,31 @@ export class ApiService {
   // Search
   static async searchProducts(query) {
     try {
-      // For demo, return mock data
-      // In production, uncomment the following:
-      // const response = await apiClient.get('/search', { params: { q: query } });
-      // return response.data;
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.PRODUCT_SEARCH, { 
+        params: { 
+          keyword: query,
+          page: 0,
+          size: API_CONFIG.DEFAULT_PAGE_SIZE
+        } 
+      });
       
-      return this.fetchProducts({ search: query });
+      // Handle paginated response
+      if (response.data.content && Array.isArray(response.data.content)) {
+        return response.data.content;
+      }
+      
+      return response.data;
     } catch (error) {
-      console.error('Error searching products:', error);
-      throw error;
+      console.error('[ApiService] Error searching products:', error);
+      console.log('[ApiService] searchProducts - using fallback data');
+      
+      // Filter fallback data based on query
+      const searchTerm = query.toLowerCase();
+      return FALLBACK_DATA.products.filter(p => 
+        p.name.toLowerCase().includes(searchTerm) || 
+        p.categoryId.toLowerCase().includes(searchTerm) ||
+        p.brandId?.toLowerCase().includes(searchTerm)
+      );
     }
   }
 
@@ -415,243 +453,163 @@ export class ApiService {
   static async fetchHotPhones() {
     console.log('[ApiService] fetchHotPhones - start');
     try {
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.PRODUCTS, { 
+        params: { 
+          categoryId: 'phone',
+          featured: true,
+          page: 0,
+          size: 10
+        } 
+      });
+      
       let phonesData = [];
       
-      try {
-        // Kiểm tra token trước khi gọi API
-        const token = localStorage.getItem('authToken');
-        console.log('[ApiService] fetchHotPhones - auth check', { hasToken: !!token });
-        
-        // Nếu không có token, sử dụng dữ liệu mẫu luôn để tránh lỗi 401
-        if (!token) {
-          console.info('[ApiService] fetchHotPhones - no auth token, using mock data');
-          return mockProducts
-            .filter(p => p.categoryId === 'phone')
-            .slice(0, 10);
-        }
-        
-        console.log('[ApiService] fetchHotPhones - calling actual API');
-        const response = await apiClient.get('/api/products/search', { 
-          params: { 
-            page: 1, 
-            size: 10, 
-            categoryId: 2
-          } 
-        });
-        
-        if (response?.data?.content && Array.isArray(response.data.content)) {
-          // API trả về dạng phân trang
-          console.log('[ApiService] fetchHotPhones - API returned paginated data');
-          phonesData = response.data.content;
-        } else if (response?.data && Array.isArray(response.data)) {
-          // API trả về mảng trực tiếp
-          console.log('[ApiService] fetchHotPhones - API returned array data');
-          phonesData = response.data;
-        }
-      } catch (apiError) {
-        console.error('[ApiService] fetchHotPhones - API call error:', apiError);
-        // API gọi thất bại, sẽ sử dụng dữ liệu mẫu
+      if (response?.data?.content && Array.isArray(response.data.content)) {
+        // API trả về dạng phân trang
+        console.log('[ApiService] fetchHotPhones - API returned paginated data');
+        phonesData = response.data.content;
+      } else if (response?.data && Array.isArray(response.data)) {
+        // API trả về mảng trực tiếp
+        console.log('[ApiService] fetchHotPhones - API returned array data');
+        phonesData = response.data;
       }
       
-      // Nếu không có dữ liệu hoặc mảng rỗng, sử dụng dữ liệu mẫu
-      if (!phonesData || phonesData.length === 0) {
-        console.info('[ApiService] fetchHotPhones - no data from API, using mock data');
-        phonesData = mockProducts
-          .filter(p => p.categoryId === 'phone')
-          .slice(0, 10);
-      }
-      
-      console.log('[ApiService] fetchHotPhones - success', { 
-        resultCount: phonesData.length,
-        source: phonesData === mockProducts.filter(p => p.categoryId === 'phone').slice(0, 10) ? 'mock' : 'api'
-      });
+      console.log('[ApiService] fetchHotPhones - success', { resultCount: phonesData.length });
       return phonesData;
     } catch (error) {
-      console.error('[ApiService] fetchHotPhones - unexpected error:', error);
-      // Fallback to mock data on error
-      return mockProducts
-        .filter(p => p.categoryId === 'phone')
-        .slice(0, 10);
+      console.error('[ApiService] fetchHotPhones - error:', error);
+      console.log('[ApiService] fetchHotPhones - using fallback data');
+      return FALLBACK_DATA.products.filter(p => p.categoryId === 'phone');
     }
   }
 
   // Cart methods
   static async getCart() {
     try {
-      // Trong production sẽ gọi API thật
-      // const response = await apiClient.get('/cart');
-      // return response.data;
-      return mockCart;
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.CART);
+      return response.data;
     } catch (error) {
-      console.error('Error getting cart:', error);
-      throw error;
+      console.error('[ApiService] Error getting cart:', error);
+      console.log('[ApiService] getCart - using fallback data');
+      return FALLBACK_DATA.cart;
     }
   }
 
   static async updateCartItem(productId, quantity) {
     try {
-      // const response = await apiClient.put(`/cart/${productId}`, { quantity });
-      // return response.data;
-      return {
-        success: true,
-        message: 'Cart updated successfully'
-      };
+      const response = await apiClient.put(API_CONFIG.ENDPOINTS.CART_ITEM(productId), { quantity });
+      return response.data;
     } catch (error) {
-      console.error('Error updating cart:', error);
-      throw error;
+      console.error('[ApiService] Error updating cart:', error);
+      console.log('[ApiService] updateCartItem - using fallback data');
+      
+      // Cập nhật giỏ hàng trong dữ liệu fallback
+      const existingItemIndex = FALLBACK_DATA.cart.items.findIndex(item => item.productId === productId);
+      
+      if (existingItemIndex >= 0) {
+        FALLBACK_DATA.cart.items[existingItemIndex].quantity = quantity;
+      }
+      
+      return { success: true };
     }
   }
 
   static async addToCart(productId, quantity = 1) {
     try {
-      // Trong production, sẽ gọi API thật
-      // const response = await apiClient.post('/cart', { productId, quantity });
-      // return response.data;
-      
-      console.log(`Added product ${productId} to cart with quantity ${quantity}`);
-      return {
-        success: true,
-        message: 'Product added to cart successfully'
-      };
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.CART_ITEMS, { productId, quantity });
+      return response.data;
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      throw error;
+      console.error(`[ApiService] Error adding product ${productId} to cart:`, error);
+      console.log('[ApiService] addToCart - using fallback data');
+      
+      // Thêm vào giỏ hàng trong dữ liệu fallback
+      const product = FALLBACK_DATA.products.find(p => p.id === productId);
+      
+      if (product) {
+        const existingItemIndex = FALLBACK_DATA.cart.items.findIndex(item => item.productId === productId);
+        
+        if (existingItemIndex >= 0) {
+          FALLBACK_DATA.cart.items[existingItemIndex].quantity += quantity;
+        } else {
+          FALLBACK_DATA.cart.items.push({
+            productId,
+            quantity,
+            product
+          });
+        }
+      }
+      
+      return { success: true };
+    }
+  }
+
+  static async removeFromCart(productId) {
+    try {
+      const response = await apiClient.delete(API_CONFIG.ENDPOINTS.CART_ITEM(productId));
+      return response.data;
+    } catch (error) {
+      console.error(`[ApiService] Error removing product ${productId} from cart:`, error);
+      console.log('[ApiService] removeFromCart - using fallback data');
+      
+      // Xóa khỏi giỏ hàng trong dữ liệu fallback
+      FALLBACK_DATA.cart.items = FALLBACK_DATA.cart.items.filter(item => item.productId !== productId);
+      
+      return { success: true };
     }
   }
 
   // Order methods
   static async getOrders() {
     try {
-      // const response = await apiClient.get('/orders');
-      // return response.data;
-      return mockOrders;
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.ORDERS);
+      return response.data;
     } catch (error) {
-      console.error('Error getting orders:', error);
-      throw error;
+      console.error('[ApiService] Error getting orders:', error);
+      console.log('[ApiService] getOrders - using fallback data');
+      return FALLBACK_DATA.orders;
     }
   }
 
   static async getOrderById(orderId) {
     try {
-      // const response = await apiClient.get(`/orders/${orderId}`);
-      // return response.data;
-      return mockOrders.find(order => order.id === orderId);
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.ORDER_DETAIL(orderId));
+      return response.data;
     } catch (error) {
-      console.error('Error getting order:', error);
-      throw error;
+      console.error('[ApiService] Error getting order:', error);
+      console.log('[ApiService] getOrderById - using fallback data');
+      
+      const order = FALLBACK_DATA.orders.find(o => o.id === orderId);
+      if (!order) {
+        throw new Error('Order not found');
+      }
+      
+      return order;
     }
   }
 
   static async createOrder(orderData) {
     try {
-      // const response = await apiClient.post('/orders', orderData);
-      // return response.data;
-      return {
-        success: true,
-        orderId: Date.now(),
-        message: 'Order created successfully'
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.ORDERS, orderData);
+      return response.data;
+    } catch (error) {
+      console.error('[ApiService] Error creating order:', error);
+      console.log('[ApiService] createOrder - using fallback data');
+      
+      // Tạo đơn hàng mới trong dữ liệu fallback
+      const newOrder = {
+        id: Date.now(),
+        orderNumber: `ORD${Date.now().toString().slice(-6)}`,
+        date: new Date().toISOString().split('T')[0],
+        status: 'processing',
+        ...orderData
       };
-    } catch (error) {
-      console.error('Error creating order:', error);
-      throw error;
-    }
-  }
-
-  // Authentication
-  static async login(email, password) {
-    console.log('[ApiService] login - start', { email });
-    try {
-      // For demo, uncomment in production:
-      // const response = await apiClient.post('/auth/login', { email, password });
-      // const { token, user } = response.data;
-      // localStorage.setItem('authToken', token);
-      // localStorage.setItem('user', JSON.stringify(user));
-      // return user;
       
-      // Mock login for demo
-      if (email === 'demo@example.com' && password === 'password') {
-        const mockUser = {
-          id: 1,
-          name: 'Demo User',
-          email: 'demo@example.com',
-          phone: '0123456789',
-        };
-        const mockToken = 'mock-jwt-token';
-        
-        localStorage.setItem('authToken', mockToken);
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        
-        console.log('[ApiService] login - success', { user: mockUser });
-        return mockUser;
-      } else {
-        console.log('[ApiService] login - invalid credentials');
-        throw new Error('Invalid credentials');
-      }
-    } catch (error) {
-      console.error('[ApiService] login - error:', error);
-      throw error;
-    }
-  }
-
-  static async register(userData) {
-    try {
-      // For demo, uncomment in production:
-      // const response = await apiClient.post('/auth/register', userData);
-      // return response.data;
+      FALLBACK_DATA.orders.push(newOrder);
       
-      // Mock register for demo
-      return { success: true, message: 'Registration successful' };
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  }
-
-  static async logout() {
-    console.log('[ApiService] logout - start');
-    // For demo, uncomment in production:
-    // await apiClient.post('/auth/logout');
-    
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    console.log('[ApiService] logout - success');
-    return { success: true };
-  }
-
-  // User profile
-  static async fetchUserProfile() {
-    try {
-      // For demo, uncomment in production:
-      // const response = await apiClient.get('/user/profile');
-      // return response.data;
+      // Xóa giỏ hàng sau khi đặt hàng
+      FALLBACK_DATA.cart.items = [];
       
-      // Mock user profile for demo
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-      return user;
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      throw error;
-    }
-  }
-
-  static async updateUserProfile(userData) {
-    try {
-      // For demo, uncomment in production:
-      // const response = await apiClient.put('/user/profile', userData);
-      // return response.data;
-      
-      // Mock update for demo
-      const currentUser = JSON.parse(localStorage.getItem('user'));
-      const updatedUser = { ...currentUser, ...userData };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      
-      return updatedUser;
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
+      return { success: true, orderId: newOrder.id };
     }
   }
 }

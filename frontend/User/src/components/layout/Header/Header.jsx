@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-//import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../../contexts/AuthContext';
 import Navigation from './Navigation';
 import SearchBar from './SearchBar';
 import styles from './Header.module.css';
@@ -11,11 +11,7 @@ import { ShoppingCart, Heart, User, Menu, X, Bell } from 'lucide-react';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  //const { cart } = useCart();
-  //const { user, isAuthenticated, logout } = useAuth();
-  
-  // Lấy số lượng sản phẩm trong giỏ hàng
- // const cartItemsCount = cart?.items?.length || 0;
+  const { user, isAuthenticated, logout } = useAuth();
 
   // Kiểm tra scroll để thay đổi hiệu ứng của header
   useEffect(() => {
@@ -42,6 +38,18 @@ const Header = () => {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // Đóng mobile menu nếu đang mở
+      if (isMobileMenuOpen) {
+        toggleMobileMenu();
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
 
@@ -79,8 +87,42 @@ const Header = () => {
 
             {/* Actions */}
             <div className={styles.actions}>
-             
-              {/* Giỏ hàng */}
+              <Link to="/cart" className={styles.actionIcon}>
+                <div className={styles.cartIconWrapper}>
+                  <ShoppingCart size={24} />
+                  {/* {cartItemsCount > 0 && (
+                    <span className={styles.cartBadge}>{cartItemsCount}</span>
+                  )} */}
+                </div>
+                <span className={styles.actionLabel}>Giỏ hàng</span>
+              </Link>
+
+              <Link to="/wishlist" className={styles.actionIcon}>
+                <Heart size={24} />
+                <span className={styles.actionLabel}>Yêu thích</span>
+              </Link>
+
+              {isAuthenticated ? (
+                <div className={styles.userDropdown}>
+                  <button className={styles.userButton}>
+                    <User size={24} />
+                    <span className={styles.actionLabel}>{user.name}</span>
+                  </button>
+                  <div className={styles.dropdownMenu}>
+                    <Link to="/profile" className={styles.dropdownItem}>Tài khoản của tôi</Link>
+                    <Link to="/orders" className={styles.dropdownItem}>Đơn hàng</Link>
+                    <Link to="/notifications" className={styles.dropdownItem}>Thông báo</Link>
+                    <button onClick={handleLogout} className={styles.dropdownItem}>
+                      Đăng xuất
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link to="/login" className={styles.actionIcon}>
+                  <User size={24} />
+                  <span className={styles.actionLabel}>Đăng nhập</span>
+                </Link>
+              )}
 
               {/* Nút toggle menu trên mobile */}
               <button
@@ -122,7 +164,31 @@ const Header = () => {
                 Hỗ trợ
               </Link>
             </div>
-            
+            {!isAuthenticated ? (
+              <div className={styles.mobileMenuAuth}>
+                <Link to="/login" className={styles.mobileMenuAuthButton} onClick={toggleMobileMenu}>
+                  Đăng nhập
+                </Link>
+                <Link to="/register" className={styles.mobileMenuAuthButtonOutline} onClick={toggleMobileMenu}>
+                  Đăng ký
+                </Link>
+              </div>
+            ) : (
+              <div className={styles.mobileMenuUserLinks}>
+                <Link to="/profile" className={styles.mobileMenuButton} onClick={toggleMobileMenu}>
+                  Tài khoản của tôi
+                </Link>
+                <Link to="/orders" className={styles.mobileMenuButton} onClick={toggleMobileMenu}>
+                  Đơn hàng
+                </Link>
+                <Link to="/notifications" className={styles.mobileMenuButton} onClick={toggleMobileMenu}>
+                  Thông báo
+                </Link>
+                <button onClick={handleLogout} className={styles.mobileMenuButton}>
+                  Đăng xuất
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
