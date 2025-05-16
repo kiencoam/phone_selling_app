@@ -3,7 +3,14 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
+# Local configuration files
+*.local
+*.log
+*.properties
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 ### STS ###
 .apt_generated
 .classpath
