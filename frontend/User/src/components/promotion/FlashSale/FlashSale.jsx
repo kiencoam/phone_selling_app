@@ -2,6 +2,7 @@ import React from 'react';
 import { usePromotion } from '../../../contexts/PromotionContext';
 import ProductCard from '../../product/ProductCard';
 import styles from './FlashSale.module.css';
+import PromotionCountdown from '../PromotionCountdown/PromotionCountdown';
 
 const FlashSale = () => {
   const { flashSales, loading } = usePromotion();
