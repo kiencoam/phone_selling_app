@@ -9,27 +9,62 @@ const Navigation = ({ mobile, onClose }) => {
     {
       id: 'phone',
       name: 'Điện thoại',
-      icon: 'fas fa-mobile-alt',
+      icon: '/src/assets/images/Content/phonne-24x24.png',
+      path: '/dtdd',
+      hasSubmenu: false
+    },
+    {
+      id: 'laptop',
+      name: 'Laptop',
+      icon: '/src/assets/images/Content/laptop-24x24.png',
+      path: '/laptop',
+      hasSubmenu: false
+    },
+    {
+      id: 'accessories',
+      name: 'Phụ kiện',
+      icon: '/src/assets/images/Content/phu-kien-24x24.png',
+      path: '/phu-kien',
+      hasSubmenu: true,
       submenu: [
         {
-          title: 'Thương hiệu',
+          title: 'Phụ kiện di động',
           items: [
-            { name: 'iPhone', path: '/phone/apple' },
-            { name: 'Samsung', path: '/phone/samsung' },
-            { name: 'Xiaomi', path: '/phone/xiaomi' }
+            { name: 'Sạc dự phòng', path: '/sac-dtdd', icon: '/src/assets/images/Phu-kien-di-dong/sac-du-phong.png' },
+            { name: 'Sạc, cáp', path: '/sac-cap', icon: '/src/assets/images/Phu-kien-di-dong/sac-cap.png' },
+            { name: 'Ốp lưng điện thoại', path: '/op-lung-flipcover', icon: '/src/assets/images/Phu-kien-di-dong/op-lung.png' }
           ]
         },
         {
-          title: 'Mức giá',
+          title: 'Thương hiệu hàng đầu',
           items: [
-            { name: 'Dưới 5 triệu', path: '/phone?price=0-5000000' },
-            { name: '5-10 triệu', path: '/phone?price=5000000-10000000' },
-            { name: 'Trên 10 triệu', path: '/phone?price=10000000-999999999' }
+            { name: 'Apple', path: '/phu-kien/apple', icon: '/src/assets/images/Thuong-hieu/apple.png' },
+            { name: 'Samsung', path: '/phu-kien/samsung', icon: '/src/assets/images/Thuong-hieu/samsung.png' }
           ]
         }
       ]
     },
-    // Thêm các categories khác tương tự
+    {
+      id: 'smartwatch',
+      name: 'Smartwatch',
+      icon: '/src/assets/images/Content/smartwatch-24x24.png',
+      path: '/dong-ho-thong-minh-ldp',
+      hasSubmenu: false
+    },
+    {
+      id: 'watch',
+      name: 'Đồng hồ',
+      icon: '/src/assets/images/Content/watch-24x24.png',
+      path: '/dong-ho',
+      hasSubmenu: false
+    },
+    {
+      id: 'tablet',
+      name: 'Tablet',
+      icon: '/src/assets/images/Content/tablet-24x24.png',
+      path: '/may-tinh-bang',
+      hasSubmenu: false
+    }
   ];
 
   const handleCategoryClick = (categoryId) => {
@@ -40,18 +75,40 @@ const Navigation = ({ mobile, onClose }) => {
     <nav className={mobile ? styles.mobileNavigation : styles.navigation}>
       <ul className={styles.navList}>
         {categories.map((category) => (
-          <li key={category.id} className={styles.navItem}>
+          <li key={category.id} className={`${styles.navItem} ${category.hasSubmenu ? styles.hasList : ''} ${activeCategory === category.id ? styles.active : ''}`}>
             <Link 
-              to={`/category/${category.id}`}
+              to={category.path}
               className={styles.navLink}
-              onClick={() => {
-                handleCategoryClick(category.id);
-                if (mobile && onClose) onClose();
+              onClick={(e) => {
+                if (category.hasSubmenu && !mobile) {
+                  e.preventDefault();
+                  handleCategoryClick(category.id);
+                } else if (mobile && onClose) {
+                  onClose();
+                }
               }}
             >
-              <i className={`${category.icon} ${styles.navIcon}`}></i>
-              {category.name}
+              <i>
+                <img src={category.icon} alt={`icon ${category.name}`} />
+              </i>
+              <span className={category.hasSubmenu ? styles.hasChild : ''}>{category.name}</span>
             </Link>
+            
+            {category.hasSubmenu && activeCategory === category.id && (
+              <div className={styles.navmwg}>
+                {category.submenu.map((section, idx) => (
+                  <div key={idx} className={styles.itemChild}>
+                    <strong>{section.title}</strong>
+                    {section.items.map((item, itemIdx) => (
+                      <Link key={itemIdx} to={item.path} onClick={mobile && onClose ? onClose : undefined}>
+                        <img className={styles.lazyMenu} src={item.icon} alt="thumb menu" width="25px" />
+                        <h3>{item.name}</h3>
+                      </Link>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
           </li>
         ))}
       </ul>

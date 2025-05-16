@@ -1,35 +1,169 @@
 .navigation {
-  background: #333333;
-  padding: 10px 0;
+  width: 100%;
 }
 
 .navList {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .navItem {
-  color: #ffffff;
-  font-size: 14px;
-  text-transform: uppercase;
+  position: relative;
+}
+
+.navItem.hasList {
+  position: relative;
 }
 
 .navLink {
-  color: #ffffff;
+  color: #333;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
 }
 
 .navLink:hover {
-  color: var(--primary-color);
+  color: #000;
 }
 
-.navIcon {
-  font-size: 18px;
+.navItem.hasList:hover .navmwg {
+  display: flex;
+}
+
+.navLink img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.navLink span {
+  display: inline-block;
+}
+
+.navLink span.hasChild:after {
+  content: '';
+  border-top: 5px solid #333;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
+/* Submenu (navmwg) */
+.navmwg {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: auto;
+  background-color: #fff;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  z-index: 100;
+  padding: 15px;
+  min-width: 400px;
+  display: none;
+  flex-wrap: wrap;
+}
+
+.navItem:hover .navmwg {
+  display: flex;
+}
+
+.itemChild {
+  padding: 0 15px;
+  width: 200px;
+  margin-bottom: 10px;
+}
+
+.itemChild strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.itemChild a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.itemChild a:hover {
+  color: #288ad6;
+}
+
+.itemChild a img {
+  width: 25px;
+  height: 25px;
+}
+
+.itemChild a h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+/* Mobile Navigation */
+.mobileNavigation {
+  width: 100%;
+}
+
+.mobileNavigation .navList {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.mobileNavigation .navItem {
+  width: 100%;
+}
+
+.mobileNavigation .navLink {
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f1f1;
+  width: 100%;
+}
+
+.mobileNavigation .navmwg {
+  position: static;
+  display: block;
+  box-shadow: none;
+  padding: 0 0 0 34px;
+  margin: 10px 0;
+  min-width: auto;
+  width: 100%;
+}
+
+.mobileNavigation .itemChild {
+  width: 100%;
+  padding: 0;
+}
+
+/* Custom classes for TGDD specific layout */
+.lazyMenu {
+  width: 25px;
+  height: 25px;
+}
+
+/* TGDD main header colors */
+:global(.header__main) {
+  background-color: #ffd400;
+}
+
+:global(.main-menu) {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 10px 0;
 }
