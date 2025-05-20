@@ -16,11 +16,10 @@ axios.interceptors.request.use(config => {
   return config;
 });
 
+// Tạm thời loại bỏ StrictMode để tránh gọi API hoặc render hai lần
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <AppRouter />
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <AppRouter />
+  </Provider>
 );
