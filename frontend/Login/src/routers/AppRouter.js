@@ -7,6 +7,7 @@ import CartPage from '../pages/CartPage';
 import RegisterPage from '../pages/RegisterPage';
 import OrderConfirmation from '../pages/OrderConfirmation';
 import ProductDetailPage from '../pages/ProductDetailPage';
+import PaymentResult from '../pages/PaymentResult';
 
 // Định nghĩa router trực tiếp để dễ debug
 const router = createBrowserRouter([
@@ -17,8 +18,8 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'cart', element: <CartPage /> },
       { path: 'order-confirmation', element: <OrderConfirmation /> },
+      { path: 'payment-result', element: <PaymentResult /> },
       { path: 'product/:productId', element: <ProductDetailPage /> },
-      // Thêm fallback cho các route không tồn tại
       { path: '*', element: <Navigate to="/" replace /> }
     ],
   },

@@ -3,8 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../assets/styles/CartPage.css";
 import CartItem from "../components/CartItem";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 import {
   FaMapMarkerAlt,
   FaAngleRight,
@@ -16,8 +16,6 @@ import {
   FaExclamationCircle,
   FaInfoCircle,
 } from "react-icons/fa";
-import { TbTruckDelivery } from "react-icons/tb";
-import { IoStorefront } from "react-icons/io5";
 
 const CartPage = () => {
   const [loading, setLoading] = useState(true);
@@ -344,6 +342,42 @@ const CartPage = () => {
     0
   );
 
+  // Thêm state để theo dõi sản phẩm được chọn
+  const [selectedProducts, setSelectedProducts] = useState({});
+  const [selectAll, setSelectAll] = useState(false);
+
+  // Hàm xử lý chọn/bỏ chọn một sản phẩm
+  const handleSelectProduct = (productId, isSelected) => {
+    setSelectedProducts((prev) => ({
+      ...prev,
+      [productId]: isSelected,
+    }));
+  };
+
+  // Hàm xử lý chọn/bỏ chọn tất cả sản phẩm
+  const handleSelectAll = (e) => {
+    const isChecked = e.target.checked;
+    setSelectAll(isChecked);
+
+    const newSelectedProducts = {};
+    products.forEach((product) => {
+      newSelectedProducts[product.id] = isChecked;
+    });
+    setSelectedProducts(newSelectedProducts);
+  };
+
+  // Tính tổng tiền chỉ cho sản phẩm đã chọn
+  const selectedSubTotal = products.reduce(
+    (sum, product) =>
+      sum + (selectedProducts[product.id] ? product.catalogItem.price * product.quantity : 0),
+    0
+  );
+
+  // Đếm số sản phẩm đã chọn
+  const selectedCount = Object.values(selectedProducts).filter(
+    (selected) => selected
+  ).length;
+
   const updateQuantity = async (id, newQuantity) => {
     if (newQuantity < 1) return;
 
@@ -552,6 +586,85 @@ const CartPage = () => {
 
   const [orderNote, setOrderNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [processingPayment, setProcessingPayment] = useState(false); // Thêm state xử lý thanh toán VNPay
+  // Hàm xử lý thanh toán VNPay
+  const handleVNPayPayment = async () => {
+    try {
+      setProcessingPayment(true);
+
+      // Gọi API tạo link thanh toán
+      const response = await axios.get("http://localhost:4000/create_payment", {
+        params: {
+          amount: subTotal,
+          bankCode: "", // Để trống để hiển thị tất cả ngân hàng
+          language: "vn",
+        },
+      });
+
+      if (response.data && response.data.paymentUrl) {
+        // Lưu thông tin đơn hàng vào localStorage để sử dụng sau khi thanh toán
+        localStorage.setItem(
+          "pendingOrder",
+          JSON.stringify({
+            shippingInfoId:
+              deliveryMethod === "DELIVERY" ? selectedAddressId : null,
+            paymentMethod: "BANK_TRANSFER",
+            receiveMethod: deliveryMethod,
+            note: orderNote,
+          })
+        );
+
+        // Chuyển hướng đến trang thanh toán VNPay
+        window.location.href = response.data.paymentUrl;
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo link thanh toán:", error);
+      showToast("Không thể khởi tạo thanh toán. Vui lòng thử lại sau.", "error");
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  // Thêm hàm xử lý thanh toán ZaloPay
+  const handleZaloPayment = async () => {
+    try {
+      setProcessingPayment(true);
+      
+      // Gọi API ZaloPay thay vì MoMo
+      const response = await axios.post("http://localhost:4000/zalo/create-order", {
+        amount: selectedSubTotal,
+      });
+      
+      // Kiểm tra response từ ZaloPay dựa trên format thực tế
+      if (response.data && response.data.data && response.data.data.return_code === 1) {
+        // Lưu thông tin đơn hàng vào localStorage để sử dụng sau khi thanh toán
+        localStorage.setItem(
+          "pendingOrder",
+          JSON.stringify({
+            shippingInfoId: deliveryMethod === "DELIVERY" ? selectedAddressId : null,
+            paymentMethod: "MOMO", // Vẫn giữ MOMO trong database
+            receiveMethod: deliveryMethod,
+            note: orderNote,
+            selectedProductIds: Object.keys(selectedProducts).filter(id => selectedProducts[id]),
+            zpTransToken: response.data.data.zp_trans_token // Lưu token để kiểm tra sau này
+          })
+        );
+        
+        // Sử dụng order_url từ response để redirect
+        window.location.href = response.data.data.order_url;
+      } else {
+        const errorMessage = response.data?.data?.return_message || "Không thể khởi tạo thanh toán";
+        throw new Error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo đơn hàng ZaloPay:", error);
+      showToast(`Không thể khởi tạo thanh toán: ${error.message}`, "error");
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  // Cập nhật hàm handleCheckout để sử dụng ZaloPay khi chọn MOMO
   const handleCheckout = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -560,24 +673,44 @@ const CartPage = () => {
         navigate("/login");
         return;
       }
-      if (products.length === 0) {
-        showToast("Giỏ hàng của bạn đang trống", "error");
+      
+      if (selectedCount === 0) {
+        showToast("Vui lòng chọn ít nhất một sản phẩm để đặt hàng", "error");
         return;
       }
+      
       if (deliveryMethod === "DELIVERY" && !selectedAddressId) {
         showToast("Vui lòng chọn địa chỉ giao hàng", "error");
         openAddressModal();
         return;
       }
+      
+      // Nếu là thanh toán qua VNPay
+      if (paymentMethod === "BANK_TRANSFER") {
+        handleVNPayPayment();
+        return;
+      }
+      
+      // Nếu là thanh toán qua ZaloPay (nhưng UI hiển thị là MOMO)
+      if (paymentMethod === "MOMO") {
+        handleZaloPayment();
+        return;
+      }
+      
+      // Các phương thức thanh toán khác (Cash)
+      const selectedIds = Object.keys(selectedProducts).filter(
+        id => selectedProducts[id]
+      );
+      
       const orderData = {
-        shippingInfoId:
-          deliveryMethod === "DELIVERY" ? selectedAddressId : null,
+        shippingInfoId: deliveryMethod === "DELIVERY" ? selectedAddressId : null,
         paymentMethod: paymentMethod,
         receiveMethod: deliveryMethod,
         note: orderNote,
+        selectedProductIds: selectedIds,
       };
-
-      console.log("TTin ơn hàng:", orderData);
+      
+      console.log("Thông tin đơn hàng:", orderData);
       const response = await axios.post(
         "https://phone-selling-app-mw21.onrender.com/api/v1/order/customer/create-from-cart",
         orderData,
@@ -599,7 +732,7 @@ const CartPage = () => {
       }
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
-
+      
       if (error.response && error.response.data) {
         showToast(
           `Lỗi: ${error.response.data.meta?.message || "Không thể đặt hàng"}`,
@@ -610,6 +743,7 @@ const CartPage = () => {
       }
     }
   };
+
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -628,7 +762,6 @@ const CartPage = () => {
 
   return (
     <div className="cart-page">
-      <Header />
       <div className="container">
         {/* Modal quản lý địa chỉ */}
         {showAddressModal && (
@@ -972,6 +1105,19 @@ const CartPage = () => {
             )}
             {/* Products List */}
             <div className="products-list">
+              {/* Thêm header cho danh sách sản phẩm */}
+              <div className="products-header">
+                <div className="select-all-container">
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    id="select-all"
+                  />
+                  <label htmlFor="select-all">Chọn tất cả ({products.length})</label>
+                </div>
+              </div>
+
               {products.length > 0 ? (
                 products.map((product) => (
                   <CartItem
@@ -980,6 +1126,8 @@ const CartPage = () => {
                     updateQuantity={updateQuantity}
                     removeProduct={removeProduct}
                     formatPrice={formatPrice}
+                    onSelectChange={handleSelectProduct}
+                    isSelected={!!selectedProducts[product.id]}
                   />
                 ))
               ) : (
@@ -1079,13 +1227,13 @@ const CartPage = () => {
 
                     <label
                       className={`payment-option ${
-                        paymentMethod === "banking" ? "selected" : ""
+                        paymentMethod === "BANK_TRANSFER" ? "selected" : ""
                       }`}
                     >
                       <input
                         type="radio"
                         name="payment"
-                        checked={paymentMethod === "banking"}
+                        checked={paymentMethod === "BANK_TRANSFER"}
                         onChange={() => setPaymentMethod("BANK_TRANSFER")}
                       />
                       <div className="payment-icon">
@@ -1099,7 +1247,7 @@ const CartPage = () => {
                           Chuyển khoản ngân hàng
                         </span>
                         <span className="payment-desc">
-                          Thanh toán qua Internet Banking, ATM
+                          Thanh toán qua VNPay, Internet Banking, ATM
                         </span>
                       </div>
                     </label>
@@ -1112,7 +1260,7 @@ const CartPage = () => {
                       <input
                         type="radio"
                         name="payment"
-                        checked={paymentMethod === "e-wallet"}
+                        checked={paymentMethod === "MOMO"}
                         onChange={() => setPaymentMethod("MOMO")}
                       />
                       <div className="payment-icon">
@@ -1122,9 +1270,9 @@ const CartPage = () => {
                         />
                       </div>
                       <div className="payment-info">
-                        <span className="payment-name">Ví điện tử MOMO</span>
+                        <span className="payment-name">Ví điện tử ZaloPay</span>
                         <span className="payment-desc">
-                          Thanh toán qua MoMo
+                          Thanh toán qua ZaloPay
                         </span>
                       </div>
                     </label>
@@ -1161,20 +1309,18 @@ const CartPage = () => {
                   className="checkout-btn"
                   onClick={handleCheckout}
                   disabled={
-                    products.length === 0 ||
-                    (deliveryMethod === "DELIVERY" && !selectedAddressId) ||
-                    (deliveryMethod === "PICKUP" &&
-                      document.querySelector(".store-select")?.value === "")
+                    processingPayment ||
+                    selectedCount === 0 ||
+                    (deliveryMethod === "DELIVERY" && !selectedAddressId)
                   }
                 >
-                  TIẾN HÀNH ĐẶT HÀNG
+                  {processingPayment ? "ĐANG XỬ LÝ..." : `TIẾN HÀNH ĐẶT HÀNG (${selectedCount})`}
                 </button>
               </>
             )}
           </>
         )}
       </div>
-      <Footer />
     </div>
   );
 };

@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 import "../assets/styles/OrderConfirmation.css";
 import {
   FaCheckCircle,
-  FaInfoCircle,
   FaShoppingBag,
   FaFileAlt,
   FaHome,
@@ -97,7 +94,6 @@ const OrderConfirmation = () => {
 
   return (
     <>
-      <Header />
       <div className="order-success-container">
         <div className="order-success-header">
           <div className="order-icon">
@@ -278,8 +274,6 @@ const OrderConfirmation = () => {
           </button>
         </div>
       )}
-
-      <Footer />
     </>
   );
 };

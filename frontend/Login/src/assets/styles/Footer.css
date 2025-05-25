@@ -3,7 +3,7 @@
 .main-footer {
   background: linear-gradient(90deg, #f96f3a, #ff9966);
   color: #fff;
-  padding: 40px 0 0;
+  padding: 20px 0 0;
   box-shadow: 0 -5px 15px rgba(249, 111, 58, 0.15);
 }
 
@@ -13,7 +13,7 @@
   padding: 0 20px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 30px;
+  gap: 10px;
 }
 
 .footer-section h3 {
@@ -24,7 +24,7 @@
 }
 
 .footer-section h3::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -80,7 +80,7 @@
   background-color: #d45500;
   padding: 15px 0;
   text-align: center;
-  margin-top: 40px;
+  margin-top: 15px;
 }
 
 .footer-bottom p {

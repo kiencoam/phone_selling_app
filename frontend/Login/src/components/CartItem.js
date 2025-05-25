@@ -5,7 +5,7 @@ import {
   FaPercentage
 } from "react-icons/fa";
 
-const CartItem = ({ product, updateQuantity, removeProduct, formatPrice }) => {
+const CartItem = ({ product, updateQuantity, removeProduct, formatPrice, onSelectChange, isSelected }) => {
   const [imageUrl, setImageUrl] = useState(
     "https://via.placeholder.com/100x100?text=Loading"
   );
@@ -45,6 +45,15 @@ const CartItem = ({ product, updateQuantity, removeProduct, formatPrice }) => {
   return (
     <div className="cart-item">
       <div className="item-main">
+        {/* Checkbox chọn sản phẩm */}
+        <div className="select-product">
+          <input 
+            type="checkbox" 
+            checked={isSelected}
+            onChange={(e) => onSelectChange(product.id, e.target.checked)}
+          />
+        </div>
+        
         {/* Hình ảnh */}
         <div className="product-image">
           {isDiscounted && (

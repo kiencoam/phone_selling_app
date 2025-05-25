@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../redux/slices/productSlice';
-import '../assets/styles/ProductDetailPage.css';
+import '../assets/styles/ProductDetailPage.module.css';
 
 const ProductDetailPage = () => {
   const { productId } = useParams();

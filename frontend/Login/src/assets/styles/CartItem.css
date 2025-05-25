@@ -222,6 +222,79 @@
   color: #F96F3A;
 }
 
+/* Thêm style cho checkbox */
+.select-product {
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.select-product input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #f96f3a;
+}
+
+/* Thêm style cho products-header */
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #fff;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 1px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.select-all-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.select-all-container input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #f96f3a;
+  cursor: pointer;
+}
+
+.select-all-container label {
+  font-size: 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.products-header-info {
+  display: flex;
+  gap: 80px;
+}
+
+.products-header-info span {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Cập nhật style cho tổng tiền */
+.total-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.selected-count {
+  font-size: 15px;
+  color: #666;
+}
+
+.selected-count span {
+  font-weight: 600;
+  color: #f96f3a;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .item-main {

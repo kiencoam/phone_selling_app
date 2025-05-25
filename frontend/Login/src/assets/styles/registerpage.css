@@ -8,7 +8,6 @@
 .main-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
   display: flex;
   gap: 50px;
   flex: 1;
@@ -48,7 +47,7 @@
   left: 0;
   width: 100%;
   height: 5px;
-  background: linear-gradient(90deg, #F96F3A, #ff9966);
+  background: linear-gradient(90deg, #f96f3a, #ff9966);
 }
 
 /* Cập nhật tiêu đề */
@@ -71,7 +70,7 @@
   transform: translateX(-50%);
   width: 50px;
   height: 3px;
-  background-color: #F96F3A;
+  background-color: #f96f3a;
   border-radius: 3px;
 }
 
@@ -98,14 +97,14 @@
 }
 
 .input-group input:focus {
-  border-color: #F96F3A;
+  border-color: #f96f3a;
   outline: none;
   box-shadow: 0 0 0 3px rgba(249, 111, 58, 0.15);
   background-color: #fff;
 }
 
 .input-group:focus-within label {
-  color: #F96F3A;
+  color: #f96f3a;
 }
 
 .password-group {
@@ -134,7 +133,7 @@
 
 .toggle-password:hover {
   background-color: rgba(249, 111, 58, 0.08);
-  color: #F96F3A;
+  color: #f96f3a;
 }
 
 .toggle-password svg {
@@ -160,7 +159,7 @@
 .register-btn {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(to right, #F96F3A, #ff9966);
+  background: linear-gradient(to right, #f96f3a, #ff9966);
   color: white;
   border: none;
   border-radius: 12px;
@@ -225,7 +224,12 @@
   left: 20%;
   right: 20%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.1),
+    transparent
+  );
 }
 
 .login-link p {
@@ -234,7 +238,7 @@
 }
 
 .login-link span {
-  color: #F96F3A;
+  color: #f96f3a;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -273,7 +277,7 @@
 
 /* Style nút primary */
 .register-form .primary-btn {
-  background: linear-gradient(to right, #F96F3A, #ff9966);
+  background: linear-gradient(to right, #f96f3a, #ff9966);
   color: white;
   padding: 14px 24px;
   border-radius: 12px;
@@ -292,8 +296,8 @@
 /* Style nút secondary */
 .register-form .secondary-btn {
   background-color: transparent;
-  color: #F96F3A;
-  border: 2px solid #F96F3A;
+  color: #f96f3a;
+  border: 2px solid #f96f3a;
   padding: 12px 22px;
   border-radius: 12px;
   font-weight: 600;
@@ -329,7 +333,7 @@
 }
 
 .login-link span::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 0;
   height: 1.5px;
@@ -373,7 +377,7 @@
 @media (max-width: 768px) {
   .main-content {
     flex-direction: column-reverse;
-    padding: 30px 15px;
+    padding: 120px 15px;
     gap: 30px;
   }
 
@@ -387,7 +391,7 @@
 /* Mobile (max-width: 480px) */
 @media (max-width: 480px) {
   .main-content {
-    padding: 20px 10px;
+    padding-top: 180px;
   }
 
   .register-form {

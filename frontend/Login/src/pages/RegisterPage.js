@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineVisibility, MdOutlineVisibilityOff } from "react-icons/md";
 import "../assets/styles/registerpage.css";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 import axios from "axios";
 
 const RegisterPage = () => {
@@ -33,10 +33,10 @@ const RegisterPage = () => {
 
     checkLoginStatus();
 
-    window.addEventListener('focus', checkLoginStatus);
+    window.addEventListener("focus", checkLoginStatus);
 
     return () => {
-      window.removeEventListener('focus', checkLoginStatus);
+      window.removeEventListener("focus", checkLoginStatus);
     };
   }, []);
 
@@ -109,7 +109,6 @@ const RegisterPage = () => {
         response.data.meta &&
         response.data.meta.code === 200
       ) {
-
         setSuccessMessage(
           "Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập sau 3 giây."
         );

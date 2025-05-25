@@ -46,10 +46,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 50px 20px;
   gap: 50px;
   max-width: 1200px;
-  margin: 0 auto;
 }
 
 /* Thêm vào file CSS của bạn */
@@ -310,10 +308,12 @@ body {
   left: 20%;
   right: 20%;
   height: 1px;
-  background: linear-gradient(90deg,
-      transparent,
-      rgba(0, 0, 0, 0.1),
-      transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.1),
+    transparent
+  );
 }
 
 .register-link p {
@@ -446,8 +446,8 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 /* Responsive Design */
 @media (max-width: 768px) {
   .main-content {
-    padding: 30px 15px;
     gap: 30px;
+    padding-top: 100px;
     flex-direction: column-reverse;
     margin: 0 auto;
   }
@@ -469,8 +469,15 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 
 @media (max-width: 480px) {
   .main-content {
-    padding: 20px 10px;
     gap: 20px;
+    padding-top: 180px;
+  }
+
+  .login-form {
+    padding: 15px;
+    width: 100%;
+    min-width: auto;
+    max-width: 100%;
   }
 
   .illustration {
