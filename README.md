@@ -14,12 +14,5 @@ git clone https://github.com/kiencoam/phone_selling_app.git
 Truy cập [https://phone-selling-app-mw21.onrender.com/swagger-ui/index.html#/]([http://localhost:8080/swagger-ui/index.html#/](https://phone-selling-app-mw21.onrender.com/swagger-ui/index.html#/)
 
 
-# API Docs
-
-Truy cập [https://phone-selling-app-mw21.onrender.com/swagger-ui/index.html#/]([http://localhost:8080/swagger-ui/index.html#/](https://phone-selling-app-mw21.onrender.com/swagger-ui/index.html#/)
-
-# API Docs
-
-Truy cập [https://phone-selling-app-mw21.onrender.com/swagger-ui/index.html#/]([http://localhost:8080/swagger-ui/index.html#/](https://phone-selling-app-mw21.onrender.com/swagger-ui/index.html#/)
 
 <!-- //  -->
