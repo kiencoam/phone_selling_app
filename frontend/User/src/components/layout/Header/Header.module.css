@@ -8,10 +8,14 @@
 
 /* Header Styles */
 .header {
+  position: relative;
+  left: 0;
+  top: 0;
   width: 100%;
-  z-index: 999;
+  z-index: 98;
   background-color: var(--primary-color);
 }
+
 
 .v2024 {
   position: sticky;
@@ -25,6 +29,7 @@
   display: flex;
   align-items: center;
 }
+
 
 /* Banner */
 .banner {
@@ -68,7 +73,7 @@
   font-size: 0;
   width: 228px;
   height: 40px;
-  background: url('/src/assets/images/logo-tgdd.png') no-repeat center;
+  background: url('/src/assets/logo-tgdd.png') no-repeat center;
   background-size: contain;
   display: block;
   font-style: normal;

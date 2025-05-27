@@ -40,7 +40,7 @@ const Header = () => {
       <div className={styles.banner}>
         <div className={styles.container}>
           <img 
-            src="...\assets\images\Banner\8-3.png" 
+            src="..\assets\images\Banner\8-3.png" 
             alt="Trào yêu thương - Tặng deal xịn - Từ ngày 14.5 - 15.5" 
             className={styles.bannerImg}
           />

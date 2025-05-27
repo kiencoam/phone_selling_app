@@ -1,5 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
+import ProtectedRoute from './components/common/ProtectedRoute';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -39,8 +41,7 @@ const Loader = () => (
 );
 
 // Component ProtectedRoute được sử dụng để bảo vệ các route yêu cầu đăng nhập
-import ProtectedRoute from './components/common/ProtectedRoute';
-import ErrorBoundary from './components/common/ErrorBoundary';
+
 
 const router = createBrowserRouter([
   {

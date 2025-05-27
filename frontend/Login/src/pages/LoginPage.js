@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineVisibility, MdOutlineVisibilityOff } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 import "../assets/styles/loginpage.css";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 import axios from "axios";
 
 const LoginPage = () => {

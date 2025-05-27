@@ -29,7 +29,7 @@ const Home = () => {
       try {
         // Bắt riêng từng lỗi API để không ảnh hưởng đến toàn bộ trang
         let bannersData = [];
-        let productsData = [];
+        let featuredData = [];
         let hotPhonesData = [];
         
         try {
@@ -41,11 +41,11 @@ const Home = () => {
         }
         
         try {
-          console.log('[Home] Fetching products');
-          productsData = await ApiService.fetchProducts();
-          console.log('[Home] Products fetched successfully', { count: productsData.length });
+          console.log('[Home] Fetching featured products');
+          featuredData = await ApiService.fetchFeaturedProducts();
+          console.log('[Home] Featured products fetched successfully', { count: featuredData.length });
         } catch (err) {
-          console.error('[Home] Error fetching products:', err);
+          console.error('[Home] Error fetching featured products:', err);
         }
         
         try {
@@ -58,15 +58,11 @@ const Home = () => {
 
         console.log('[Home] Setting state with fetched data');
         setBanners(bannersData || []);
-        
-        // Featured products (first 6)
-        setFeaturedProducts((productsData || []).slice(0, 6));
-        
-        // Hot phones from API
+        setFeaturedProducts(featuredData || []);
         setPhoneProducts(hotPhonesData || []);
         
         // Laptop products
-        const laptops = (productsData || []).filter(p => p.categoryId === 'laptop').slice(0, 4);
+        const laptops = (featuredData || []).filter(p => p.categoryId === 'laptop').slice(0, 4);
         console.log('[Home] Filtered laptop products', { count: laptops.length });
         setLaptopProducts(laptops);
         

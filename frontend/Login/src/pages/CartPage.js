@@ -3,8 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../assets/styles/CartPage.css";
 import CartItem from "../components/CartItem";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 import {
   FaMapMarkerAlt,
   FaAngleRight,
@@ -16,8 +16,6 @@ import {
   FaExclamationCircle,
   FaInfoCircle,
 } from "react-icons/fa";
-import { TbTruckDelivery } from "react-icons/tb";
-import { IoStorefront } from "react-icons/io5";
 
 const CartPage = () => {
   const [loading, setLoading] = useState(true);

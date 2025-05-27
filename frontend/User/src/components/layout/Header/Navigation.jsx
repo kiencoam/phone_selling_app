@@ -9,7 +9,7 @@ const Navigation = ({ mobile, onClose }) => {
     {
       id: 'phone',
       name: 'Điện thoại',
-      icon: '/src/assets/images/Content/phonne-24x24.png',
+      icon: 'src/assets/images/Content/phonne-24x24.png',
       path: '/dtdd',
       hasSubmenu: false
     },

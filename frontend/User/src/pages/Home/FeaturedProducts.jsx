@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
 import styles from './FeaturedProducts.module.css';
 
-const FeaturedProducts = ({ products = [] }) => {
-  const { addToCart, loading } = useCart();
+const FeaturedProducts = ({ products = [], loading = false, error = null }) => {
+  const { addToCart, loading: cartLoading } = useCart();
   
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -13,6 +13,32 @@ const FeaturedProducts = ({ products = [] }) => {
       maximumFractionDigits: 0
     }).format(price);
   };
+  
+  if (loading) {
+    return (
+      <div className={styles.loadingGrid}>
+        {[1, 2, 3, 4, 5, 6].map((item) => (
+          <div key={item} className={styles.productCardSkeleton}>
+            <div className={styles.imageSkeleton} />
+            <div className={styles.contentSkeleton}>
+              <div className={styles.titleSkeleton} />
+              <div className={styles.priceSkeleton} />
+              <div className={styles.ratingSkeleton} />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <i className="fas fa-exclamation-circle"></i>
+        <p>{error}</p>
+      </div>
+    );
+  }
   
   if (!products.length) {
     return (
@@ -42,6 +68,10 @@ const FeaturedProducts = ({ products = [] }) => {
                   src={productImage} 
                   alt={productName} 
                   className={styles.productImage} 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/assets/images/placeholder.png';
+                  }}
                 />
                 
                 {productDiscountPrice && productDiscountPrice < productPrice && (
@@ -88,7 +118,7 @@ const FeaturedProducts = ({ products = [] }) => {
             <button 
               className={styles.addToCartBtn}
               onClick={() => addToCart(product)}
-              disabled={loading}
+              disabled={cartLoading}
             >
               <i className="fas fa-shopping-cart"></i> Thêm vào giỏ
             </button>

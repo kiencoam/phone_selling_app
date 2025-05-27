@@ -2,6 +2,8 @@ import React from 'react';
 import { usePromotion } from '../../../contexts/PromotionContext';
 import ProductCard from '../../product/ProductCard';
 import styles from './FlashSale.module.css';
+import PromotionCountdown from '../../product/PromotionCountdown';  // Đảm bảo đường dẫn đúng
+
 
 const FlashSale = () => {
   const { flashSales, loading } = usePromotion();
