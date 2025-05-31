@@ -1,0 +1,128 @@
+.email-verification-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.email-verification-page .main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background-color: #f5f7fa;
+}
+
+.verification-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 40px 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.loading-state, .success-state, .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spinner {
+  font-size: 40px;
+  color: #007bff;
+  animation: spin 1.5s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.success-icon {
+  font-size: 60px;
+  color: #28a745;
+  margin-bottom: 20px;
+}
+
+.error-icon {
+  font-size: 60px;
+  color: #dc3545;
+  margin-bottom: 20px;
+}
+
+.verification-container h2 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 24px;
+}
+
+.verification-container p {
+  margin-bottom: 20px;
+  color: #555;
+  font-size: 16px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.suggestion {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.register-btn, .login-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.register-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.register-btn:hover {
+  background-color: #0069d9;
+}
+
+.login-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.login-btn:hover {
+  background-color: #5a6268;
+}
+
+@media (max-width: 768px) {
+  .verification-container {
+    max-width: 100%;
+    padding: 30px 20px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .register-btn, .login-btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}

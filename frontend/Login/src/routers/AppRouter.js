@@ -1,30 +1,35 @@
-import React from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import MainLayout from '../components/layout/MainLayout';
-import HomePage from '../pages/HomePage';
-import LoginPage from '../pages/LoginPage';
-import CartPage from '../pages/CartPage';
-import RegisterPage from '../pages/RegisterPage';
-import OrderConfirmation from '../pages/OrderConfirmation';
-import ProductDetailPage from '../pages/ProductDetailPage';
-import PaymentResult from '../pages/PaymentResult';
+import React from "react";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
+import MainLayout from "../components/layout/MainLayout";
+import HomePage from "../pages/HomePage";
+import LoginPage from "../pages/LoginPage";
+import CartPage from "../pages/CartPage";
+import RegisterPage from "../pages/RegisterPage";
+import OrderConfirmation from "../pages/OrderConfirmation";
+import ProductDetailPage from "../pages/ProductDetailPage";
+import PaymentResult from "../pages/PaymentResult";
+import EmailVerificationPage from "../pages/EmailVerificationPage";
 
-// Định nghĩa router trực tiếp để dễ debug
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'cart', element: <CartPage /> },
-      { path: 'order-confirmation', element: <OrderConfirmation /> },
-      { path: 'payment-result', element: <PaymentResult /> },
-      { path: 'product/:productId', element: <ProductDetailPage /> },
-      { path: '*', element: <Navigate to="/" replace /> }
+      { path: "cart", element: <CartPage /> },
+      { path: "order-confirmation", element: <OrderConfirmation /> },
+      { path: "payment-result", element: <PaymentResult /> },
+      { path: "product/:productId", element: <ProductDetailPage /> },
+      { path: "*", element: <Navigate to="/" replace /> },
     ],
   },
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
+  { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <RegisterPage /> },
+  { path: "/verify-email/:token", element: <EmailVerificationPage /> },
 ]);
 
 const AppRouter = () => {

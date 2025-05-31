@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-import '../assets/styles/PaymentResult.css';
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import "../assets/styles/PaymentResult.css";
 
 const PaymentResult = () => {
   const [result, setResult] = useState(null);
@@ -10,15 +10,15 @@ const PaymentResult = () => {
   const [orderCreated, setOrderCreated] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const verifyPayment = async () => {
       try {
         // Lấy query params từ URL
         const queryParams = new URLSearchParams(location.search);
-        const paymentMethod = queryParams.get('paymentMethod');
-        
-        if (paymentMethod === 'zalopay') {
+        const paymentMethod = queryParams.get("paymentMethod");
+
+        if (paymentMethod === "zalopay") {
           // Xử lý kết quả thanh toán ZaloPay
           await verifyZaloPayment();
         } else {
@@ -29,33 +29,33 @@ const PaymentResult = () => {
         console.error("Lỗi khi kiểm tra thanh toán:", error);
         setResult({
           message: "Có lỗi xảy ra khi xử lý kết quả thanh toán",
-          success: false
+          success: false,
         });
         setLoading(false);
       }
     };
-    
+
     const verifyZaloPayment = async () => {
       try {
         const pendingOrder = JSON.parse(localStorage.getItem("pendingOrder"));
-        
+
         if (!pendingOrder || !pendingOrder.zpTransToken) {
           throw new Error("Không tìm thấy thông tin thanh toán");
         }
-        
+
         // Gọi API kiểm tra trạng thái thanh toán ZaloPay
-        const response = await axios.get("http://localhost:4000/zalo/query", {
-          params: { zpTransToken: pendingOrder.zpTransToken }
+        const response = await axios.get("https://onlinepay.onrender.com/zalo/query", {
+          params: { zpTransToken: pendingOrder.zpTransToken },
         });
-        
+
         if (response.data && response.data.return_code === 1) {
           // Thanh toán thành công
           setResult({
             message: "Thanh toán thành công",
             success: true,
-            data: response.data
+            data: response.data,
           });
-          
+
           // Tạo đơn hàng với ZaloPay
           await createOrder();
         } else {
@@ -63,32 +63,35 @@ const PaymentResult = () => {
           setResult({
             message: response.data?.return_message || "Thanh toán thất bại",
             success: false,
-            data: response.data
+            data: response.data,
           });
         }
       } catch (error) {
         console.error("Lỗi khi xác minh thanh toán ZaloPay:", error);
         setResult({
           message: "Không thể xác minh kết quả thanh toán",
-          success: false
+          success: false,
         });
       } finally {
         setLoading(false);
       }
     };
-    
+
     const verifyVnPayment = async () => {
       try {
         // Lấy query params từ URL
         const queryParams = new URLSearchParams(location.search);
-        
+
         // Kiểm tra kết quả thanh toán
-        const response = await axios.get('http://localhost:4000/check_payment', {
-          params: Object.fromEntries(queryParams)
-        });
-        
+        const response = await axios.get(
+          "https://onlinepay.onrender.com/check_payment",
+          {
+            params: Object.fromEntries(queryParams),
+          }
+        );
+
         setResult(response.data);
-        
+
         // Nếu thanh toán thành công, tạo đơn hàng
         if (response.data.message === "Thanh toán thành công") {
           await createOrder();
@@ -97,22 +100,26 @@ const PaymentResult = () => {
         console.error("Lỗi khi kiểm tra thanh toán:", error);
         setResult({
           message: "Có lỗi xảy ra khi xử lý kết quả thanh toán",
-          success: false
+          success: false,
         });
       } finally {
         setLoading(false);
       }
     };
-    
+
     const createOrder = async () => {
       try {
         const token = localStorage.getItem("token");
-        const pendingOrderData = JSON.parse(localStorage.getItem("pendingOrder"));
-        
+        const pendingOrderData = JSON.parse(
+          localStorage.getItem("pendingOrder")
+        );
+
         if (!token || !pendingOrderData) {
-          throw new Error("Không tìm thấy thông tin đơn hàng hoặc phiên đăng nhập");
+          throw new Error(
+            "Không tìm thấy thông tin đơn hàng hoặc phiên đăng nhập"
+          );
         }
-        
+
         // Tạo đơn hàng với thông tin thanh toán
         const orderData = {
           shippingInfoId: pendingOrderData.shippingInfoId,
@@ -122,10 +129,10 @@ const PaymentResult = () => {
           selectedProductIds: pendingOrderData.selectedProductIds,
           transaction: {
             provider: "zalopay",
-            transactionId: pendingOrderData.zpTransToken
-          }
+            transactionId: pendingOrderData.zpTransToken,
+          },
         };
-        
+
         const response = await axios.post(
           "https://phone-selling-app-mw21.onrender.com/api/v1/order/customer/create-from-cart",
           orderData,
@@ -135,7 +142,7 @@ const PaymentResult = () => {
             },
           }
         );
-        
+
         if (response.data && response.data.data) {
           setOrderCreated(true);
           localStorage.removeItem("pendingOrder"); // Xóa thông tin đơn hàng đã xử lý
@@ -144,10 +151,10 @@ const PaymentResult = () => {
         console.error("Lỗi khi tạo đơn hàng:", error);
       }
     };
-    
+
     verifyPayment();
   }, [location.search, navigate]);
-  
+
   if (loading) {
     return (
       <div className="payment-result-container">
@@ -159,48 +166,64 @@ const PaymentResult = () => {
       </div>
     );
   }
-  
+
   const isSuccess = result?.success;
-  
+
   return (
     <div className="payment-result-container">
-      <div className={`payment-result-card ${isSuccess ? 'success' : 'failure'}`}>
+      <div
+        className={`payment-result-card ${isSuccess ? "success" : "failure"}`}
+      >
         {isSuccess ? (
           <FaCheckCircle className="result-icon success" />
         ) : (
           <FaTimesCircle className="result-icon failure" />
         )}
-        
+
         <h2>{isSuccess ? "Thanh toán thành công!" : "Thanh toán thất bại!"}</h2>
-        
+
         {isSuccess && (
           <div className="payment-details">
             {result.data && (
               <>
-                <p>Mã giao dịch: {result.data.zp_trans_id || result.data.app_trans_id}</p>
-                {orderCreated && <p className="order-created">Đơn hàng của bạn đã được tạo thành công!</p>}
+                <p>
+                  Mã giao dịch:{" "}
+                  {result.data.zp_trans_id || result.data.app_trans_id}
+                </p>
+                {orderCreated && (
+                  <p className="order-created">
+                    Đơn hàng của bạn đã được tạo thành công!
+                  </p>
+                )}
               </>
             )}
           </div>
         )}
-        
+
         {!isSuccess && (
           <p className="failure-message">
-            {result?.message || "Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại."}
+            {result?.message ||
+              "Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại."}
           </p>
         )}
-        
+
         <div className="action-buttons">
-          <button className="primary-button" onClick={() => navigate('/')}>
+          <button className="primary-button" onClick={() => navigate("/")}>
             Về trang chủ
           </button>
           {isSuccess && (
-            <button className="secondary-button" onClick={() => navigate('/orders')}>
+            <button
+              className="secondary-button"
+              onClick={() => navigate("/orders")}
+            >
               Xem đơn hàng
             </button>
           )}
           {!isSuccess && (
-            <button className="secondary-button" onClick={() => navigate('/cart')}>
+            <button
+              className="secondary-button"
+              onClick={() => navigate("/cart")}
+            >
               Quay lại giỏ hàng
             </button>
           )}

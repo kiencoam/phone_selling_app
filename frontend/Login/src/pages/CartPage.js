@@ -369,7 +369,10 @@ const CartPage = () => {
   // Tính tổng tiền chỉ cho sản phẩm đã chọn
   const selectedSubTotal = products.reduce(
     (sum, product) =>
-      sum + (selectedProducts[product.id] ? product.catalogItem.price * product.quantity : 0),
+      sum +
+      (selectedProducts[product.id]
+        ? product.catalogItem.price * product.quantity
+        : 0),
     0
   );
 
@@ -593,13 +596,16 @@ const CartPage = () => {
       setProcessingPayment(true);
 
       // Gọi API tạo link thanh toán
-      const response = await axios.get("http://localhost:4000/create_payment", {
-        params: {
-          amount: subTotal,
-          bankCode: "", // Để trống để hiển thị tất cả ngân hàng
-          language: "vn",
-        },
-      });
+      const response = await axios.get(
+        "https://onlinepay.onrender.com/create_payment",
+        {
+          params: {
+            amount: subTotal,
+            bankCode: "", // Để trống để hiển thị tất cả ngân hàng
+            language: "vn",
+          },
+        }
+      );
 
       if (response.data && response.data.paymentUrl) {
         // Lưu thông tin đơn hàng vào localStorage để sử dụng sau khi thanh toán
@@ -619,7 +625,10 @@ const CartPage = () => {
       }
     } catch (error) {
       console.error("Lỗi khi tạo link thanh toán:", error);
-      showToast("Không thể khởi tạo thanh toán. Vui lòng thử lại sau.", "error");
+      showToast(
+        "Không thể khởi tạo thanh toán. Vui lòng thử lại sau.",
+        "error"
+      );
     } finally {
       setProcessingPayment(false);
     }
@@ -629,31 +638,42 @@ const CartPage = () => {
   const handleZaloPayment = async () => {
     try {
       setProcessingPayment(true);
-      
-      // Gọi API ZaloPay thay vì MoMo
-      const response = await axios.post("http://localhost:4000/zalo/create-order", {
-        amount: selectedSubTotal,
-      });
-      
+
+      const response = await axios.post(
+        "https://onlinepay.onrender.com/zalo/create-order",
+        {
+          amount: selectedSubTotal,
+        }
+      );
+
       // Kiểm tra response từ ZaloPay dựa trên format thực tế
-      if (response.data && response.data.data && response.data.data.return_code === 1) {
+      if (
+        response.data &&
+        response.data.data &&
+        response.data.data.return_code === 1
+      ) {
         // Lưu thông tin đơn hàng vào localStorage để sử dụng sau khi thanh toán
         localStorage.setItem(
           "pendingOrder",
           JSON.stringify({
-            shippingInfoId: deliveryMethod === "DELIVERY" ? selectedAddressId : null,
+            shippingInfoId:
+              deliveryMethod === "DELIVERY" ? selectedAddressId : null,
             paymentMethod: "MOMO", // Vẫn giữ MOMO trong database
             receiveMethod: deliveryMethod,
             note: orderNote,
-            selectedProductIds: Object.keys(selectedProducts).filter(id => selectedProducts[id]),
-            zpTransToken: response.data.data.zp_trans_token // Lưu token để kiểm tra sau này
+            selectedProductIds: Object.keys(selectedProducts).filter(
+              (id) => selectedProducts[id]
+            ),
+            zpTransToken: response.data.data.zp_trans_token, // Lưu token để kiểm tra sau này
           })
         );
-        
+
         // Sử dụng order_url từ response để redirect
         window.location.href = response.data.data.order_url;
       } else {
-        const errorMessage = response.data?.data?.return_message || "Không thể khởi tạo thanh toán";
+        const errorMessage =
+          response.data?.data?.return_message ||
+          "Không thể khởi tạo thanh toán";
         throw new Error(errorMessage);
       }
     } catch (error) {
@@ -673,43 +693,44 @@ const CartPage = () => {
         navigate("/login");
         return;
       }
-      
+
       if (selectedCount === 0) {
         showToast("Vui lòng chọn ít nhất một sản phẩm để đặt hàng", "error");
         return;
       }
-      
+
       if (deliveryMethod === "DELIVERY" && !selectedAddressId) {
         showToast("Vui lòng chọn địa chỉ giao hàng", "error");
         openAddressModal();
         return;
       }
-      
+
       // Nếu là thanh toán qua VNPay
       if (paymentMethod === "BANK_TRANSFER") {
         handleVNPayPayment();
         return;
       }
-      
+
       // Nếu là thanh toán qua ZaloPay (nhưng UI hiển thị là MOMO)
       if (paymentMethod === "MOMO") {
         handleZaloPayment();
         return;
       }
-      
+
       // Các phương thức thanh toán khác (Cash)
       const selectedIds = Object.keys(selectedProducts).filter(
-        id => selectedProducts[id]
+        (id) => selectedProducts[id]
       );
-      
+
       const orderData = {
-        shippingInfoId: deliveryMethod === "DELIVERY" ? selectedAddressId : null,
+        shippingInfoId:
+          deliveryMethod === "DELIVERY" ? selectedAddressId : null,
         paymentMethod: paymentMethod,
         receiveMethod: deliveryMethod,
         note: orderNote,
         selectedProductIds: selectedIds,
       };
-      
+
       console.log("Thông tin đơn hàng:", orderData);
       const response = await axios.post(
         "https://phone-selling-app-mw21.onrender.com/api/v1/order/customer/create-from-cart",
@@ -732,7 +753,7 @@ const CartPage = () => {
       }
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
-      
+
       if (error.response && error.response.data) {
         showToast(
           `Lỗi: ${error.response.data.meta?.message || "Không thể đặt hàng"}`,
@@ -1114,7 +1135,9 @@ const CartPage = () => {
                     onChange={handleSelectAll}
                     id="select-all"
                   />
-                  <label htmlFor="select-all">Chọn tất cả ({products.length})</label>
+                  <label htmlFor="select-all">
+                    Chọn tất cả ({products.length})
+                  </label>
                 </div>
               </div>
 
@@ -1314,7 +1337,9 @@ const CartPage = () => {
                     (deliveryMethod === "DELIVERY" && !selectedAddressId)
                   }
                 >
-                  {processingPayment ? "ĐANG XỬ LÝ..." : `TIẾN HÀNH ĐẶT HÀNG (${selectedCount})`}
+                  {processingPayment
+                    ? "ĐANG XỬ LÝ..."
+                    : `TIẾN HÀNH ĐẶT HÀNG (${selectedCount})`}
                 </button>
               </>
             )}
