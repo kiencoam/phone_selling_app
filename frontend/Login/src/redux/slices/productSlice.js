@@ -96,20 +96,28 @@ export const fetchFeaturedProducts = createAsyncThunk(
 // Thunk action để lấy danh sách tất cả sản phẩm
 export const fetchAllProducts = createAsyncThunk(
   'products/fetchAllProducts',
-  async (_, { rejectWithValue }) => {
+  async (page = 1, { rejectWithValue }) => {
     try {
-      // Gọi API với tham số size=16 cho danh sách tất cả sản phẩm
+      // Gọi API với tham số size=12 cho danh sách tất cả sản phẩm
       const response = await axios.get(`${API_URL}/api/v1/product/search`, {
         params: {
-          page: 1,
-          size: 16
+          page: page,
+          size: 12
         }
       });
-      return response.data.data.content;
+      return {
+        content: response.data.data.content,
+        totalPages: response.data.data.totalPages || 10,
+        currentPage: page
+      };
     } catch (error) {
       console.error('API Error fetching all products:', error);
       // Fallback về mock data nếu API không hoạt động
-      return mockProducts;
+      return {
+        content: mockProducts.slice((page - 1) * 12, page * 12),
+        totalPages: Math.ceil(mockProducts.length / 12),
+        currentPage: page
+      };
     }
   }
 );
@@ -123,7 +131,7 @@ export const fetchPhoneProducts = createAsyncThunk(
       const response = await axios.get(`${API_URL}/api/v1/product/search`, {
         params: {
           page: 1,
-          size: 10,
+          size: 122,
           categoryId: CATEGORY_IDS.PHONE
         }
       });
@@ -132,6 +140,28 @@ export const fetchPhoneProducts = createAsyncThunk(
       console.error('API Error fetching phone products:', error);
       // Fallback về mock data điện thoại nếu API không hoạt động
       return mockProducts.filter(product => product.category === 'Điện thoại');
+    }
+  }
+);
+
+// Thunk action để lấy danh sách smartwatch
+export const fetchSmartwatchProducts = createAsyncThunk(
+  'products/fetchSmartwatchProducts',
+  async (_, { rejectWithValue }) => {
+    try {
+      // Gọi API với tham số size=12 và categoryId=8 (Smartwatch)
+      const response = await axios.get(`${API_URL}/api/v1/product/search`, {
+        params: {
+          page: 1,
+          size: 12,
+          categoryId: CATEGORY_IDS.SMARTWATCH
+        }
+      });
+      return response.data.data.content;
+    } catch (error) {
+      console.error('API Error fetching smartwatch products:', error);
+      // Fallback về mock data smartwatch nếu API không hoạt động
+      return mockProducts.filter(product => product.category === 'Đồng hồ thông minh');
     }
   }
 );
@@ -152,26 +182,37 @@ export const fetchProducts = createAsyncThunk(
   }
 );
 
-// Thunk action để lấy sản phẩm theo danh mục
+// Thunk action để lấy sản phẩm theo danh mục với phân trang
 export const fetchProductsByCategory = createAsyncThunk(
   'products/fetchProductsByCategory',
-  async (categoryId, { rejectWithValue }) => {
+  async ({ categoryId, page = 1 }, { rejectWithValue }) => {
     try {
       // Nếu không có categoryId, lấy tất cả sản phẩm
-      if (!categoryId) {
-        const response = await axios.get(`${API_URL}/api/v1/product/search`);
-        return response.data.data.content;
+      const params = {
+        page: page,
+        size: 12
+      };
+
+      if (categoryId) {
+        params.categoryId = categoryId;
       }
       
       // Lấy sản phẩm theo categoryId
-      const response = await axios.get(`${API_URL}/api/v1/product/search?categoryId=${categoryId}`);
-      return response.data.data.content;
+      const response = await axios.get(`${API_URL}/api/v1/product/search`, { params });
+      return {
+        content: response.data.data.content,
+        totalPages: response.data.data.totalPages || 10,
+        currentPage: page,
+        categoryId: categoryId || null
+      };
     } catch (error) {
       console.error('API Error:', error);
       // Fallback về dữ liệu mẫu được lọc theo category
+      let filteredProducts = mockProducts;
+      
       if (categoryId) {
         // Giả lập lọc sản phẩm theo id của danh mục
-        const filteredProducts = mockProducts.filter(product => {
+        filteredProducts = mockProducts.filter(product => {
           // Map giữa tên danh mục và id
           const categoryMap = {
             'Điện thoại': 2,
@@ -184,12 +225,24 @@ export const fetchProductsByCategory = createAsyncThunk(
           return categoryMap[product.category] === categoryId;
         });
         
-        return filteredProducts.length > 0 ? filteredProducts : mockProducts;
+        if (filteredProducts.length === 0) {
+          filteredProducts = mockProducts;
+        }
       }
-      return mockProducts;
+      
+      const startIndex = (page - 1) * 12;
+      const endIndex = startIndex + 12;
+      
+      return {
+        content: filteredProducts.slice(startIndex, endIndex),
+        totalPages: Math.ceil(filteredProducts.length / 12),
+        currentPage: page,
+        categoryId: categoryId || null
+      };
     }
   }
 );
+
 
 // Thunk action để lấy chi tiết sản phẩm từ API
 export const fetchProductById = createAsyncThunk(
@@ -292,7 +345,11 @@ const initialState = {
   errorPhones: null,
   relatedProducts: [],
   loadingRelated: false,
-  errorRelated: null
+  errorRelated: null,
+  // Thêm các trường cho phân trang
+  currentPage: 1,
+  totalPages: 1,
+  currentCategory: null
 };
 
 const productSlice = createSlice({
@@ -322,18 +379,20 @@ const productSlice = createSlice({
         state.errorFeatured = action.payload || 'Không thể tải sản phẩm nổi bật';
       })
       
-      // Xử lý fetchAllProducts
+      // Xử lý fetchAllProducts với phân trang
       .addCase(fetchAllProducts.pending, (state) => {
         state.loadingAll = true;
         state.errorAll = null;
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         state.loadingAll = false;
-        state.allProducts = action.payload;
+        state.allProducts = action.payload.content;
+        state.totalPages = action.payload.totalPages;
+        state.currentPage = action.payload.currentPage;
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.loadingAll = false;
-        state.errorAll = action.payload || 'Không thể tải tất cả sản phẩm';
+        state.errorAll = action.payload || 'Không thể tải danh sách sản phẩm';
       })
       
       // Xử lý fetchPhoneProducts
@@ -349,6 +408,20 @@ const productSlice = createSlice({
         state.loadingPhones = false;
         state.errorPhones = action.payload || 'Không thể tải sản phẩm điện thoại';
       })
+
+      // Xử lý fetchSmartwatchProducts
+      .addCase(fetchSmartwatchProducts.pending, (state) => {
+        state.loadingSmartwatch = true;
+        state.errorSmartwatch = null;
+      })
+      .addCase(fetchSmartwatchProducts.fulfilled, (state, action) => {
+        state.loadingSmartwatch = false;
+        state.smartwatchProducts = action.payload;
+      })
+      .addCase(fetchSmartwatchProducts.rejected, (state, action) => {
+        state.loadingSmartwatch = false;
+        state.errorSmartwatch = action.payload || 'Không thể tải sản phẩm smartwatch';
+      })
       
       // Giữ lại cho backward compatibility
       .addCase(fetchProducts.pending, (state) => {
@@ -361,7 +434,7 @@ const productSlice = createSlice({
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Không thể tải sản phẩm';
+        state.error = action.payload || 'Có lỗi xảy ra khi tải sản phẩm';
       })
       .addCase(fetchProductsByCategory.pending, (state) => {
         state.loading = true;

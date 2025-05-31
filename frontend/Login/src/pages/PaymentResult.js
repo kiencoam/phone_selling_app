@@ -120,11 +120,32 @@ const PaymentResult = () => {
           receiveMethod: pendingOrderData.receiveMethod,
           note: pendingOrderData.note,
           selectedProductIds: pendingOrderData.selectedProductIds,
-          transaction: {
+        };
+
+        // Thêm thông tin giao dịch tùy theo phương thức thanh toán
+        if (pendingOrderData.paymentMethod === 'ZALOPAY') {
+          orderData.transaction = {
             provider: "zalopay",
             transactionId: pendingOrderData.zpTransToken
           }
-        };
+        } else if (pendingOrderData.paymentMethod === 'VNPAY') {
+          // Lấy thông tin giao dịch từ URL callback của VNPay
+          const vnpResponseCode = queryParams.get('vnp_ResponseCode');
+          const vnpTransactionNo = queryParams.get('vnp_TransactionNo');
+          const vnpTxnRef = queryParams.get('vnp_TxnRef');
+          
+          orderData.transaction = {
+            provider: "vnpay",
+            transactionId: vnpTransactionNo || vnpTxnRef || `VNPAY-${Date.now()}`,
+            responseCode: vnpResponseCode,
+            bankCode: queryParams.get('vnp_BankCode'),
+            amount: queryParams.get('vnp_Amount'),
+            bankTranNo: queryParams.get('vnp_BankTranNo'),
+            cardType: queryParams.get('vnp_CardType'),
+            payDate: queryParams.get('vnp_PayDate'),
+            orderInfo: queryParams.get('vnp_OrderInfo')
+          };
+        }
         
         const response = await axios.post(
           "https://phone-selling-app-mw21.onrender.com/api/v1/order/customer/create-from-cart",
@@ -132,6 +153,7 @@ const PaymentResult = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
             },
           }
         );
@@ -139,9 +161,12 @@ const PaymentResult = () => {
         if (response.data && response.data.data) {
           setOrderCreated(true);
           localStorage.removeItem("pendingOrder"); // Xóa thông tin đơn hàng đã xử lý
+          return true;
         }
+        return false;
       } catch (error) {
         console.error("Lỗi khi tạo đơn hàng:", error);
+        throw error;
       }
     };
     

@@ -5,6 +5,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import "../assets/styles/loginpage.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import TawkChat from "../components/TawkChat";
 import axios from "axios";
 
 const LoginPage = () => {
@@ -139,7 +140,6 @@ const LoginPage = () => {
   if (isAlreadyLoggedIn) {
     return (
       <div className="login-page">
-        <Header />
         <div className="main-content">
           <div className="login-form">
             <h2>Bạn đã đăng nhập</h2>
@@ -237,6 +237,7 @@ const LoginPage = () => {
         </div>
       </div>
       <Footer />
+      <TawkChat/>
     </div>
   );
 };
