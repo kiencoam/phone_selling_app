@@ -15,6 +15,7 @@ const Sidebar = () => {
     { path: '/brands', icon: 'bi bi-building', label: 'Nhãn hàng' },
     { path: '/orders', icon: 'bi bi-cart-fill', label: 'Đơn hàng' },
     { path: '/promotions', icon: 'bi bi-tag-fill', label: 'Khuyến mãi' },
+    { path: '/revenue-report', icon: 'bi bi-graph-up-arrow', label: 'Báo cáo doanh thu' },
     // { path: '/customers', icon: 'bi bi-people-fill', label: 'Khách hàng' },
   ];
 
@@ -22,8 +23,7 @@ const Sidebar = () => {
     <div className="sidebar">
       <div className="sidebar-logo">
         <h2 style={{ margin: 0, color: '#000', fontWeight: 'bold' }}>
-          <span style={{ fontSize: '0.7em' }}>the</span>gioidigong
-          <span style={{ fontSize: '0.5em' }}>.com</span>
+          <span style={{ fontSize: '0.7em' }}>TechShop</span>
         </h2>
       </div>
       

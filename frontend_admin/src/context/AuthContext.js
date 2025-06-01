@@ -9,11 +9,19 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
   // Hàm để lưu thông tin user hiện tại vào localStorage
   const saveUserToLocalStorage = (user) => {
     if (user) {
       localStorage.setItem('currentUser', JSON.stringify(user));
+    }
+  };
+
+  // Hàm để lưu vai trò vào localStorage
+  const saveRoleToLocalStorage = (role) => {
+    if (role) {
+      localStorage.setItem('userRole', role);
     }
   };
 
@@ -31,6 +39,11 @@ export const AuthProvider = ({ children }) => {
     return null;
   };
 
+  // Hàm để lấy vai trò từ localStorage
+  const getRoleFromLocalStorage = () => {
+    return localStorage.getItem('userRole');
+  };
+
   // Thiết lập currentUser với function để cập nhật cả state và localStorage
   const setCurrentUserWithStorage = (user) => {
     setCurrentUser(user);
@@ -40,6 +53,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Kiểm tra token trong localStorage
     const token = localStorage.getItem('token');
+    const savedRole = getRoleFromLocalStorage();
     
     if (token) {
       try {
@@ -51,7 +65,9 @@ export const AuthProvider = ({ children }) => {
           // Token hết hạn, xóa khỏi localStorage
           localStorage.removeItem('token');
           localStorage.removeItem('currentUser');
+          localStorage.removeItem('userRole');
           setCurrentUser(null);
+          setUserRole(null);
           setLoading(false);
         } else {
           // Token còn hạn
@@ -62,17 +78,25 @@ export const AuthProvider = ({ children }) => {
             // Nếu có user trong localStorage, sử dụng nó
             console.log('Using saved user from localStorage:', savedUser);
             setCurrentUser(savedUser);
+            
+            // Đặt vai trò nếu có
+            if (savedRole) {
+              setUserRole(savedRole);
+            }
+            
             setLoading(false);
           } else {
             // Nếu không có, gọi API để lấy thông tin
-            fetchUserInfo();
+            fetchPersonalInfo();
           }
         }
       } catch (error) {
         console.error('Invalid token:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('userRole');
         setCurrentUser(null);
+        setUserRole(null);
         setLoading(false);
       }
     } else {
@@ -100,26 +124,67 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  
+  // Hàm lấy thông tin cá nhân từ API
+  const fetchPersonalInfo = async () => {
+    try {
+      console.log('[AUTH CONTEXT] Đang lấy thông tin cá nhân từ API');
+      const response = await authService.getPersonalInfo();
+      
+      if (response && response.success && response.data) {
+        console.log('[AUTH CONTEXT] Lấy thông tin cá nhân thành công:', response.data);
+        setCurrentUserWithStorage(response.data);
+      } else {
+        console.error('[AUTH CONTEXT] API trả về lỗi hoặc định dạng không đúng:', response);
+        return fetchUserInfo(); // Fallback to old method
+      }
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('[AUTH CONTEXT] Lỗi khi lấy thông tin cá nhân:', error);
+      // Fallback to old method
+      return fetchUserInfo();
+    }
+  };
 
   // Hàm đăng nhập
-  const login = async (email, password) => {
+  const login = async (email, password, role = 'STAFF') => {
     try {
       setError(null);
-      console.log('login', email, password);
-      // Thực hiện login call
-      const response = await authService.login(email, password);
-      console.log('response', response);
+      console.log(`[${role === 'ADMIN' ? 'ADMIN' : 'STAFF'} LOGIN] Đang đăng nhập với email:`, email);
+      
+      // Thực hiện login call dựa trên vai trò
+      let response;
+      if (role === 'ADMIN') {
+        response = await authService.loginAdmin(email, password);
+      } else {
+        response = await authService.login(email, password);
+      }
+      
+      console.log('Login response:', response);
+      
       // Kiểm tra response
       if (response && response.data && response.data.token) {
         // Lưu token vào localStorage
         localStorage.setItem('token', response.data.token);
         
+        // Lưu vai trò người dùng
+        if (response.data.role) {
+          setUserRole(response.data.role);
+          saveRoleToLocalStorage(response.data.role);
+        }
+        
         // Đặt currentUser mặc định để kích hoạt chuyển hướng ngay lập tức
         const defaultUser = {
           id: 1,
           email,
-          fullName: "Nhân viên TGDĐ",
-          isActive: true
+          fullName: role === 'ADMIN' ? "Quản trị viên TGDĐ" : "Nhân viên TGDĐ",
+          isActive: true,
+          role: {
+            id: role === 'ADMIN' ? 1 : 2,
+            code: role,
+            name: role === 'ADMIN' ? "Quản trị viên" : "Nhân viên"
+          }
         };
         setCurrentUserWithStorage(defaultUser);
         
@@ -130,7 +195,7 @@ export const AuthProvider = ({ children }) => {
         return false;
       }
     } catch (error) {
-      console.error('Login error: 22222', error);
+      console.error(`[${role} LOGIN ERROR]`, error);
       // Xử lý lỗi từ API
       if (error.response && error.response.data) {
         setError(error.response.data.message || "Đăng nhập thất bại");
@@ -145,7 +210,19 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('userRole');
     setCurrentUser(null);
+    setUserRole(null);
+  };
+
+  // Kiểm tra xem người dùng có phải là admin không
+  const isAdmin = () => {
+    return userRole === 'ADMIN';
+  };
+
+  // Kiểm tra xem người dùng có phải là staff không
+  const isStaff = () => {
+    return userRole === 'STAFF';
   };
 
   // Cập nhật thông tin người dùng (đổi tên)
@@ -157,10 +234,10 @@ export const AuthProvider = ({ children }) => {
       const result = await authService.updateProfile(fullName);
       console.log('[AUTH CONTEXT] Kết quả API cập nhật tên:', result);
       
-      if (result.success) {
+      if (result.success && result.data) {
         // Cập nhật thông tin người dùng trong state
         setCurrentUser(prev => {
-          const updatedUser = { ...prev, fullName };
+          const updatedUser = { ...result.data };
           console.log('[AUTH CONTEXT] Cập nhật state currentUser thành:', updatedUser);
           
           // Lưu thông tin người dùng vào localStorage
@@ -220,7 +297,23 @@ export const AuthProvider = ({ children }) => {
       const result = await authService.updatePassword(oldPassword, newPassword);
       console.log('[AUTH CONTEXT] Kết quả API cập nhật mật khẩu:', result);
       
-      if (result.success) {
+      if (result.success && result.data) {
+        // Cập nhật thông tin người dùng trong state nếu cần
+        if (result.data && Object.keys(result.data).length > 0) {
+          setCurrentUser(prev => {
+            const updatedUser = { ...result.data };
+            
+            // Lưu thông tin người dùng vào localStorage
+            try {
+              localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            } catch (err) {
+              console.error('[AUTH CONTEXT] Lỗi khi lưu thông tin người dùng vào localStorage:', err);
+            }
+            
+            return updatedUser;
+          });
+        }
+        
         return { success: true };
       } else {
         console.error('[AUTH CONTEXT] API trả về lỗi:', result);
@@ -252,7 +345,10 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateProfile,
-    updatePassword
+    updatePassword,
+    userRole,
+    isAdmin,
+    isStaff
   };
 
   return (

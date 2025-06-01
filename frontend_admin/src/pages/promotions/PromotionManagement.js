@@ -173,7 +173,11 @@ const PromotionManagement = () => {
   const handleShowEditModal = async (id) => {
     try {
       setLoading(true);
-      const promotionData = await promotionService.getPromotionById(id);
+      console.log('[PROMOTION MANAGEMENT] Đang lấy thông tin khuyến mãi ID:', id);
+      
+      const response = await promotionService.getPromotionById(id);
+      const promotionData = response.data || response; // Kiểm tra cả hai cấu trúc phản hồi API
+      
       console.log('[PROMOTION MANAGEMENT] Chi tiết khuyến mãi:', promotionData);
       
       // Đảm bảo đã có dữ liệu danh mục
@@ -182,15 +186,26 @@ const PromotionManagement = () => {
       }
       
       // Đảm bảo có ID và chuyển đổi sang đúng kiểu dữ liệu
-      const promotionId = promotionData.id ? parseInt(promotionData.id) : null;
+      const promotionId = promotionData.id ? parseInt(promotionData.id) : id;
+      
+      // Chuyển đổi ngày từ chuỗi ISO sang đối tượng Date
+      let startDate = null;
+      if (promotionData.startDate) {
+        startDate = new Date(promotionData.startDate);
+      }
+      
+      let endDate = null;
+      if (promotionData.endDate) {
+        endDate = new Date(promotionData.endDate);
+      }
       
       setCurrentPromotion({
         id: promotionId,
         name: promotionData.name || '',
         description: promotionData.description || '',
         value: promotionData.value || 0,
-        startDate: promotionData.startDate ? new Date(promotionData.startDate) : null,
-        endDate: promotionData.endDate ? new Date(promotionData.endDate) : null,
+        startDate: startDate,
+        endDate: endDate,
         categoryId: promotionData.categoryId ? parseInt(promotionData.categoryId) : ''
       });
       
@@ -198,15 +213,15 @@ const PromotionManagement = () => {
         id: promotionId,
         name: promotionData.name || '',
         value: promotionData.value || 0,
-        startDate: promotionData.startDate ? new Date(promotionData.startDate) : null,
-        endDate: promotionData.endDate ? new Date(promotionData.endDate) : null,
-        categoryId: promotionData.categoryId ? parseInt(promotionData.categoryId) : ''
+        startDate: startDate,
+        endDate: endDate,
+        categoryId: promotionData.categoryId
       });
       
       setEditMode(true);
       setShowAddEditModal(true);
     } catch (error) {
-      console.error('Lỗi khi lấy thông tin khuyến mãi:', error);
+      console.error('[PROMOTION MANAGEMENT] Lỗi khi lấy thông tin khuyến mãi:', error);
       setError('Không thể lấy thông tin khuyến mãi. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
@@ -246,9 +261,8 @@ const PromotionManagement = () => {
       }
       
       if (isNaN(parseFloat(currentPromotion.value)) || 
-          parseFloat(currentPromotion.value) <= 0 || 
-          parseFloat(currentPromotion.value) > 100) {
-        setError("Phần trăm giảm giá phải là số dương và không vượt quá 100%");
+          parseFloat(currentPromotion.value) <= 0) {
+        setError("Số tiền giảm giá phải là số dương");
         return;
       }
       
@@ -273,7 +287,6 @@ const PromotionManagement = () => {
       
       // Chuẩn bị dữ liệu theo yêu cầu API
       const promotionData = {
-        id: editMode ? parseInt(currentPromotion.id) : null,
         name: currentPromotion.name.trim(),
         value: parseFloat(currentPromotion.value),
         startDate: currentPromotion.startDate ? currentPromotion.startDate.toISOString() : null,
@@ -281,7 +294,12 @@ const PromotionManagement = () => {
         categoryId: parseInt(currentPromotion.categoryId)
       };
 
-      console.log('Dữ liệu khuyến mãi gửi đi:', promotionData);
+      // Đảm bảo gắn ID khi ở chế độ chỉnh sửa
+      if (editMode) {
+        promotionData.id = parseInt(currentPromotion.id);
+      }
+
+      console.log('[PROMOTION MANAGEMENT] Dữ liệu khuyến mãi gửi đi:', promotionData);
 
       if (editMode) {
         if (!promotionData.id) {
@@ -295,7 +313,7 @@ const PromotionManagement = () => {
       handleCloseModal();
       fetchPromotions();
     } catch (error) {
-      console.error('Lỗi khi lưu khuyến mãi:', error);
+      console.error('[PROMOTION MANAGEMENT] Lỗi khi lưu khuyến mãi:', error);
       if (error.response && error.response.data && error.response.data.message) {
         setError(`Lỗi: ${error.response.data.message}`);
       } else if (error.message) {
@@ -490,7 +508,7 @@ const PromotionManagement = () => {
                       <tr>
                         <th>ID</th>
                         <th>Tên khuyến mãi</th>
-                        <th>Phần trăm giảm giá</th>
+                        <th>Số tiền giảm (VND)</th>
                         <th>Ngày bắt đầu</th>
                         <th>Ngày kết thúc</th>
                         <th>Danh mục</th>
@@ -503,7 +521,7 @@ const PromotionManagement = () => {
                           <tr key={promotion.id}>
                             <td>{promotion.id}</td>
                             <td>{promotion.name}</td>
-                            <td>{promotion.value || promotion.discountPercent}%</td>
+                            <td>{(promotion.value || promotion.discountPercent).toLocaleString()} VND</td>
                             <td>
                               {promotion.startDate
                                 ? new Date(promotion.startDate).toLocaleDateString('vi-VN')
@@ -563,6 +581,14 @@ const PromotionManagement = () => {
           <Modal.Title>{editMode ? 'Sửa khuyến mãi' : 'Thêm khuyến mãi mới'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {error && <Alert variant="danger">{error}</Alert>}
+          
+          {loading ? (
+            <div className="text-center py-4">
+              <Spinner animation="border" variant="primary" />
+              <p>Đang tải thông tin...</p>
+            </div>
+          ) : (
           <Form>
             {editMode && (
               <Form.Group className="mb-3">
@@ -604,15 +630,14 @@ const PromotionManagement = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Phần trăm giảm giá (%)</Form.Label>
+              <Form.Label>Số tiền giảm (VND)</Form.Label>
               <Form.Control
                 type="number"
                 name="value"
                 value={currentPromotion.value}
                 onChange={handleInputChange}
-                placeholder="Nhập phần trăm giảm giá"
+                placeholder="Nhập số tiền giảm giá"
                 min="0"
-                max="100"
                 required
               />
             </Form.Group>
@@ -670,6 +695,7 @@ const PromotionManagement = () => {
               </Form.Select>
             </Form.Group>
           </Form>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
@@ -724,4 +750,4 @@ const PromotionManagement = () => {
   );
 };
 
-export default PromotionManagement; 
+export default PromotionManagement;
