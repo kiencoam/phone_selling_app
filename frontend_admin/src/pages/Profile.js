@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Button, Alert, Tabs, Tab } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, Tabs, Tab, Spinner } from 'react-bootstrap';
 import useAuth from '../hooks/useAuth';
+import { authService } from '../services/api';
 
 const Profile = () => {
   const { currentUser, updateProfile, updatePassword } = useAuth();
   const [activeTab, setActiveTab] = useState('info');
+  
+  // State cho thông tin cá nhân
+  const [personalInfo, setPersonalInfo] = useState(null);
+  const [loadingPersonalInfo, setLoadingPersonalInfo] = useState(false);
   
   // State cho form thông tin cá nhân
   const [fullName, setFullName] = useState(currentUser?.fullName || '');
@@ -18,11 +23,33 @@ const Profile = () => {
   const [updatePasswordLoading, setUpdatePasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
 
-  // Cập nhật fullName khi currentUser thay đổi
+  // Lấy thông tin cá nhân khi component mount
   useEffect(() => {
-    if (currentUser?.fullName) {
-      setFullName(currentUser.fullName);
-    }
+    const fetchPersonalInfo = async () => {
+      try {
+        setLoadingPersonalInfo(true);
+        const response = await authService.getPersonalInfo();
+        
+        if (response && response.success && response.data) {
+          setPersonalInfo(response.data);
+          setFullName(response.data.fullName || '');
+        } else {
+          console.error('API trả về lỗi:', response);
+          // Sử dụng thông tin từ currentUser nếu không lấy được từ API
+          setPersonalInfo(currentUser);
+          setFullName(currentUser?.fullName || '');
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy thông tin cá nhân:', error);
+        // Sử dụng thông tin từ currentUser nếu có lỗi
+        setPersonalInfo(currentUser);
+        setFullName(currentUser?.fullName || '');
+      } finally {
+        setLoadingPersonalInfo(false);
+      }
+    };
+
+    fetchPersonalInfo();
   }, [currentUser]);
 
   // Xử lý cập nhật thông tin cá nhân
@@ -44,12 +71,23 @@ const Profile = () => {
       
       if (result.success) {
         setInfoMessage({ type: 'success', text: 'Cập nhật thông tin thành công' });
+        
+        // Không cần gọi lại API vì updateProfile đã cập nhật currentUser
+        if (result.data) {
+          setPersonalInfo(result.data);
+        } else {
+          // Nếu không có data, gọi lại API để lấy thông tin mới nhất
+          const response = await authService.getPersonalInfo();
+          if (response && response.success && response.data) {
+            setPersonalInfo(response.data);
+          }
+        }
       } else {
-        setInfoMessage({ type: 'danger', text: result.message });
+        setInfoMessage({ type: 'danger', text: result.message || 'Không thể cập nhật thông tin' });
       }
     } catch (error) {
       console.error('Profile update error in component:', error);
-      setInfoMessage({ type: 'danger', text: 'Đã xảy ra lỗi khi cập nhật thông tin' });
+      setInfoMessage({ type: 'danger', text: error.message || 'Đã xảy ra lỗi khi cập nhật thông tin' });
     } finally {
       setUpdateInfoLoading(false);
     }
@@ -96,10 +134,16 @@ const Profile = () => {
       
       if (result.success) {
         setPasswordMessage({ type: 'success', text: 'Đổi mật khẩu thành công' });
+        
         // Reset form
         setOldPassword('');
         setNewPassword('');
         setConfirmPassword('');
+        
+        // Nếu có thông tin người dùng mới từ API, cập nhật lại state
+        if (result.data) {
+          setPersonalInfo(result.data);
+        }
       } else {
         setPasswordMessage({ type: 'danger', text: result.message || 'Không thể đổi mật khẩu' });
       }
@@ -107,26 +151,40 @@ const Profile = () => {
       console.error('Password update error in component:', error);
       
       // Hiển thị thông báo lỗi chi tiết hơn
-      if (error.response && error.response.status === 400) {
-        setPasswordMessage({ 
-          type: 'danger', 
-          text: 'Mật khẩu không hợp lệ. Có thể mật khẩu cũ không chính xác hoặc mật khẩu mới không đáp ứng yêu cầu.' 
-        });
-      } else {
-        setPasswordMessage({ 
-          type: 'danger', 
-          text: error.message || 'Đã xảy ra lỗi khi đổi mật khẩu'
-        });
+      let errorMessage = 'Đã xảy ra lỗi khi đổi mật khẩu';
+      
+      if (error.response) {
+        if (error.response.status === 400) {
+          errorMessage = 'Mật khẩu không hợp lệ. Có thể mật khẩu cũ không chính xác hoặc mật khẩu mới không đáp ứng yêu cầu.';
+        } else if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
       }
+      
+        setPasswordMessage({ 
+          type: 'danger', 
+        text: errorMessage
+        });
     } finally {
       setUpdatePasswordLoading(false);
     }
   };
 
+  // Dùng thông tin từ personalInfo nếu có, nếu không dùng currentUser
+  const userInfo = personalInfo || currentUser || {};
+
   return (
     <Container>
       <h2 className="mb-4">Tài khoản của tôi</h2>
       
+      {loadingPersonalInfo ? (
+        <div className="text-center my-5">
+          <Spinner animation="border" variant="primary" />
+          <p className="mt-3">Đang tải thông tin cá nhân...</p>
+        </div>
+      ) : (
       <Row>
         <Col lg={4} className="mb-4">
           <Card>
@@ -141,12 +199,21 @@ const Profile = () => {
                   fontSize: '2rem'
                 }}
               >
-                {currentUser?.fullName?.charAt(0).toUpperCase() || 'U'}
+                  {userInfo?.fullName?.charAt(0).toUpperCase() || 'U'}
               </div>
-              <h5>{currentUser?.fullName || 'Người dùng'}</h5>
-              <p className="text-muted mb-0">{currentUser?.email || 'email@example.com'}</p>
+                <h5>{userInfo?.fullName || 'Người dùng'}</h5>
+                <p className="text-muted mb-0">{userInfo?.email || 'email@example.com'}</p>
+                <p className="text-muted mb-0">
+                  {userInfo?.role?.name || (userInfo?.role === 'ADMIN' ? 'Quản trị viên' : 'Nhân viên')}
+                </p>
+                {userInfo?.phoneNumber && (
+                  <p className="text-muted mb-0">SĐT: {userInfo.phoneNumber}</p>
+                )}
               <p className="text-muted mb-0">
-                {currentUser?.role?.name || 'Nhân viên'}
+                  Trạng thái: {userInfo?.isActive ? 
+                    <span className="text-success">Đang hoạt động</span> : 
+                    <span className="text-danger">Bị khóa</span>
+                  }
               </p>
             </Card.Body>
           </Card>
@@ -179,7 +246,7 @@ const Profile = () => {
                       <Form.Label>Email</Form.Label>
                       <Form.Control
                         type="email"
-                        value={currentUser?.email || ''}
+                          value={userInfo?.email || ''}
                         disabled
                         aria-describedby="emailHelpText"
                       />
@@ -187,6 +254,26 @@ const Profile = () => {
                         Email không thể thay đổi
                       </Form.Text>
                     </Form.Group>
+                      
+                      <Form.Group className="mb-3" controlId="profileRole">
+                        <Form.Label>Vai trò</Form.Label>
+                        <Form.Control
+                          type="text"
+                          value={userInfo?.role?.name || (userInfo?.role === 'ADMIN' ? 'Quản trị viên' : 'Nhân viên')}
+                          disabled
+                        />
+                      </Form.Group>
+                      
+                      {userInfo?.phoneNumber && (
+                        <Form.Group className="mb-3" controlId="profilePhone">
+                          <Form.Label>Số điện thoại</Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={userInfo.phoneNumber}
+                            disabled
+                          />
+                        </Form.Group>
+                      )}
                     
                     <Form.Group className="mb-4" controlId="profileFullName">
                       <Form.Label>Họ và tên</Form.Label>
@@ -199,13 +286,13 @@ const Profile = () => {
                       />
                     </Form.Group>
                     
-                    <Button 
+                    {/* <Button 
                       type="submit" 
                       className="btn-primary-tgdd"
                       disabled={updateInfoLoading}
                     >
                       {updateInfoLoading ? 'Đang xử lý...' : 'Cập nhật thông tin'}
-                    </Button>
+                    </Button> */}
                   </Form>
                 </>
               )}
@@ -241,7 +328,7 @@ const Profile = () => {
                         aria-describedby="passwordHelpText"
                       />
                       <Form.Text id="passwordHelpText" className="text-muted">
-                        Mật khẩu phải có ít nhất 4 ký tự
+                          Mật khẩu phải có ít nhất 8 ký tự
                       </Form.Text>
                     </Form.Group>
                     
@@ -270,6 +357,7 @@ const Profile = () => {
           </Card>
         </Col>
       </Row>
+      )}
     </Container>
   );
 };

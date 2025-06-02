@@ -144,9 +144,15 @@ export const promotionService = {
         }
       }
 
+      // Đảm bảo ID là số nguyên
+      const promotionId = parseInt(promotionData.id);
+      if (isNaN(promotionId)) {
+        throw new Error('ID khuyến mãi không hợp lệ');
+      }
+
       // Tạo payload đúng định dạng API
       const payload = {
-        id: parseInt(promotionData.id),
+        id: promotionId, // Đảm bảo ID luôn là số nguyên
         name: promotionData.name,
         value: parseFloat(promotionData.value),
         startDate,

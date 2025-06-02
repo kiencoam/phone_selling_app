@@ -295,6 +295,22 @@ const OrderManagement = () => {
           setStatusUpdateLoading(true);
           
           console.log('[ORDER MANAGEMENT] Đang xác nhận đơn hàng có ID:', orderId);
+          
+          // Kiểm tra đơn hàng hiện tại
+          const currentOrder = selectedOrder;
+          if (!currentOrder) {
+            console.error('[ORDER MANAGEMENT] Không tìm thấy thông tin đơn hàng');
+            showNotification('danger', 'Không tìm thấy thông tin đơn hàng');
+            return;
+          }
+          
+          // Kiểm tra trạng thái hiện tại
+          if (currentOrder.status !== 'PENDING') {
+            console.error('[ORDER MANAGEMENT] Trạng thái không hợp lệ để xác nhận đơn hàng:', currentOrder.status);
+            showNotification('danger', 'Chỉ có thể xác nhận đơn hàng đang ở trạng thái chờ xử lý');
+            return;
+          }
+          
           await orderService.confirmOrder(orderId);
           
           // Cập nhật lại trạng thái đơn hàng trên giao diện
@@ -330,6 +346,28 @@ const OrderManagement = () => {
           setStatusUpdateLoading(true);
           
           console.log('[ORDER MANAGEMENT] Đang xác nhận đơn hàng đã nhận, ID:', orderId);
+          
+          // Kiểm tra đơn hàng hiện tại trước khi gọi API
+          const currentOrder = selectedOrder;
+          if (!currentOrder) {
+            console.error('[ORDER MANAGEMENT] Không tìm thấy thông tin đơn hàng');
+            showNotification('danger', 'Không tìm thấy thông tin đơn hàng');
+            return;
+          }
+          
+          // Kiểm tra trạng thái và phương thức nhận hàng
+          if (currentOrder.receiveMethod === 'PICKUP' && currentOrder.status !== 'CONFIRMED') {
+            console.error('[ORDER MANAGEMENT] Trạng thái không hợp lệ cho đơn hàng PICKUP:', currentOrder.status);
+            showNotification('danger', 'Đơn hàng pickup chỉ có thể chuyển sang trạng thái đã nhận khi đang ở trạng thái đã xác nhận');
+            return;
+          }
+          
+          if (currentOrder.receiveMethod === 'DELIVERY' && currentOrder.status !== 'DELIVERING') {
+            console.error('[ORDER MANAGEMENT] Trạng thái không hợp lệ cho đơn hàng DELIVERY:', currentOrder.status);
+            showNotification('danger', 'Đơn hàng delivery chỉ có thể chuyển sang trạng thái đã nhận khi đang ở trạng thái đang giao hàng');
+            return;
+          }
+          
           await orderService.receiveOrder(orderId);
           
           // Cập nhật lại trạng thái đơn hàng trên giao diện
@@ -365,6 +403,29 @@ const OrderManagement = () => {
           setStatusUpdateLoading(true);
           
           console.log('[ORDER MANAGEMENT] Đang chuyển đơn hàng sang giao hàng, ID:', orderId);
+          
+          // Kiểm tra đơn hàng hiện tại
+          const currentOrder = selectedOrder;
+          if (!currentOrder) {
+            console.error('[ORDER MANAGEMENT] Không tìm thấy thông tin đơn hàng');
+            showNotification('danger', 'Không tìm thấy thông tin đơn hàng');
+            return;
+          }
+          
+          // Kiểm tra phương thức nhận hàng
+          if (currentOrder.receiveMethod === 'PICKUP') {
+            console.error('[ORDER MANAGEMENT] Không thể chuyển đơn hàng PICKUP sang trạng thái giao hàng');
+            showNotification('danger', 'Đơn hàng nhận tại cửa hàng không thể chuyển sang trạng thái giao hàng');
+            return;
+          }
+          
+          // Kiểm tra trạng thái hiện tại
+          if (currentOrder.status !== 'CONFIRMED') {
+            console.error('[ORDER MANAGEMENT] Trạng thái không hợp lệ để chuyển sang giao hàng:', currentOrder.status);
+            showNotification('danger', 'Chỉ có thể chuyển đơn hàng từ trạng thái đã xác nhận sang giao hàng');
+            return;
+          }
+          
           await orderService.deliverOrder(orderId);
           
           // Cập nhật lại trạng thái đơn hàng trên giao diện
@@ -400,6 +461,22 @@ const OrderManagement = () => {
           setStatusUpdateLoading(true);
           
           console.log('[ORDER MANAGEMENT] Đang hủy đơn hàng có ID:', orderId);
+          
+          // Kiểm tra đơn hàng hiện tại
+          const currentOrder = selectedOrder;
+          if (!currentOrder) {
+            console.error('[ORDER MANAGEMENT] Không tìm thấy thông tin đơn hàng');
+            showNotification('danger', 'Không tìm thấy thông tin đơn hàng');
+            return;
+          }
+          
+          // Kiểm tra trạng thái hiện tại
+          if (currentOrder.status === 'RECEIVED' || currentOrder.status === 'CANCELED') {
+            console.error('[ORDER MANAGEMENT] Không thể hủy đơn hàng ở trạng thái:', currentOrder.status);
+            showNotification('danger', 'Không thể hủy đơn hàng đã nhận hoặc đã hủy');
+            return;
+          }
+          
           await orderService.cancelOrder(orderId);
           
           // Cập nhật lại trạng thái đơn hàng trên giao diện
@@ -703,6 +780,7 @@ const OrderManagement = () => {
                   </Button>
                 )}
                 
+                {/* Chỉ hiển thị nút giao hàng khi đơn là DELIVERY */}
                 {selectedOrder.status === 'CONFIRMED' && selectedOrder.receiveMethod === 'DELIVERY' && (
                   <Button 
                     variant="primary" 
@@ -715,8 +793,9 @@ const OrderManagement = () => {
                   </Button>
                 )}
                 
-                {(selectedOrder.status === 'CONFIRMED' && selectedOrder.receiveMethod === 'PICKUP') || 
-                 (selectedOrder.status === 'DELIVERING') && (
+                {/* Hiển thị nút Xác nhận đã nhận hàng cho PICKUP ở trạng thái CONFIRMED hoặc DELIVERY ở trạng thái DELIVERING */}
+                {((selectedOrder.status === 'CONFIRMED' && selectedOrder.receiveMethod === 'PICKUP') || 
+                  (selectedOrder.status === 'DELIVERING' && selectedOrder.receiveMethod === 'DELIVERY')) && (
                   <Button 
                     variant="success" 
                     className="me-2"

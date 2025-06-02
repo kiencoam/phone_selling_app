@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "phone_selling_app",
+			"path": "."
+		}
+	],
+	"settings": {
+		"java.compile.nullAnalysis.mode": "automatic"
+	}
+}
